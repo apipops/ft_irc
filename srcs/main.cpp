@@ -29,7 +29,7 @@ int main(int ac, char **av)
 	// Bind socket ti IP / port
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
-	hint.sin_port = htons(port);
+	hint.sin_port = htons(port); // verifier valeur du port ?
 	hint.sin_addr.s_addr = inet_addr("127.0.0.1");
 	if (bind(listening, (sockaddr*)(&hint), sizeof(hint)) == -1)
 		return (errorMsg("Can't bind socket"));
@@ -41,23 +41,14 @@ int main(int ac, char **av)
 	// Accept a call and close listening socket
 	sockaddr_in client;
 	socklen_t clientLen = sizeof(client);
-	char host[NI_MAXHOST];
-	char svc[NI_MAXSERV];
+	// char host[NI_MAXHOST];
+	// char svc[NI_MAXSERV];
 	int clientSocket = accept(listening, (sockaddr*)(&client), &clientLen);
 	if (clientSocket == -1)
 		return (errorMsg("Problem with client connecting"));
 	close(listening);
-
-	// Register host and service info
-	memset(host, 0, NI_MAXHOST);
-	memset(svc, 0, NI_MAXSERV);
-	int result = getnameinfo((sockaddr*)(&client), sizeof(client), host, NI_MAXHOST, svc, NI_MAXSERV, 0);
-	if (result)
-		std::cout << host << " connected on " << svc << std::endl;
-	else {
-		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-		std::cout << host << " connected on " << ntohs(client.sin_port) << std::endl;
-	}
+	// Port du cient est different du port d'ecoute
+	std::cout << "Client " << inet_ntoa(client.sin_addr) << " connected on " << ntohs(client.sin_port) << std::endl;
 
 	// Display message and resend message
 	char buf[4096];

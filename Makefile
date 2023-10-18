@@ -2,14 +2,18 @@
 NAME		= irc
 
 #### SOURCES
+SRC_PATH 	= srcs/
 SRCS 		+= main.cpp
+
+vpath %.cpp $(SRC_PATH)
 
 #### OBJECTS
 PATH_OBJS	= objs/
 OBJS		= $(patsubst %.cpp, $(PATH_OBJS)/%.o, $(SRCS))
 
 #### HEADERS
-INCLUDES	+=  
+INCLUDEs 	+= includes/
+
 
 #### COMPILATION
 COMP = c++
