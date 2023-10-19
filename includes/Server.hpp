@@ -11,6 +11,9 @@
 
 using namespace TCP_IPv4;
 
+typedef std::map<std::string, User> MapUser;
+typedef std::map<std::string, Channel> MapChannel;
+
 class Server 
 {
 public:
@@ -28,14 +31,14 @@ public:
 	void addChannel(std::string name, std::string topic);
 
 	// TEST UTILS
-	std::map<std::string, Channel> getChannels();
-	std::map<std::string, User> getUsers();
-	void showUsers();
-	void showChannels();
+	MapChannel getChannels() const;
+	MapUser getUsers() const;
+	void showUsers() const;
+	void showChannels() const;
 
 private:
-	std::map<std::string, Channel> m_channels;
-	std::map<std::string, User> m_users;
+	MapChannel m_channels;
+	MapUser m_users;
 };
 
 #endif

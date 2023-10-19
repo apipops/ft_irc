@@ -11,9 +11,9 @@ int main(void)
 	Server server;
 	ASocket* socket = NULL;
 
-	server.createUser("mark", "mark", socket);
-	server.createUser("john", "john", socket);
-	server.createUser("bella", "bella", socket);
+	server.addUser("mark", "mark", socket);
+	server.addUser("john", "john", socket);
+	server.addUser("bella", "bella", socket);
 
 	server.showUsers();
 	return 0;

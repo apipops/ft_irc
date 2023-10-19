@@ -40,29 +40,29 @@ void Server::addChannel(std::string name, std::string topic)
 
 /*********** TEST UTILS ************/
 
-std::map<std::string, Channel> Server::getChannels()
+MapChannel Server::getChannels() const
 {
 	return m_channels;
 }
 
-std::map<std::string, User> Server::getUsers()
+MapUser Server::getUsers() const
 {
 	return m_users;
 }
 
 
-void Server::showUsers()
+void Server::showUsers() const
 {
-	std::map<std::string, User>::iterator it = m_users.begin();
+	MapUser::const_iterator it = m_users.begin();
 	for (; it != m_users.end(); ++it)
 		std::cout << "User: " << it->first << std::endl;
 }
 
 
 
-void Server::showChannels()
+void Server::showChannels() const
 {
-	std::map<std::string, Channel>::iterator it = m_channels.begin();
+	MapChannel::const_iterator it = m_channels.begin();
 	for (; it != m_channels.end(); it++)
 		std::cout << "Channel: " << it->first << std::endl;
 }
