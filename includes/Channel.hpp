@@ -16,6 +16,7 @@
 
 using namespace TCP_IPv4;
 class User;
+typedef std::map<std::string, User> mapUser;
 
 class Channel 
 {
@@ -28,7 +29,10 @@ public:
 	Channel & operator=(const Channel & src);
 	~Channel();
 
-	// faire les operations sur le channel
+	// Parsing
+	static void checkChanFormat(std::string name);
+	static void checkTopicFormat(std::string topic);
+	static void checkPwdFormat(std::string pwd);
 
 	// Exception
 	class ChannelError : public Error {
@@ -43,8 +47,8 @@ private:
 	std::string m_pwd;
 
 	// Users and operators, map <nickname, User>
-	std::map<std::string, User> m_users;
-	std::map<std::string, User> m_ops;
+	mapUser m_users;
+	mapUser m_ops;
 
 	// Mode
 	bool m_invitMode;

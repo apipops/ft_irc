@@ -12,14 +12,14 @@
 # include <string>
 # include <map>
 # include <algorithm>
+# include <exception>
 # include "Channel.hpp"
 # include "params.hpp"
 # include "../raph/TCP_IPv4"
 
 using namespace TCP_IPv4;
 class Channel;
-
-
+typedef std::map<std::string, Channel> mapChannel;
 
 class User
 {
@@ -48,8 +48,8 @@ private:
 	bool		m_servOps;
 
 	// Channels joined, map <name, Channel>
-	std::map<std::string, Channel>	m_allChan;
-	std::map<std::string, Channel>	m_opsChan;
+	mapChannel	m_allChan;
+	mapChannel	m_opsChan;
 
 };
 

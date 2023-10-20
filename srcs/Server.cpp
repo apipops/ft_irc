@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-#include <algorithm>
 
 /*********** CONSTRUCTORS & DESTRUCTORS ************/
 
@@ -24,28 +23,75 @@ Server::~Server()
 {
 }
 
-/*********** USERS & CHANNELS ************/
+/***************** PARSING ****************/
+
+// Check if nickname "nick" already exists
+void Server::checkUserDup(std::string nick)
+{
+	if (m_users.find(nick) != m_users.end())
+		throw User::UserError("Nickname \'" + nick + "\' already exists");
+}
+
+// Check if channel "channel" already exists
+void Server::checkChanDup(std::string channel)
+{
+	if (m_channels.find(channel) != m_channels.end())
+		throw Channel::ChannelError("Channel \'" + channel + "\' already exists");
+}
+
+/************ USERS & CHANNELS ************/
 
 void Server::addUser(std::string nick, std::string username, ASocket* socket)
 {
-	User user(nick, username, socket);
-	m_users.insert(std::pair<std::string, User>(nick, user));
+	try {
+		checkUserDup(nick);
+		User::checkFormat("Nickname", nick);
+		User::checkFormat("Username", username);
+		User user(nick, username, socket);
+		m_users.insert(std::pair<std::string, User>(nick, user));
+	} 
+	catch (User::UserError & e) {
+		std::cout << e.what() << std::endl;
+	}
 }
 
 void Server::addChannel(std::string name, std::string topic)
 {
-	Channel channel(name, topic);
-	m_channels.insert(std::pair<std::string, Channel>(name, channel));
+	try {
+		checkChanDup(name);
+		Channel::checkChanFormat(name);
+		Channel::checkTopicFormat(topic);
+		Channel channel(name, topic);
+		m_channels.insert(std::pair<std::string, Channel>(name, channel));
+	}
+	catch (Channel::ChannelError & e) {
+		std::cout << e.what() << std::endl;
+	}
 }
 
-/*********** TEST UTILS ************/
+void Server::addChannel(std::string name, std::string topic, std::string pwd)
+{
+	try {
+		checkChanDup(name);
+		Channel::checkChanFormat(name);
+		Channel::checkTopicFormat(topic);
+		Channel::checkPwdFormat(pwd);
+		Channel channel(name, topic, pwd);
+		m_channels.insert(std::pair<std::string, Channel>(name, channel));
+	}
+	catch (Channel::ChannelError & e) {
+		std::cout << e.what() << std::endl;
+	}
+}
 
-MapChannel Server::getChannels() const
+/************ UTILS FOR TESTS ************/
+
+mapChannel Server::getChannels() const
 {
 	return m_channels;
 }
 
-MapUser Server::getUsers() const
+mapUser Server::getUsers() const
 {
 	return m_users;
 }
@@ -53,7 +99,7 @@ MapUser Server::getUsers() const
 
 void Server::showUsers() const
 {
-	MapUser::const_iterator it = m_users.begin();
+	mapUser::const_iterator it = m_users.begin();
 	for (; it != m_users.end(); ++it)
 		std::cout << "User: " << it->first << std::endl;
 }
@@ -62,7 +108,7 @@ void Server::showUsers() const
 
 void Server::showChannels() const
 {
-	MapChannel::const_iterator it = m_channels.begin();
+	mapChannel::const_iterator it = m_channels.begin();
 	for (; it != m_channels.end(); it++)
 		std::cout << "Channel: " << it->first << std::endl;
 }

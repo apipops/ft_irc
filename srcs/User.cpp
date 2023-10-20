@@ -38,16 +38,16 @@ User::~User()
 
 /************************ PARSING ************************/
 
-// Check if "name" (type: "Nickname" or "Username") matches policy
-void checkFormat(std::string type, std::string name)
+// Check if "Nickname"/"Username" (defined by type) "name" matches policy name
+void User::checkFormat(std::string type, std::string name)
 {
-	if (name.length() < MINCHAR)
-		throw User::UserError(type + " is too short");
-	if (name.length() > MAXCHAR)
-		throw User::UserError(type + " is too long");
+	if (name.length() < USER_MINCHAR)
+		throw User::UserError(type + "\'" + name +"\' is too short");
+	if (name.length() > USER_MAXCHAR)
+		throw User::UserError(type + "\'" + name +"\' is too long");
 	for(int i = 0; name[i]; i++) {
 		if (!isalnum(name[i]) && name[i] != '-' && name[i] != '_')
-			throw User::UserError(type + " has invalid character(s)");
+			throw User::UserError(type + "\'" + name +"\' has invalid character(s)");
 	}
 	if (!isalpha(name[0]))
 		throw User::UserError(type + " must start with a letter");

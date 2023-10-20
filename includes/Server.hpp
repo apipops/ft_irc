@@ -11,34 +11,39 @@
 
 using namespace TCP_IPv4;
 
-typedef std::map<std::string, User> MapUser;
-typedef std::map<std::string, Channel> MapChannel;
+typedef std::map<std::string, User> mapUser;
+typedef std::map<std::string, Channel> mapChannel;
+
+class Channel;
+class User;
 
 class Server 
 {
 public:
+	// Constructors and destructors
 	Server();
 	Server(const Server & src);
 	Server & operator=(const Server & src);
 	virtual ~Server();
 
-	// PARSING
-	// void checkUserFormat(std::string type, std::string str);
-	// void checkUserDup(std::string nick, std::string user);
+	// Parsing
+	void checkUserDup(std::string nick);
+	void checkChanDup(std::string channel);
 
-	// USERS & CHANNELS
+	// Users & Channels
 	void addUser(std::string nick, std::string user, ASocket* socket);
 	void addChannel(std::string name, std::string topic);
+	void addChannel(std::string name, std::string topic, std::string pwd);
 
-	// TEST UTILS
-	MapChannel getChannels() const;
-	MapUser getUsers() const;
+	// Utils for test
+	mapChannel getChannels() const;
+	mapUser getUsers() const;
 	void showUsers() const;
 	void showChannels() const;
 
 private:
-	MapChannel m_channels;
-	MapUser m_users;
+	mapChannel	m_channels;
+	mapUser 	m_users;
 };
 
 #endif
