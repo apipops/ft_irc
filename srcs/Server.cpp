@@ -51,7 +51,7 @@ void Server::addUser(std::string nick, std::string username, ASocket* socket)
 		m_users.insert(std::pair<std::string, User>(nick, user));
 	} 
 	catch (User::UserError & e) {
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
 
@@ -65,7 +65,7 @@ void Server::addChannel(std::string name, std::string topic)
 		m_channels.insert(std::pair<std::string, Channel>(name, channel));
 	}
 	catch (Channel::ChannelError & e) {
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
 
@@ -80,7 +80,7 @@ void Server::addChannel(std::string name, std::string topic, std::string pwd)
 		m_channels.insert(std::pair<std::string, Channel>(name, channel));
 	}
 	catch (Channel::ChannelError & e) {
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
 

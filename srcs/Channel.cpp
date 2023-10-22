@@ -83,6 +83,29 @@ void Channel::checkPwdFormat(std::string pwd)
 		throw Channel::ChannelError("Password is too long");
 }
 
+/************************ SETTERS ************************/
+
+void Channel::addUser(User user)
+{
+	// verifier si le user existe deja ?
+	m_users[user.getNick()] = user;
+}
+
+void Channel::removeUser(std::string nick)
+{
+	m_users.erase(nick);
+}
+
+void Channel::addOps(User ops)
+{
+	m_ops[ops.getNick()] = ops;
+}
+
+void Channel::removeOps(std::string nick)
+{
+	m_ops.erase(nick);
+}
+
 /********************** EXCEPTIONS ***********************/
 
 Channel::ChannelError::ChannelError(std::string what): Error(what)

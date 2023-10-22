@@ -29,10 +29,19 @@ public:
 	Channel & operator=(const Channel & src);
 	~Channel();
 
+	friend class User;
+
 	// Parsing
 	static void checkChanFormat(std::string name);
 	static void checkTopicFormat(std::string topic);
 	static void checkPwdFormat(std::string pwd);
+
+	// Setters
+	void addUser(User user);
+	void removeUser(std::string nick);
+	void addOps(User ops);
+	void removeOps(std::string nick);
+
 
 	// Exception
 	class ChannelError : public Error {
