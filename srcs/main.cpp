@@ -19,18 +19,19 @@ int main(void)
 	server.showMapUsers();
 	server.showVecUsers();
 
-/* 	server.addChannel("#1", "random");
+ 	server.addChannel("#1", "random");
 	server.addChannel("#2", "random");
-	server.addChannel("#3", "random");
-	server.addChannel("#4", "random", "pwd");
+	server.addChannel("#3", "random", "pwd");
 
 	server.showMapChannels();
-	server.showVecChannels(); */
+	server.showVecChannels(); 
 
 	std::cout << std::endl;
 	server.fonctionTest();
 	server.showMapUsers();
-	server.showVecUsers();
+	//server.showVecUsers();
+	server.showChannelsOfUser("mark");
+	// server.showUsersOfChannel("#1");
 
 
 	return 0;

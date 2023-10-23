@@ -91,20 +91,30 @@ void Channel::checkPwdFormat(std::string pwd)
 // 	m_users[user.m_nick] = user;
 // }
 
-// void Channel::removeUser(std::string nick)
-// {
-// 	m_users.erase(nick);
-// }
+void Channel::removeUser(std::string nick)
+{
+	std::vector<User*>::iterator it = m_users.begin();
+	
+	while (it != m_users.end() && (*it)->m_nick != nick)
+		it++;
+	if (it != m_users.end())
+		m_users.erase(it);
+}
 
 // void Channel::addOps(User & ops)
 // {
 // 	m_ops[ops.m_nick] = ops;
 // }
 
-// void Channel::removeOps(std::string nick)
-// {
-// 	m_ops.erase(nick);
-// }
+void Channel::removeOps(std::string nick)
+{
+	std::vector<User*>::iterator it = m_ops.begin();
+	
+	while (it != m_ops.end() && (*it)->m_nick != nick)
+		it++;
+	if (it != m_ops.end())
+		m_ops.erase(it);
+}
 
 /********************** EXCEPTIONS ***********************/
 

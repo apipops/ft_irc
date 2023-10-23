@@ -55,9 +55,9 @@ private:
 	std::string m_topic;
 	std::string m_pwd;
 
-	// Users and operators, map <nickname, User>
-	mapUser m_users;
-	mapUser m_ops;
+	// Users and operators
+	std::vector<User*> m_users;
+	std::vector<User*> m_ops;
 
 	// Mode
 	bool m_invitMode;

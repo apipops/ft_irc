@@ -155,13 +155,56 @@ void	IRCServer::nickCmd(User* user, std::string newNick)
 	m_mapUser[newNick] = user;
 }
 
-	
-	// void	userCmd(std::string newUser);
+// Replace username by 'newUser'
+void	IRCServer::userCmd(User* user, std::string newUser)
+{
+	checkUserFormat("Username", newUser); // Check duplicates ?
+	user->m_user = newUser;
+
+}
 	// Channel createCmd(std::string name, std::string topic); // sans pwd
 	// Channel createCmd(std::string name, std::string topic, std::string pwd); // avec pwd
-	// void	joinCmd(Channel & channel); // sans pwd
-	// void	joinCmd(Channel & channel, std::string pwd); // avec pwd
-	// void	partCmd(Channel & channel);
+
+void	IRCServer::joinCmd(User* user, std::string name)
+{
+	Channel *channel = m_mapChan[name];
+	// if (m_mapChan.find(channel) == m_mapChan.end())
+	// 	ajouter creer le channel
+	if (!channel->m_pwd.empty())
+		throw CmdError("Access denied to channel \'" + name + "\'. Password required.");
+	if (channel->m_invitMode)
+		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
+	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
+		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
+	channel->m_users.push_back(user);
+	user->m_allChan[name] = channel;
+}
+
+void	IRCServer::joinCmd(User* user, std::string name, std::string pwd)
+{
+	Channel *channel = m_mapChan[name];
+	// if (m_mapChan.find(channel) == m_mapChan.end())
+	// 	ajouter creer le channel
+	if (pwd != channel->m_pwd)
+		throw CmdError("Access denied to channel \'" + name + "\'. Incorrect password.");
+	if (channel->m_invitMode)
+		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
+	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
+		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
+	channel->m_users.push_back(user);
+	user->m_allChan[name] = channel;
+}
+
+void	IRCServer::partCmd(User* user, std::string name)
+{
+	if (m_mapChan.find(name) == m_mapChan.end())
+		throw CmdError("Channel '" + name + "' does not exist.");
+
+	m_mapChan[name]->removeUser(user->m_nick);
+	m_mapChan[name]->removeOps(user->m_nick);
+	user->m_allChan.erase(name);
+	user->m_opsChan.erase(name);
+}
 
 	// // Operator commands
 	// void 	kickCmd();
@@ -170,20 +213,30 @@ void	IRCServer::nickCmd(User* user, std::string newNick)
 	// void 	modeCmd();
 
 
-void IRCServer::fonctionTest()
-{
-	try {
-		nickCmd(m_mapUser["bella"], "karl");
-	}
-	catch (CmdError & e) {
-		std::cerr << e.what() << std::endl;
-	}
-}
 
 /************** OPERATOR COMMANDS ***************/
 
 
 /*************** UTILS FOR TESTS ***************/
+
+void IRCServer::fonctionTest()
+{
+	try {
+
+		
+		nickCmd(m_mapUser["bella"], "karl");
+
+		// joinCmd(m_mapUser["mark"], "#1");
+		// joinCmd(m_mapUser["mark"], "#3", "pwd");
+		// joinCmd(m_mapUser["karl"], "#1");
+
+		// showChannelsOfUser("mark");
+		// showUsersOfChannel("#1");
+	}
+	catch (CmdError & e) {
+		std::cerr << e.what() << std::endl;
+	}
+}
 
 mapChannel IRCServer::getChannels() const
 {
@@ -227,6 +280,31 @@ void IRCServer::showVecChannels() const
 	std::vector<Channel>::const_iterator it = m_channels.begin();
 	for (; it != m_channels.end(); ++it)
 		std::cout << " Channel: " << it->m_name << std::endl;
+}
+
+void IRCServer::showChannelsOfUser(std::string nick) const
+{
+	User *user = m_mapUser.at(nick);
+	std::cout << (long int)user << std::endl;
+	
+	// TEST
+	// mapChannel::const_iterator it = user->m_allChan.begin();
+	// (void)it;
+	//std::cout << "Channels of user " << nick << ":" << std::endl;
+	// for (; it != user->m_allChan.end(); ++it)
+	// 	std::cout << it->first << std::endl;
+
+}
+
+void IRCServer::showUsersOfChannel(std::string channel) const
+{
+	Channel *chan = m_mapChan.at(channel);
+	
+	std::vector<User *>::const_iterator it = chan->m_users.begin();
+	std::cout << "Users of channel " << channel << ":" << std::endl;
+	for (; it != chan->m_users.end(); ++it)
+		std::cout << (*it)->m_nick << std::endl;
+
 }
 
 /************** EXCEPTION ***************/

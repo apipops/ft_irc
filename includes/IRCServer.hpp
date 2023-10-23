@@ -31,13 +31,15 @@ public:
 	void showMapChannels() const;
 	void showVecUsers() const;
 	void showVecChannels() const;
+	void showChannelsOfUser(std::string nick) const;
+	void showUsersOfChannel(std::string channel) const;
 
 private:
 	// Vectors for user and channel storage
 	std::vector<User>		m_users;
 	std::vector<Channel>	m_channels;
 
-	// Maps for easy find channel/user
+	// Maps for easy find - link a pointer on user/channel
 	mapChannel	m_mapChan;
 	mapUser 	m_mapUser;
 
@@ -50,13 +52,16 @@ private:
 	void checkPwdFormat(std::string pwd);
 
 	// Basic commands
-	void	nickCmd(User * user, std::string newNick);
-	void	userCmd(std::string newUser);
-	Channel createCmd(std::string name, std::string topic); // sans pwd
-	Channel createCmd(std::string name, std::string topic, std::string pwd); // avec pwd
-	void	joinCmd(Channel & channel); // sans pwd
-	void	joinCmd(Channel & channel, std::string pwd); // avec pwd
-	void	partCmd(Channel & channel);
+	void	nickCmd(User* user, std::string newNick);
+	void	userCmd(User* user, std::string newUser);
+	void	joinCmd(User* user, std::string name);
+	void	joinCmd(User* user, std::string name, std::string pwd);
+	void	partCmd(User* user, std::string name);
+
+	// Channel createCmd(std::string name, std::string topic); // sans pwd
+	// Channel createCmd(std::string name, std::string topic, std::string pwd); // avec pwd
+	// void	joinCmd(Channel & channel, std::string pwd); // avec pwd
+	// void	partCmd(Channel & channel);
 
 	// Operator commands
 	void 	kickCmd();
