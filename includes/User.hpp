@@ -18,8 +18,6 @@
 # include "../raph/TCP_IPv4"
 
 using namespace TCP_IPv4;
-class Channel;
-typedef std::map<std::string, Channel> mapChannel;
 
 class User
 {
@@ -32,6 +30,7 @@ public:
 	~User();
 
 	friend class Channel;
+	friend class IRCServer;
 
 	// Parsing
 	static void	checkFormat(std::string type, std::string name);
@@ -44,8 +43,8 @@ public:
 	void	userCmd(std::string newUser);
 	Channel createCmd(std::string name, std::string topic); // sans pwd
 	Channel createCmd(std::string name, std::string topic, std::string pwd); // avec pwd
-	void	joinCmd(Channel & channel);
-	void	joinCmd(Channel & channel, std::string pwd);
+	void	joinCmd(Channel & channel); // sans pwd
+	void	joinCmd(Channel & channel, std::string pwd); // avec pwd
 	void	partCmd(Channel & channel);
 
 	// Operator commands

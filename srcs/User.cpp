@@ -62,7 +62,7 @@ const std::string & User::getNick() const
 
 /********************* BASIC COMMANDS *********************/
 
-// Replace nickname by 'newNick'
+/* // Replace nickname by 'newNick'
 void	User::nickCmd(std::string newNick)
 {
 	if (newNick == m_nick)
@@ -114,7 +114,7 @@ void	User::joinCmd(Channel & channel)
 		throw UserError("Access denied to channel \'" + channel.m_name + "\'. Password required.");
 	if (channel.m_invitMode)
 		throw UserError("Access denied to channel \'" + channel.m_name + "\'. Invitation only.");
-	if (channel.m_maxUsers == channel.m_users.size())
+	if (channel.m_maxUsers == static_cast<int>(channel.m_users.size()))
 		throw UserError("Access denied to channel \'" + channel.m_name + "\'. Maximum numbers of users reached.");
 	channel.addUser(*this);
 	m_allChan[channel.m_name] = channel;
@@ -127,7 +127,7 @@ void	User::joinCmd(Channel & channel, std::string pwd)
 		throw UserError("Access denied to channel \'" + channel.m_name + "\'. Incorrect password.");
 	if (channel.m_invitMode)
 		throw UserError("Access denied to channel \'" + channel.m_name + "\'. Invitation only.");	
-	if (channel.m_maxUsers == channel.m_users.size())
+	if (channel.m_maxUsers == static_cast<int>(channel.m_users.size()))
 		throw UserError("Access denied to channel \'" + channel.m_name + "\'. Maximum numbers of users reached.");	
 	channel.addUser(*this);
 	m_allChan[channel.m_name] = channel;
@@ -141,7 +141,7 @@ void	User::partCmd(Channel & channel)
 	m_allChan.erase(channel.m_name);
 	m_opsChan.erase(channel.m_name);
 	// si on est le dernier : renvoyer un valeur pour supprimer channel ?
-}
+} */
 
 
 /********************** EXCEPTIONS ***********************/

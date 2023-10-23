@@ -1,14 +1,24 @@
-#ifndef PARAM_HPP
-#define PARAM_HPP
+#ifndef PARAMS_HPP
+#define PARAMS_HPP
 
-// Generic
-#define NONE -1
+# include <map>
+# include <vector>
+# include <algorithm>
+# include <iostream>
+# include <string>
+
+// Typedef
+class User;
+class Channel;
+typedef std::map<std::string, User* > mapUser;
+typedef std::map<std::string, Channel* > mapChannel;
 
 // Username policy
 #define USER_MINCHAR 1
 #define USER_MAXCHAR 32
 
 // Channel policy
+#define NONE -1
 #define CHAN_MINCHAR 2
 #define CHAN_MAXCHAR 200
 #define TOPIC_MAXCHAR 1000

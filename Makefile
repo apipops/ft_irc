@@ -6,7 +6,7 @@ SRC_PATH 	= srcs/
 SRCS 		+= main.cpp
 SRCS 		+= User.cpp
 SRCS 		+= Channel.cpp
-SRCS 		+= Server.cpp
+SRCS 		+= IRCServer.cpp
 
 vpath %.cpp $(SRC_PATH)
 
@@ -18,7 +18,7 @@ OBJS		= $(patsubst %.cpp, $(PATH_OBJS)/%.o, $(SRCS))
 INCLUDES 	+= includes/params.hpp
 INCLUDES 	+= includes/Channel.hpp
 INCLUDES 	+= includes/User.hpp
-INCLUDES 	+= includes/Server.hpp
+INCLUDES 	+= includes/IRCServer.hpp
 
 
 #### COMPILATION

@@ -12,11 +12,10 @@
 # include <map>
 # include <algorithm>
 # include "User.hpp"
+# include "params.hpp"
 # include "../raph/TCP_IPv4"
 
 using namespace TCP_IPv4;
-class User;
-typedef std::map<std::string, User> mapUser;
 
 class Channel 
 {
@@ -30,6 +29,7 @@ public:
 	~Channel();
 
 	friend class User;
+	friend class IRCServer;
 
 	// Parsing
 	static void checkChanFormat(std::string name);
@@ -37,9 +37,9 @@ public:
 	static void checkPwdFormat(std::string pwd);
 
 	// Setters
-	void addUser(User user);
+	void addUser(User & user);
 	void removeUser(std::string nick);
-	void addOps(User ops);
+	void addOps(User & ops);
 	void removeOps(std::string nick);
 
 

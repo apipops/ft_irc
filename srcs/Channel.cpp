@@ -85,26 +85,26 @@ void Channel::checkPwdFormat(std::string pwd)
 
 /************************ SETTERS ************************/
 
-void Channel::addUser(User user)
-{
-	// verifier si le user existe deja ?
-	m_users[user.getNick()] = user;
-}
+// void Channel::addUser(User & user)
+// {
+// 	// verifier si le user existe deja ?
+// 	m_users[user.m_nick] = user;
+// }
 
-void Channel::removeUser(std::string nick)
-{
-	m_users.erase(nick);
-}
+// void Channel::removeUser(std::string nick)
+// {
+// 	m_users.erase(nick);
+// }
 
-void Channel::addOps(User ops)
-{
-	m_ops[ops.getNick()] = ops;
-}
+// void Channel::addOps(User & ops)
+// {
+// 	m_ops[ops.m_nick] = ops;
+// }
 
-void Channel::removeOps(std::string nick)
-{
-	m_ops.erase(nick);
-}
+// void Channel::removeOps(std::string nick)
+// {
+// 	m_ops.erase(nick);
+// }
 
 /********************** EXCEPTIONS ***********************/
 
