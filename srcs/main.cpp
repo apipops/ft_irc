@@ -10,27 +10,24 @@ using namespace TCP_IPv4;
 int main(void)
 {
 	IRCServer server;
-	ASocket *socket = NULL;
-
-	server.addUser("mark", "mark", socket);
-	server.addUser("john", "john", socket);
-	server.addUser("bella", "bella", socket);
+	// server.addUser("mark", "mark", socket);
+	// server.addUser("john", "john", socket);
+	// server.addUser("bella", "bella", socket);
 	
-	server.showMapUsers();
-	server.showVecUsers();
+	// server.showMapUsers();
+	// server.showVecUsers();
 
- 	server.addChannel("#1", "random");
-	server.addChannel("#2", "random");
-	server.addChannel("#3", "random", "pwd");
+ 	// server.addChannel("#1", "random");
+	// server.addChannel("#2", "random");
+	// server.addChannel("#3", "random", "pwd");
 
-	server.showMapChannels();
-	server.showVecChannels(); 
+	// server.showMapChannels();
+	// server.showVecChannels(); 
 
-	std::cout << std::endl;
 	server.fonctionTest();
-	server.showMapUsers();
+	//server.showMapUsers();
 	//server.showVecUsers();
-	server.showChannelsOfUser("mark");
+	//server.showChannelsOfUser("mark");
 	// server.showUsersOfChannel("#1");
 
 

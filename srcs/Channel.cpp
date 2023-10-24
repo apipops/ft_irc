@@ -46,50 +46,7 @@ Channel::~Channel()
 {
 }
 
-/************************ PARSING ************************/
-
-// Check if channel "name" matches policy
-void Channel::checkChanFormat(std::string name)
-{
-	if (name.length() < CHAN_MINCHAR)
-		throw Channel::ChannelError("Channel name \'" + name +"\' is too short");
-	if (name.length() > CHAN_MAXCHAR)
-		throw Channel::ChannelError("Channel name \'" + name +"\' is too long");
-	if (name[0] != '#')
-		throw Channel::ChannelError("Channel name must start with character \'#\'");
-	for(int i = 0; name[i]; i++) {
-		if (!isprint(name[i]) || name[i] == ' ' || name[i] == ',' || name[i] == ':')
-			throw User::UserError("Chanel name \'" + name +"\' has invalid character(s)");
-	}
-}
-
-// Check if topic description format matches the policy
-void Channel::checkTopicFormat(std::string topic)
-{
-	if (topic.length() > TOPIC_MAXCHAR)
-		throw Channel::ChannelError("Topic description is too long");
-	for(int i = 0; topic[i]; i++) {
-		if (!isprint(topic[i]))
-			throw User::UserError("Topic description has invalid character(s)");
-	}
- }
-
-// Check if password format matches the policy
-void Channel::checkPwdFormat(std::string pwd)
-{
-	if (pwd.length() < PWD_MINCHAR)
-		throw Channel::ChannelError("Password is too short");
-	if (pwd.length() > PWD_MAXCHAR)
-		throw Channel::ChannelError("Password is too long");
-}
-
 /************************ SETTERS ************************/
-
-// void Channel::addUser(User & user)
-// {
-// 	// verifier si le user existe deja ?
-// 	m_users[user.m_nick] = user;
-// }
 
 void Channel::removeUser(std::string nick)
 {
@@ -100,11 +57,6 @@ void Channel::removeUser(std::string nick)
 	if (it != m_users.end())
 		m_users.erase(it);
 }
-
-// void Channel::addOps(User & ops)
-// {
-// 	m_ops[ops.m_nick] = ops;
-// }
 
 void Channel::removeOps(std::string nick)
 {

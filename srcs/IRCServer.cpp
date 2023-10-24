@@ -107,7 +107,7 @@ void IRCServer::addUser(std::string nick, std::string username, ASocket* socket)
 	// Adding to vector and map
 	User user(nick, username, socket);
 	m_users.push_back(user);
-	m_mapUser[nick] = &(m_users.back());
+	m_mapUser[nick] = &m_users[m_users.size() -1];
 }
 
 // Add a channel to IRC server - without password
@@ -115,8 +115,8 @@ void IRCServer::addChannel(std::string name, std::string topic)
 {
 	// Parsing
 	checkChanDup(name);
-	Channel::checkChanFormat(name);
-	Channel::checkTopicFormat(topic);
+	checkChanFormat(name);
+	checkTopicFormat(topic);
 
 	// Adding to vector and map
 	Channel channel(name, topic);
@@ -129,9 +129,9 @@ void IRCServer::addChannel(std::string name, std::string topic, std::string pwd)
 {
 	// Parsing
 	checkChanDup(name);
-	Channel::checkChanFormat(name);
-	Channel::checkTopicFormat(topic);
-	Channel::checkPwdFormat(pwd);
+	checkChanFormat(name);
+	checkTopicFormat(topic);
+	checkPwdFormat(pwd);
 
 	// Adding to vector and map
 	Channel channel(name, topic, pwd);
@@ -206,16 +206,12 @@ void	IRCServer::partCmd(User* user, std::string name)
 	user->m_opsChan.erase(name);
 }
 
-	// // Operator commands
+/************** OPERATOR COMMANDS ***************/
+
 	// void 	kickCmd();
 	// void 	inviteCmd();
 	// void 	topicCmd();
 	// void 	modeCmd();
-
-
-
-/************** OPERATOR COMMANDS ***************/
-
 
 /*************** UTILS FOR TESTS ***************/
 
@@ -223,17 +219,40 @@ void IRCServer::fonctionTest()
 {
 	try {
 
-		
-		nickCmd(m_mapUser["bella"], "karl");
+		ASocket *socket = NULL;
 
-		// joinCmd(m_mapUser["mark"], "#1");
+		addUser("mark", "mark", socket);
+		// addUser("john", "john", socket);
+		// addUser("bella", "bella", socket);
+		
+		showMapUsers();
+		showVecUsers();
+
+		User *user = m_mapUser.at("mark");
+		std::cout << user << std::endl;
+		std::cout << &m_users[0] << std::endl;
+
+		// nickCmd(m_mapUser["bella"], "karl");
+
+		// showMapUsers();
+		// showVecUsers();
+
+		// addChannel("#1", "random");
+		// addChannel("#2", "random");
+		// addChannel("#3", "random", "pwd");
+
+		// showMapChannels();
+		// showVecChannels(); 
+
+		//std::cout << m_mapUser.at("mark") << std::endl;
+		//joinCmd(m_mapUser["mark"], "#1");
 		// joinCmd(m_mapUser["mark"], "#3", "pwd");
-		// joinCmd(m_mapUser["karl"], "#1");
+		//joinCmd(m_mapUser["karl"], "#1");
 
 		// showChannelsOfUser("mark");
 		// showUsersOfChannel("#1");
 	}
-	catch (CmdError & e) {
+	catch (std::exception & e) {
 		std::cerr << e.what() << std::endl;
 	}
 }
