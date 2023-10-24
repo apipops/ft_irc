@@ -222,35 +222,42 @@ void IRCServer::fonctionTest()
 		ASocket *socket = NULL;
 
 		addUser("mark", "mark", socket);
-		// addUser("john", "john", socket);
-		// addUser("bella", "bella", socket);
+		addUser("sam", "sam", socket);
+		addUser("john", "john", socket);
+		addUser("bella", "bella", socket);
 		
 		showMapUsers();
-		showVecUsers();
+		//showVecUsers();
 
-		User *user = m_mapUser.at("mark");
-		std::cout << user << std::endl;
-		std::cout << &m_users[0] << std::endl;
+		// User *user = m_mapUser.at("mark");
+		// std::cout << user << std::endl;
+		// std::cout << &m_users[0] << std::endl;
 
-		// nickCmd(m_mapUser["bella"], "karl");
+		nickCmd(m_mapUser["bella"], "anne");
 
-		// showMapUsers();
-		// showVecUsers();
+		showMapUsers();
+		//showVecUsers();
 
-		// addChannel("#1", "random");
-		// addChannel("#2", "random");
-		// addChannel("#3", "random", "pwd");
+		addChannel("#1", "random");
+		addChannel("#2", "random");
+		addChannel("#3", "random", "pwd");
 
-		// showMapChannels();
+		showMapChannels();
 		// showVecChannels(); 
 
-		//std::cout << m_mapUser.at("mark") << std::endl;
-		//joinCmd(m_mapUser["mark"], "#1");
-		// joinCmd(m_mapUser["mark"], "#3", "pwd");
-		//joinCmd(m_mapUser["karl"], "#1");
+		joinCmd(m_mapUser["mark"], "#1");
+		joinCmd(m_mapUser["mark"], "#3", "pwd");
+		joinCmd(m_mapUser["sam"], "#1");
 
-		// showChannelsOfUser("mark");
-		// showUsersOfChannel("#1");
+		showChannelsOfUser("mark");
+		showUsersOfChannel("#1");
+
+		// tester les changements de noms
+
+		partCmd(m_mapUser["mark"], "#1");
+		showChannelsOfUser("mark");
+		showUsersOfChannel("#1");
+
 	}
 	catch (std::exception & e) {
 		std::cerr << e.what() << std::endl;
@@ -269,7 +276,7 @@ mapUser IRCServer::getUsers() const
 
 void IRCServer::showMapUsers() const
 {
-	std::cout << "[MAP] All users:" << std::endl;
+	std::cout << "[USERS - MAP]:" << std::endl;
 	mapUser::const_iterator it = m_mapUser.begin();
 	for (; it != m_mapUser.end(); ++it)
 		std::cout << " User: " << it->first << std::endl;
@@ -278,7 +285,7 @@ void IRCServer::showMapUsers() const
 
 void IRCServer::showMapChannels() const
 {
-	std::cout << "[MAP] All channels:" << std::endl;
+	std::cout << "[CHANNELS - MAP]:" << std::endl;
 	mapChannel::const_iterator it = m_mapChan.begin();
 	for (; it != m_mapChan.end(); it++)
 		std::cout << " Channel: " << it->first << std::endl;
@@ -286,8 +293,8 @@ void IRCServer::showMapChannels() const
 
 void IRCServer::showVecUsers() const
 {
-	std::cout << "[VEC] All users:" << std::endl;
-	std::vector<User>::const_iterator	it = m_users.begin();
+	std::cout << "[USERS - VECTOR]:" << std::endl;
+	std::deque<User>::const_iterator	it = m_users.begin();
 	for (; it != m_users.end(); ++it)
 		std::cout << " User: " << it->m_nick << std::endl;
 }
@@ -295,8 +302,8 @@ void IRCServer::showVecUsers() const
 
 void IRCServer::showVecChannels() const
 {
-	std::cout << "[VEC] All channels:" << std::endl;
-	std::vector<Channel>::const_iterator it = m_channels.begin();
+	std::cout << "[CHANNELS - VECTOR]:" << std::endl;
+	std::deque<Channel>::const_iterator it = m_channels.begin();
 	for (; it != m_channels.end(); ++it)
 		std::cout << " Channel: " << it->m_name << std::endl;
 }
@@ -304,14 +311,11 @@ void IRCServer::showVecChannels() const
 void IRCServer::showChannelsOfUser(std::string nick) const
 {
 	User *user = m_mapUser.at(nick);
-	std::cout << (long int)user << std::endl;
 	
-	// TEST
-	// mapChannel::const_iterator it = user->m_allChan.begin();
-	// (void)it;
-	//std::cout << "Channels of user " << nick << ":" << std::endl;
-	// for (; it != user->m_allChan.end(); ++it)
-	// 	std::cout << it->first << std::endl;
+	mapChannel::const_iterator it = user->m_allChan.begin();
+	std::cout << "[" << nick << "'s CHANNELS]: " << std::endl;
+	for (; it != user->m_allChan.end(); ++it)
+		std::cout << " " <<it->first << std::endl;
 
 }
 
@@ -319,10 +323,10 @@ void IRCServer::showUsersOfChannel(std::string channel) const
 {
 	Channel *chan = m_mapChan.at(channel);
 	
-	std::vector<User *>::const_iterator it = chan->m_users.begin();
-	std::cout << "Users of channel " << channel << ":" << std::endl;
+	std::deque<User *>::const_iterator it = chan->m_users.begin();
+	std::cout << "[" << channel << " USERS]:" << std::endl;
 	for (; it != chan->m_users.end(); ++it)
-		std::cout << (*it)->m_nick << std::endl;
+		std::cout << " " << (*it)->m_nick << std::endl;
 
 }
 

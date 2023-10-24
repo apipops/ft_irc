@@ -10,28 +10,8 @@ using namespace TCP_IPv4;
 int main(void)
 {
 	IRCServer server;
-	// server.addUser("mark", "mark", socket);
-	// server.addUser("john", "john", socket);
-	// server.addUser("bella", "bella", socket);
-	
-	// server.showMapUsers();
-	// server.showVecUsers();
 
- 	// server.addChannel("#1", "random");
-	// server.addChannel("#2", "random");
-	// server.addChannel("#3", "random", "pwd");
-
-	// server.showMapChannels();
-	// server.showVecChannels(); 
-
-	server.fonctionTest();
-	//server.showMapUsers();
-	//server.showVecUsers();
-	//server.showChannelsOfUser("mark");
-	// server.showUsersOfChannel("#1");
-
+	server.fonctionTest(); // tester les commandes basiques
 
 	return 0;
-
-
 }

@@ -36,8 +36,8 @@ public:
 
 private:
 	// Vectors for user and channel storage
-	std::vector<User>		m_users;
-	std::vector<Channel>	m_channels;
+	std::deque<User>		m_users;
+	std::deque<Channel>		m_channels;
 
 	// Maps for easy find - link a pointer on user/channel
 	mapChannel	m_mapChan;

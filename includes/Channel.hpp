@@ -49,8 +49,8 @@ private:
 	std::string m_pwd;
 
 	// Users and operators
-	std::vector<User*> m_users;
-	std::vector<User*> m_ops;
+	std::deque<User*> m_users;
+	std::deque<User*> m_ops;
 
 	// Mode
 	bool m_invitMode;

@@ -21,7 +21,7 @@ INCLUDES 	+= includes/User.hpp
 INCLUDES 	+= includes/IRCServer.hpp
 
 #### LIB RAPH
-PATH_RAPH	+= ./raph
+PATH_RAPH	+= raph
 
 #### COMPILATION
 COMP = c++
@@ -34,13 +34,13 @@ BLUE = \033[1;94m
 PURPLE = \033[1;95m
 GREEN = \033[1;92m
 YELLOW = \033[1;93m
-RED=\033[0;31m
+RED=\033[1;31m
 
 #### RULES
-all: $(NAME)
+all: raph $(NAME)
 
 
-$(NAME): raph $(OBJS) $(INCLUDES) Makefile
+$(NAME): $(OBJS) $(INCLUDES) Makefile
 	@$(COMP) $(FLAGS) $(OBJS) -o $(NAME) ./raph/TCP_IPv4.a
 	@printf "$(YELLOW)------Compilation executed------\n\n"
 
@@ -64,4 +64,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY : all clean fclean re
+.PHONY : all clean fclean re raph
