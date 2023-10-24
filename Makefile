@@ -1,58 +1,57 @@
-#### NAME
-NAME		= irc
+#------------------------------------#
+#               Project              #
+#------------------------------------#
+TARGET		=	ft_irc
+PROJDIR		=	$(realpath $(CURDIR))
+SRCDIR		=	$(PROJDIR)/srcs
+INCDIR		=	$(PROJDIR)/includes
+OBJDIR		=	$(PROJDIR)/objs
+DEPDIR		=	$(PROJDIR)/.deps
 
-#### SOURCES
-SRC_PATH 	= srcs/
-SRCS 		+= main.cpp
-SRCS 		+= User.cpp
-SRCS 		+= Channel.cpp
-SRCS 		+= IRCServer.cpp
+#------------------------------------#
+#               Compiler             #
+#------------------------------------#
+CC			=	c++
+CFLAGS		=	-Wall -Wextra -Werror -std=c++98
+INCLUDE		=	-I $(INCDIR) -I $(PROJDIR)/raph
 
-vpath %.cpp $(SRC_PATH)
+#------------------------------------#
+#                Files               #
+#------------------------------------#
+SRCS		=	$(shell find $(SRCDIR) -type f -name '*'.cpp)
+OBJS		=	$(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SRCS:.cpp=.o))
+DEPS		=	$(patsubst $(SRCDIR)/%,$(DEPDIR)/%,$(SRCS:.cpp=.d))
+LIB			=	$(PROJDIR)/raph/TCP_IPv4.a
 
-#### OBJECTS
-PATH_OBJS	= objs/
-OBJS		= $(patsubst %.cpp, $(PATH_OBJS)/%.o, $(SRCS))
+#------------------------------------#
+#                Rules               #
+#------------------------------------#
+all : $(TARGET)
 
-#### HEADERS
-INCLUDES 	+= includes/params.hpp
-INCLUDES 	+= includes/Channel.hpp
-INCLUDES 	+= includes/User.hpp
-INCLUDES 	+= includes/IRCServer.hpp
+$(TARGET) : $(LIB) $(OBJS)
+	@$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@ $(LIB)
+	@echo Linking $@
 
+$(LIB) :
+	@make verbose -C ./raph
 
-#### COMPILATION
-COMP = c++
-FLAGS += -Wall -Wextra -Werror
-FLAGS += -std=c++98 -fsanitize=address
-MAKEFLAGS += --no-print-directory
+$(OBJDIR)/%.o : $(SRCDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	@mkdir -p $(patsubst $(OBJDIR)/%,$(DEPDIR)/%,$(dir $@))
+	@$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ -MMD -MF $(patsubst $(OBJDIR)/%,$(DEPDIR)/%,$(@:.o=.d))
+	@echo Building $(notdir $@)
 
-#### COLORS
-BLUE = \033[1;94m
-PURPLE = \033[1;95m
-GREEN = \033[1;92m
-YELLOW = \033[1;93m
+-include $(DEPS)
 
-#### RULES
-all: $(NAME)
+clean :
+	make clean -C ./raph
+	rm -rf $(OBJDIR)
+	rm -rf $(DEPDIR)
 
+fclean : clean
+	make fclean -C ./raph
+	rm -f $(TARGET)
 
-$(NAME): $(OBJS) $(INCLUDES) Makefile
-	@$(COMP) $(FLAGS) $(OBJS) -o $(NAME) ./raph/TCP_IPv4.a
-	@printf "$(YELLOW)------Compilation executed------\n\n"
-
-$(OBJS): $(PATH_OBJS)/%.o: %.cpp $(INCLUDES)
-	@mkdir -p $(PATH_OBJS)
-	@$(COMP) $(FLAGS) -c $< -o $@ -I./includes
-
-clean:
-	@$(RM) -R $(PATH_OBJS)
-	@printf "$(PURPLE)------Object files deleted-------\n\n"
-
-fclean: clean
-	@$(RM) $(NAME)
-	@printf "$(GREEN)----Executable files deleted-----\n\n"
-
-re: fclean all
+re : fclean all
 
 .PHONY : all clean fclean re
