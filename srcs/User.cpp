@@ -34,14 +34,6 @@ User & User::operator=(const User & src)
 
 User::~User()
 {
-	// mapChannel::const_iterator it = m_allChan.begin();
-	// for (; it != m_allChan.end(); ++it)
-	// 	delete it->second;
-	// it = m_opsChan.begin();
-	// for (; it != m_opsChan.end(); ++it)
-	// 	delete it->second;
-	m_allChan.clear();
-	m_opsChan.clear();
 }
 
 /********************** EXCEPTIONS ***********************/

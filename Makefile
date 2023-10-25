@@ -36,6 +36,7 @@ PURPLE = \033[1;95m
 GREEN = \033[1;92m
 YELLOW = \033[1;93m
 RED=\033[1;31m
+DEFAULT=\033[39m
 
 #### RULES
 all: raph $(NAME)
@@ -43,7 +44,7 @@ all: raph $(NAME)
 
 $(NAME): $(OBJS) $(INCLUDES) Makefile
 	@$(COMP) $(FLAGS) $(OBJS) -o $(NAME) ./raph/TCP_IPv4.a
-	@printf "$(YELLOW)------Compilation executed------\n\n"
+	@printf "$(YELLOW)------Compilation executed------$(DEFAULT)\n\n"
 
 $(OBJS): $(PATH_OBJS)/%.o: %.cpp $(INCLUDES)
 	@mkdir -p $(PATH_OBJS)
@@ -51,17 +52,17 @@ $(OBJS): $(PATH_OBJS)/%.o: %.cpp $(INCLUDES)
 
 raph:
 	@make -C $(PATH_RAPH)
-	@printf "$(RED)------Lib 'TCP_IPv4' created-------\n\n"
+	@printf "$(RED)------Lib 'TCP_IPv4' created-------$(DEFAULT)\n\n"
 
 clean:
 	@$(RM) -R $(PATH_OBJS)
 	@make clean -C $(PATH_RAPH)
-	@printf "$(PURPLE)------Object files deleted-------\n\n"
+	@printf "$(PURPLE)------Object files deleted-------$(DEFAULT)\n\n"
 
 fclean: clean
 	@$(RM) $(NAME)
 	@make fclean -C $(PATH_RAPH)
-	@printf "$(GREEN)----Executable files deleted-----\n\n"
+	@printf "$(GREEN)----Executable files deleted-----$(DEFAULT)\n\n"
 
 re: fclean all
 

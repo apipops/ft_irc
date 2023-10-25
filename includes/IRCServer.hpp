@@ -22,6 +22,7 @@ public:
 	void addChannel(std::string name, std::string topic);
 	void addChannel(std::string name, std::string topic, std::string pwd);
 	void removeUser(std::string nick);
+	void freeMemory(void);
 
 	// Utils for test
 	void fonctionTest();
@@ -37,8 +38,8 @@ public:
 
 private:
 	// Vectors for user and channel storage
-	std::deque<User>		m_users;
-	std::deque<Channel>		m_channels;
+	std::deque<User*>		m_users;
+	std::deque<Channel*>	m_channels;
 
 	// Maps for easy find - link a pointer on user/channel
 	mapChannel	m_mapChan;
