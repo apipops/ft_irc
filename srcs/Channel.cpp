@@ -57,7 +57,10 @@ void Channel::removeUser(std::string nick)
 	while (it != m_users.end() && (*it)->m_nick != nick)
 		it++;
 	if (it != m_users.end())
+	{
+		std::cout << "Removing " << nick << "from channel " << m_name << std::endl;
 		m_users.erase(it);
+	}
 }
 
 void Channel::removeOps(std::string nick)

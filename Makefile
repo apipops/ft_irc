@@ -26,7 +26,8 @@ PATH_RAPH	+= raph
 #### COMPILATION
 COMP = c++
 FLAGS += -Wall -Wextra -Werror
-FLAGS += -std=c++98 -fsanitize=address
+FLAGS += -std=c++98 
+FLAGS += -fsanitize=address
 MAKEFLAGS += --no-print-directory
 
 #### COLORS

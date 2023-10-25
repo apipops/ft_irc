@@ -107,7 +107,7 @@ void IRCServer::addUser(std::string nick, std::string username, ASocket* socket)
 	// Adding to vector and map
 	User user(nick, username, socket);
 	m_users.push_back(user);
-	m_mapUser[nick] = &m_users[m_users.size() -1];
+	m_mapUser[nick] = &(m_users.back());
 }
 
 // Add a channel to IRC server - without password
@@ -139,6 +139,39 @@ void IRCServer::addChannel(std::string name, std::string topic, std::string pwd)
 	m_mapChan[name] = &(m_channels.back());
 }
 
+// Remove a user from their nickname
+void IRCServer::removeUser(std::string nick)
+{
+	// From channels
+	User *user = m_mapUser[nick];
+	std::cout << &(m_users[1]) << std::endl;
+	std::cout << user << std::endl;
+	std::cout << user->m_nick << std::endl;
+	mapChannel::const_iterator it = user->m_allChan.begin();
+	for (; it != user->m_allChan.end(); it++) {
+		it->second->removeUser(nick);
+		it->second->removeOps(nick);
+	}
+	// user->m_allChan.clear();
+	// user->m_opsChan.clear();
+
+	// From IRC server
+	std::deque<User>::iterator it2 = m_users.begin();
+	int i = 0;
+	while (it2 != m_users.end() && it2->m_nick != nick)
+	{
+		std::cout << "user #" << i << std::endl;
+		i++;
+		it2++;
+	}
+	if (it2 != m_users.end())
+	{
+		std::cout << "Removing " << it2->m_nick << " defined by adress " << &(*it2) << std::endl;
+		m_mapUser.erase(nick);
+		m_users.erase(it2);
+	}
+
+}
 
 /******************** BASIC COMMANDS ********************/
 
@@ -148,6 +181,8 @@ void	IRCServer::nickCmd(User* user, std::string newNick)
 	// Parsing
 	checkUserFormat("Nickname", newNick);
 	checkUserDup(newNick);
+
+	// Suppress from
 
 	// Suppress from map, update in vector and add again in map
 	m_mapUser.erase(user->m_nick);
@@ -168,6 +203,8 @@ void	IRCServer::userCmd(User* user, std::string newUser)
 void	IRCServer::joinCmd(User* user, std::string name)
 {
 	Channel *channel = m_mapChan[name];
+	//std::cout << channel->m_name << std::endl;
+	(void)user;
 	// if (m_mapChan.find(channel) == m_mapChan.end())
 	// 	ajouter creer le channel
 	if (!channel->m_pwd.empty())
@@ -177,7 +214,9 @@ void	IRCServer::joinCmd(User* user, std::string name)
 	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
 		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
 	channel->m_users.push_back(user);
-	user->m_allChan[name] = channel;
+	user->m_allChan[name] = channel; // une allcotion se fait ici
+	std::cout <<user->m_allChan[name] << std::endl;
+	std::cout << channel << std::endl;
 }
 
 void	IRCServer::joinCmd(User* user, std::string name, std::string pwd)
@@ -227,36 +266,51 @@ void IRCServer::fonctionTest()
 		addUser("bella", "bella", socket);
 		
 		showMapUsers();
-		//showVecUsers();
+		showVecUsers();
 
-		// User *user = m_mapUser.at("mark");
-		// std::cout << user << std::endl;
-		// std::cout << &m_users[0] << std::endl;
 
-		nickCmd(m_mapUser["bella"], "anne");
-
+		removeUser("sam");
 		showMapUsers();
-		//showVecUsers();
+		showVecUsers();
 
 		addChannel("#1", "random");
-		addChannel("#2", "random");
-		addChannel("#3", "random", "pwd");
-
-		showMapChannels();
-		// showVecChannels(); 
-
+		//addChannel("#2", "random");
 		joinCmd(m_mapUser["mark"], "#1");
-		joinCmd(m_mapUser["mark"], "#3", "pwd");
-		joinCmd(m_mapUser["sam"], "#1");
+		//joinCmd(m_mapUser["mark"], "#2");
 
-		showChannelsOfUser("mark");
-		showUsersOfChannel("#1");
+		// // User *user = m_mapUser.at("john");
+		// // std::cout << user << std::endl;
+		// // std::cout << &m_users[1] << std::endl;
+		// // std::cout << m_users[1].m_nick << std::endl;
 
-		// tester les changements de noms
+		// // User *user = m_mapUser.at("mark");
+		// // std::cout << user << std::endl;
+		// // std::cout << &m_users[0] << std::endl;
 
-		partCmd(m_mapUser["mark"], "#1");
-		showChannelsOfUser("mark");
-		showUsersOfChannel("#1");
+		// nickCmd(m_mapUser["bella"], "anne");
+
+		// showMapUsers();
+		// showVecUsers();
+
+		// addChannel("#1", "random");
+		// addChannel("#2", "random");
+		// addChannel("#3", "random", "pwd");
+
+		//showMapChannels();
+		//showVecChannels(); 
+
+		// joinCmd(m_mapUser["mark"], "#1");
+		// joinCmd(m_mapUser["mark"], "#3", "pwd");
+		// joinCmd(m_mapUser["john"], "#1");
+
+		// showChannelsOfUser("mark");
+		// showUsersOfChannel("#1");
+
+		// // tester les changements de noms
+
+		// partCmd(m_mapUser["mark"], "#1");
+		// showChannelsOfUser("mark");
+		// showUsersOfChannel("#1");
 
 	}
 	catch (std::exception & e) {
@@ -279,7 +333,7 @@ void IRCServer::showMapUsers() const
 	std::cout << "[USERS - MAP]:" << std::endl;
 	mapUser::const_iterator it = m_mapUser.begin();
 	for (; it != m_mapUser.end(); ++it)
-		std::cout << " User: " << it->first << std::endl;
+		std::cout << " User: " << it->first << ", addr:" << it->second << std::endl;
 }
 
 
@@ -288,7 +342,7 @@ void IRCServer::showMapChannels() const
 	std::cout << "[CHANNELS - MAP]:" << std::endl;
 	mapChannel::const_iterator it = m_mapChan.begin();
 	for (; it != m_mapChan.end(); it++)
-		std::cout << " Channel: " << it->first << std::endl;
+		std::cout << " Channel: " << it->first << ", addr:" << it->second <<std::endl;
 }
 
 void IRCServer::showVecUsers() const
@@ -296,7 +350,7 @@ void IRCServer::showVecUsers() const
 	std::cout << "[USERS - VECTOR]:" << std::endl;
 	std::deque<User>::const_iterator	it = m_users.begin();
 	for (; it != m_users.end(); ++it)
-		std::cout << " User: " << it->m_nick << std::endl;
+		std::cout << " User: " << it->m_nick << ", addr: " << &(*it) << std::endl;
 }
 
 
@@ -305,7 +359,7 @@ void IRCServer::showVecChannels() const
 	std::cout << "[CHANNELS - VECTOR]:" << std::endl;
 	std::deque<Channel>::const_iterator it = m_channels.begin();
 	for (; it != m_channels.end(); ++it)
-		std::cout << " Channel: " << it->m_name << std::endl;
+		std::cout << " Channel: " << it->m_name << ", addr: " << &(*it)  << std::endl;
 }
 
 void IRCServer::showChannelsOfUser(std::string nick) const

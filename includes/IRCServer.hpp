@@ -21,6 +21,7 @@ public:
 	void addUser(std::string nick, std::string user, ASocket* socket);
 	void addChannel(std::string name, std::string topic);
 	void addChannel(std::string name, std::string topic, std::string pwd);
+	void removeUser(std::string nick);
 
 	// Utils for test
 	void fonctionTest();
