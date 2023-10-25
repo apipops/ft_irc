@@ -1,23 +1,26 @@
-#include "IRCServerTest.hpp"
+#include "UserTest.hpp"
+
 
 /*------------------------------------*/
 /*     Constructors and destructor    */
 /*------------------------------------*/
 
-IRC::Server::Server(std::string name) : TCP_IPv4::Server(name) {}
+IRC::User::User() {}
 
-IRC::Server::Server(const Server &other) : TCP_IPv4::Server(other.m_name) {
+IRC::User::User(TCP_IPv4::ASocket *socket) : m_socket(socket) {}
+
+IRC::User::User(const User &other) : m_socket(other.m_socket) {
 	*this = other;
 }
 
-IRC::Server::~Server() {}
+IRC::User::~User() {}
 
 /*------------------------------------*/
 /*              Operators             */
 /*------------------------------------*/
 
-IRC::Server &IRC::Server::operator=(const Server &other) {
-	TCP_IPv4::Server::operator=(other);
+IRC::User &IRC::User::operator=(const User &other) {
+	m_socket = other.m_socket;
 	return *this;
 }
 

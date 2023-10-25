@@ -45,12 +45,14 @@ $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 
 clean :
 	make clean -C ./raph
-	rm -rf $(OBJDIR)
-	rm -rf $(DEPDIR)
+	@rm -rf $(OBJDIR)
+	@rm -rf $(DEPDIR)
+	@echo Cleaning $(OBJDIR) $(DEPDIR)
 
 fclean : clean
-	make fclean -C ./raph
-	rm -f $(TARGET)
+	@make fclean -C ./raph
+	@rm -f $(TARGET)
+	@echo Cleaning $(TARGET)
 
 re : fclean all
 
