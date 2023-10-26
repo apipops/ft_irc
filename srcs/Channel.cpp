@@ -1,6 +1,6 @@
 #include "../includes/Channel.hpp"
 
-/************** CONSTRUCTORS & DESTRUCTORS ****************/
+/************** CONSTRUCTORS AND DESTRUCTOR ****************/
 
 Channel::Channel()
 {
@@ -48,25 +48,25 @@ Channel::~Channel()
 {
 }
 
-/************************ SETTERS ************************/
+/********************* SETTERS FOR USERS ************************/
 
+// Remove user from the channel
 void Channel::removeUser(std::string nick)
 {
-	std::deque<User*>::iterator it = m_users.begin();
+	std::vector<User*>::iterator it = m_users.begin();
 	
-	while (it != m_users.end() && (*it)->m_nick != nick)
+	while (it != m_users.end() && (*it)->getNick() != nick)
 		it++;
 	if (it != m_users.end())
-	{
 		m_users.erase(it);
-	}
 }
 
+// Remove ops user from the channel
 void Channel::removeOps(std::string nick)
 {
-	std::deque<User*>::iterator it = m_ops.begin();
+	std::vector<User*>::iterator it = m_ops.begin();
 	
-	while (it != m_ops.end() && (*it)->m_nick != nick)
+	while (it != m_ops.end() && (*it)->getNick() != nick)
 		it++;
 	if (it != m_ops.end())
 		m_ops.erase(it);

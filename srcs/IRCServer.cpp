@@ -14,46 +14,33 @@ IRCServer::IRCServer(const IRCServer & src)
 
 IRCServer & IRCServer::operator=(const IRCServer & src)
 { 
-	// a modifier pour tout recopier avec new;
-	this->m_channels = src.m_channels;
-	this->m_users = src.m_users;
-	this->m_mapChan = src.m_mapChan;
+	// Free memory
+	this->freeMemory();
+
+	// Copy users
+	User *user;
+	std::vector<User*>::const_iterator itu = src.m_users.begin();
+	for (; itu != m_users.end(); itu++) {
+ 		user = new User (**(itu));
+		this->m_users.push_back(user);
+	}
 	this->m_mapUser = src.m_mapUser;
+
+	// Copy channels
+	Channel *channel;
+	std::vector<Channel*>::const_iterator itc = src.m_channels.begin();
+	for (; itc != m_channels.end(); itc++) {
+		channel = new Channel (**(itc));
+		this->m_channels.push_back(channel);
+	}
+	this->m_mapChan = src.m_mapChan;
 
 	return *this;
 }
 
 IRCServer::~IRCServer()
 {
-
-	// std::deque<User*>::iterator itu = m_users.begin();
-	// for (; itu != m_users.end(); itu++) {
-	// 	(*itu)->m_allChan.clear();
-	// 	(*itu)->m_opsChan.clear();
-	// }
-	// m_mapUser.clear();
-	// std::deque<Channel*>::iterator itc = m_channels.begin();
-	// for (; itc != m_channels.end(); itc++) {
-	// 	(*itc)->m_users.clear();
-	// 	(*itc)->m_ops.clear();
-	// }
-	// m_mapChan.clear();
-	std::deque<User*>::iterator itu = m_users.begin();
-	itu = m_users.begin();
-	for (; itu != m_users.end(); itu++) {
-		(*itu)->m_allChan.clear();
-		(*itu)->m_opsChan.clear();
-		delete *(itu);
-	}
-	std::deque<Channel*>::iterator itc = m_channels.begin();
-	//m_users.clear();
-	itc = m_channels.begin();
-	for (; itc != m_channels.end(); itc++) {
-		(*itc)->m_users.clear();
-		(*itc)->m_ops.clear();
-		delete *(itc);
-	}
-	//m_channels.clear();
+	freeMemory();
 }
 
 /************************* PARSING *********************/
@@ -122,8 +109,7 @@ void IRCServer::checkPwdFormat(std::string pwd)
 		throw CmdError("Password is too long");
 }
 
-
-/******************* USERS & CHANNELS *****************/
+/******************* SERVER SETTER (users, channels, memory) *****************/
 
 // Add a user to IRC server
 void IRCServer::addUser(std::string nick, std::string username, ASocket* socket)
@@ -173,24 +159,18 @@ void IRCServer::removeUser(std::string nick)
 {
 	// From channels
 	User *user = m_mapUser[nick];
-	// std::cout << &(m_users[1]) << std::endl;
-	// std::cout << user << std::endl;
-	// std::cout << user->m_nick << std::endl;
 	mapChannel::const_iterator it = user->m_allChan.begin();
 	for (; it != user->m_allChan.end(); it++) {
 		it->second->removeUser(nick);
 		it->second->removeOps(nick);
 	}
-	// user->m_allChan.clear();
-	// user->m_opsChan.clear();
 
 	// From IRC server
-	std::deque<User*>::iterator it2 = m_users.begin();
+	std::vector<User*>::iterator it2 = m_users.begin();
 	while (it2 != m_users.end() && (*it2)->m_nick != nick)
 		it2++;
 	if (it2 != m_users.end())
 	{
-		//std::cout << "Removing " << (*it2)->m_nick << " defined by adress " << *(it2) << std::endl;
 		delete user;
 		m_mapUser.erase(nick);
 		m_users.erase(it2);
@@ -199,18 +179,27 @@ void IRCServer::removeUser(std::string nick)
 
 void	IRCServer::freeMemory(void)
 {
-	std::deque<User*>::iterator itu = m_users.begin();
+	// Free users
+	std::vector<User*>::iterator itu = m_users.begin();
+	itu = m_users.begin();
 	for (; itu != m_users.end(); itu++) {
+		(*itu)->m_allChan.clear();
+		(*itu)->m_opsChan.clear();
 		delete *(itu);
-		// User * user = NULL;
-		// *itu = user;
 	}
-	std::deque<Channel*>::iterator itc = m_channels.begin();
-	for (; itc != m_channels.end(); itu++) {
+	m_mapUser.clear();
+	m_users.clear();
+
+	// Free channels
+	std::vector<Channel*>::iterator itc = m_channels.begin();
+	itc = m_channels.begin();
+	for (; itc != m_channels.end(); itc++) {
+		(*itc)->m_users.clear();
+		(*itc)->m_ops.clear();
 		delete *(itc);
-		// Channel * chan = NULL;
-		// *itc = chan;
 	}
+	m_mapChan.clear();
+	m_channels.clear();
 }
 
 /******************** BASIC COMMANDS ********************/
@@ -221,8 +210,6 @@ void	IRCServer::nickCmd(User* user, std::string newNick)
 	// Parsing
 	checkUserFormat("Nickname", newNick);
 	checkUserDup(newNick);
-
-	// Suppress from
 
 	// Suppress from map, update in vector and add again in map
 	m_mapUser.erase(user->m_nick);
@@ -237,39 +224,39 @@ void	IRCServer::userCmd(User* user, std::string newUser)
 	user->m_user = newUser;
 
 }
-	// Channel createCmd(std::string name, std::string topic); // sans pwd
-	// Channel createCmd(std::string name, std::string topic, std::string pwd); // avec pwd
 
 void	IRCServer::joinCmd(User* user, std::string name)
 {
-	Channel *channel = m_mapChan[name];
-	//std::cout << channel->m_name << std::endl;
-	(void)user;
-	// if (m_mapChan.find(channel) == m_mapChan.end())
-	// 	ajouter creer le channel
-	if (!channel->m_pwd.empty())
-		throw CmdError("Access denied to channel \'" + name + "\'. Password required.");
+	mapChannel::const_iterator it = m_mapChan.find(name);
+	if (it == m_mapChan.end())
+		throw CmdError("Channel '" + name + "' does not exit.");
+
+	Channel *channel = it->second;
+	if (!(channel->m_pwd.empty()))
+		throw CmdError("Access denied to channel '" + name + "'. Password required.");
 	if (channel->m_invitMode)
 		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
 	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
 		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
+	
 	channel->m_users.push_back(user);
-	user->m_allChan[name] = channel; // une allcotion se fait ici
-	// std::cout <<user->m_allChan[name] << std::endl;
-	// std::cout << channel << std::endl;
+	user->m_allChan[name] = channel;
 }
 
 void	IRCServer::joinCmd(User* user, std::string name, std::string pwd)
 {
-	Channel *channel = m_mapChan[name];
-	// if (m_mapChan.find(channel) == m_mapChan.end())
-	// 	ajouter creer le channel
+	mapChannel::const_iterator it = m_mapChan.find(name);
+	if (it == m_mapChan.end())
+		throw CmdError("Acces denied. Channel '" + name + "' does not exit.");
+
+	Channel *channel = it->second;
 	if (pwd != channel->m_pwd)
 		throw CmdError("Access denied to channel \'" + name + "\'. Incorrect password.");
 	if (channel->m_invitMode)
 		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
 	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
 		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
+	
 	channel->m_users.push_back(user);
 	user->m_allChan[name] = channel;
 }
@@ -283,6 +270,7 @@ void	IRCServer::partCmd(User* user, std::string name)
 	m_mapChan[name]->removeOps(user->m_nick);
 	user->m_allChan.erase(name);
 	user->m_opsChan.erase(name);
+	// checker si il ne reste plus de users ?
 }
 
 /************** OPERATOR COMMANDS ***************/
@@ -366,7 +354,7 @@ void IRCServer::showMapChannels() const
 void IRCServer::showVecUsers() const
 {
 	std::cout << "[USERS - VECTOR]:" << std::endl;
-	std::deque<User*>::const_iterator	it = m_users.begin();
+	std::vector<User*>::const_iterator	it = m_users.begin();
 	for (; it != m_users.end(); ++it)
 		std::cout << " User: " << (*it)->m_nick << ", addr: " << (*it) << std::endl;
 }
@@ -375,7 +363,7 @@ void IRCServer::showVecUsers() const
 void IRCServer::showVecChannels() const
 {
 	std::cout << "[CHANNELS - VECTOR]:" << std::endl;
-	std::deque<Channel*>::const_iterator it = m_channels.begin();
+	std::vector<Channel*>::const_iterator it = m_channels.begin();
 	for (; it != m_channels.end(); ++it)
 		std::cout << " Channel: " << (*it)->m_name << ", addr: " << (*it)  << std::endl;
 }
@@ -395,7 +383,7 @@ void IRCServer::showUsersOfChannel(std::string channel) const
 {
 	Channel *chan = m_mapChan.at(channel);
 	
-	std::deque<User *>::const_iterator it = chan->m_users.begin();
+	std::vector<User *>::const_iterator it = chan->m_users.begin();
 	std::cout << "[" << channel << " USERS]:" << std::endl;
 	for (; it != chan->m_users.end(); ++it)
 		std::cout << " " << (*it)->m_nick << std::endl;

@@ -1,25 +1,26 @@
 #ifndef PARAMS_HPP
 #define PARAMS_HPP
 
+// LIBRARIES
+# include <iostream>
 # include <map>
 # include <vector>
-# include <deque>
-# include <list>
 # include <algorithm>
 # include <iostream>
 # include <string>
+# include <exception>
 
-// Typedef
+// TYPEDEF
 class User;
 class Channel;
 typedef std::map<std::string, User* > mapUser;
 typedef std::map<std::string, Channel* > mapChannel;
 
-// Username policy
+// USERNAME POLICY
 #define USER_MINCHAR 1
 #define USER_MAXCHAR 32
 
-// Channel policy
+// CHANNEL POLICY
 #define NONE -1
 #define CHAN_MINCHAR 2
 #define CHAN_MAXCHAR 200

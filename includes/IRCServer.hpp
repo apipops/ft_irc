@@ -11,20 +11,20 @@ using namespace TCP_IPv4;
 class IRCServer 
 {
 public:
-	// Constructors and destructors
+	// CONSTRUCTORS AND DESTRUCTORS
 	IRCServer();
 	IRCServer(const IRCServer & src);
-	IRCServer & operator=(const IRCServer & src);
 	virtual ~IRCServer();
-
-	// Users & Channels
+	IRCServer & operator=(const IRCServer & src);
+	
+	// SERVER SETTER (users, channels, memory)
 	void addUser(std::string nick, std::string user, ASocket* socket);
 	void addChannel(std::string name, std::string topic);
 	void addChannel(std::string name, std::string topic, std::string pwd);
 	void removeUser(std::string nick);
 	void freeMemory(void);
 
-	// Utils for test
+	// UTILS FOR TESTING
 	void fonctionTest();
 	Channel & getChannel(std::string name) const;
 	mapChannel getChannels() const;
@@ -37,9 +37,9 @@ public:
 	void showUsersOfChannel(std::string channel) const;
 
 private:
-	// Vectors for user and channel storage
-	std::deque<User*>		m_users;
-	std::deque<Channel*>	m_channels;
+	// DEQUE FOR STORAGE (users, channels)
+	std::vector<User*>		m_users;
+	std::vector<Channel*>	m_channels;
 
 	// Maps for easy find - link a pointer on user/channel
 	mapChannel	m_mapChan;

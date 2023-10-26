@@ -2,17 +2,12 @@
  * Class for users.
  * Users are IRC clients who connected to
  * the IRC server through a specific socket.
- * Identified by username and nickname. 
+ * Identified by nickname, username and real name. 
 */
 
 #ifndef USER_HPP
 # define USER_HPP
 
-# include <iostream>
-# include <string>
-# include <map>
-# include <algorithm>
-# include <exception>
 # include "Channel.hpp"
 # include "params.hpp"
 # include "../raph/TCP_IPv4"
@@ -22,30 +17,34 @@ using namespace TCP_IPv4;
 class User
 {
 public: 
-	// Constructors and destructors
+	friend class IRCServer;
+
+	// CONSTRUCTORS AND DESTRUCTOR
 	User();
 	User(std::string nick, std::string user, ASocket *socket);
+	User(std::string nick, std::string user, std::string real, ASocket* socket);
 	User(const User & src);
 	User & operator=(const User & src);
 	~User();
 
-	friend class Channel;
-	friend class IRCServer;
+	// GETTERS
+	std::string	getNick() const;
 
-	// Exception
+	// EXCEPTION
 	class UserError : public Error {
 		public:
 			UserError(std::string what);
 	};
 
 private:
-	// Identification and Status
+	// IDENTIFICATION & STATUS
 	std::string	m_nick;
 	std::string	m_user;
+	std::string m_real;
 	ASocket*	m_socket;
 	bool		m_servOps;
 
-	// Channels joined, map <name, Channel>
+	// CHANNELS (std::map<std::string, Channel *>(name, channel))
 	mapChannel	m_allChan;
 	mapChannel	m_opsChan;
 

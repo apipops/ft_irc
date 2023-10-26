@@ -7,10 +7,6 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-# include <iostream>
-# include <string>
-# include <map>
-# include <algorithm>
 # include "User.hpp"
 # include "params.hpp"
 # include "../raph/TCP_IPv4"
@@ -20,7 +16,9 @@ using namespace TCP_IPv4;
 class Channel 
 {
 public: 
-	// Constructors and destructor
+	friend class IRCServer;
+
+	// CONSTRUCTORS AND DESTRUCTOR
 	Channel();
 	Channel(std::string name, std::string topic);
 	Channel(std::string name, std::string topic, std::string pwd);
@@ -28,37 +26,31 @@ public:
 	Channel & operator=(const Channel & src);
 	~Channel();
 
-	friend class User;
-	friend class IRCServer;
-
-	// Setters
+	// SETTERS (users)
 	void removeUser(std::string nick);
 	void removeOps(std::string nick);
 
 
-	// Exception
+	// EXCEPTIONS
 	class ChannelError : public Error {
 		public:
 			ChannelError(std::string what);
 	};
 
 private:
-	// Identification
+	// IDENTIFICATION
 	std::string	m_name;
 	std::string m_topic;
 	std::string m_pwd;
 
-	// Users and operators
-	std::deque<User*> m_users;
-	std::deque<User*> m_ops;
+	// USERS & OPERATORS
+	std::vector<User*> m_users;
+	std::vector<User*> m_ops;
 
-	// Mode
-	bool m_invitMode;
-	bool m_topicRestrict; 
-
-	// Other info
-	int	m_maxUsers;
-
+	// MODE 
+	bool	m_invitMode;
+	bool	m_topicRestrict; 
+	int		m_maxUsers;
 };
 
 #endif
