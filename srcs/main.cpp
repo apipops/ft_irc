@@ -10,19 +10,21 @@ using namespace TCP_IPv4;
 
 int main(int ac, char **av)
 {
-	// IRCServer server;
-
-	// server.fonctionTest(); // tester les commandes basiques
-
-	try {
 	(void)ac;
-	Message message(av[1]);
-	std::cout << "Full message:" << message.getMessage() << std::endl;
-	message.showMessage();
-	}
-	catch (std::exception & e) {
-		std::cout << e.what() << std::endl;
-	}
+	(void)av;
+	IRCServer server("test");
+
+	server.fonctionTest(); // tester les commandes basiques
+
+	// try {
+	// (void)ac;
+	// Message message(av[1]);
+	// std::cout << "Full message:" << message.getMessage() << std::endl;
+	// message.showMessage();
+	// }
+	// catch (std::exception & e) {
+	// 	std::cout << e.what() << std::endl;
+	// }
 
 	return 0;
 }

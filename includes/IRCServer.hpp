@@ -8,11 +8,11 @@
 
 using namespace TCP_IPv4;
 
-class IRCServer 
+class IRCServer: public TCP_IPv4::Server
 {
 public:
 	// CONSTRUCTORS AND DESTRUCTORS
-	IRCServer();
+	IRCServer(std::string name);
 	IRCServer(const IRCServer & src);
 	IRCServer & operator=(const IRCServer & src);
 	virtual ~IRCServer();
@@ -23,6 +23,7 @@ public:
 	void addChannel(std::string name, std::string topic, std::string pwd);
 	void removeUser(std::string nick);
 	void freeMemory(void);
+
 
 	// UTILS FOR TESTING
 	void fonctionTest();

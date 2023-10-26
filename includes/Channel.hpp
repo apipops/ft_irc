@@ -19,7 +19,6 @@ public:
 	friend class IRCServer;
 
 	// CONSTRUCTORS AND DESTRUCTOR
-	Channel();
 	Channel(std::string name, std::string topic);
 	Channel(std::string name, std::string topic, std::string pwd);
 	Channel(const Channel & src);

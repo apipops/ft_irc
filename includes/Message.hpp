@@ -22,6 +22,8 @@ using namespace TCP_IPv4;
 class Message 
 {
 public:
+	friend class IRCServer;
+
 	// CONSTRUCTORS AND DESTRUCTOR
 	Message();
 	Message(std::string msg);

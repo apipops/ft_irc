@@ -2,8 +2,9 @@
 
 /************** CONSTRUCTOR & DESTRUCTORS ****************/
 
-User::User()
+User::User(ASocket *socket)
 {
+	m_socket = socket;
 }
 
 User::User(std::string nick, std::string user, ASocket* socket)

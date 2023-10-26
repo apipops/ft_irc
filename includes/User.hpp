@@ -20,7 +20,7 @@ public:
 	friend class IRCServer;
 
 	// CONSTRUCTORS AND DESTRUCTOR
-	User();
+	User(ASocket *socket);
 	User(std::string nick, std::string user, ASocket *socket);
 	User(std::string nick, std::string user, std::string real, ASocket* socket);
 	User(const User & src);

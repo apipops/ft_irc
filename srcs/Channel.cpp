@@ -2,10 +2,6 @@
 
 /************** CONSTRUCTORS AND DESTRUCTOR ****************/
 
-Channel::Channel()
-{
-}
-
 Channel::Channel(std::string name, std::string topic)
 {
 	this->m_name = name;

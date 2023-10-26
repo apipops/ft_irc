@@ -32,5 +32,4 @@ typedef std::map<std::string, Channel* > mapChannel;
 // MESSAGE POLICY
 #define MSG_MAXCHAR 510
 
-
 #endif

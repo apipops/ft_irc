@@ -3,17 +3,20 @@
 
 /************** CONSTRUCTORS & DESTRUCTORS **************/
 
-IRCServer::IRCServer()
+IRCServer::IRCServer(std::string name):Server(name)
 {
 }
 
-IRCServer::IRCServer(const IRCServer & src)
+IRCServer::IRCServer(const IRCServer & src):Server(src.m_name)
 { 
 	*this = src;
 }
 
 IRCServer & IRCServer::operator=(const IRCServer & src)
 { 
+	// Copy basic servor members
+	Server::operator=(src);
+
 	// Free memory
 	this->freeMemory();
 
