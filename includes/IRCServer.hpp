@@ -14,8 +14,8 @@ public:
 	// CONSTRUCTORS AND DESTRUCTORS
 	IRCServer();
 	IRCServer(const IRCServer & src);
-	virtual ~IRCServer();
 	IRCServer & operator=(const IRCServer & src);
+	virtual ~IRCServer();
 	
 	// SERVER SETTER (users, channels, memory)
 	void addUser(std::string nick, std::string user, ASocket* socket);
@@ -41,11 +41,11 @@ private:
 	std::vector<User*>		m_users;
 	std::vector<Channel*>	m_channels;
 
-	// Maps for easy find - link a pointer on user/channel
+	// MAPS FOR EASY FIND (users, channels)
 	mapChannel	m_mapChan;
 	mapUser 	m_mapUser;
 
-	// Parsing
+	// PARSING
 	void checkUserDup(std::string nick);
 	void checkChanDup(std::string channel);
 	void checkUserFormat(std::string type, std::string name);
@@ -53,25 +53,20 @@ private:
 	void checkTopicFormat(std::string topic);
 	void checkPwdFormat(std::string pwd);
 
-	// Basic commands
+	// BASIC COMMANDS
 	void	nickCmd(User* user, std::string newNick);
 	void	userCmd(User* user, std::string newUser);
 	void	joinCmd(User* user, std::string name);
 	void	joinCmd(User* user, std::string name, std::string pwd);
 	void	partCmd(User* user, std::string name);
 
-	// Channel createCmd(std::string name, std::string topic); // sans pwd
-	// Channel createCmd(std::string name, std::string topic, std::string pwd); // avec pwd
-	// void	joinCmd(Channel & channel, std::string pwd); // avec pwd
-	// void	partCmd(Channel & channel);
-
-	// Operator commands
+	// OPERATOR COMMANDS
 	void 	kickCmd();
 	void 	inviteCmd();
 	void 	topicCmd();
 	void 	modeCmd();
 
-	// Exception
+	// EXCEPTION
 	class CmdError : public Error {
 		public:
 			CmdError(std::string what);

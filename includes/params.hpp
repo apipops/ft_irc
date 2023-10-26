@@ -8,6 +8,7 @@
 # include <algorithm>
 # include <iostream>
 # include <string>
+# include <sstream>
 # include <exception>
 
 // TYPEDEF
@@ -27,6 +28,9 @@ typedef std::map<std::string, Channel* > mapChannel;
 #define TOPIC_MAXCHAR 1000
 #define PWD_MINCHAR 1
 #define PWD_MAXCHAR 32
+
+// MESSAGE POLICY
+#define MSG_MAXCHAR 510
 
 
 #endif

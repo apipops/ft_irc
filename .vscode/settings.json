@@ -50,7 +50,9 @@
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
 		"typeinfo": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
+		"fstream": "cpp",
+		"sstream": "cpp"
 	},
 	"C_Cpp.dimInactiveRegions": false
 }

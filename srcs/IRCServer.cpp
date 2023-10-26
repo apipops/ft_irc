@@ -43,7 +43,7 @@ IRCServer::~IRCServer()
 	freeMemory();
 }
 
-/************************* PARSING *********************/
+/************************* PARSING **********************/
 
 // Check if nickname "nick" already exists
 void IRCServer::checkUserDup(std::string nick)
@@ -202,7 +202,7 @@ void	IRCServer::freeMemory(void)
 	m_channels.clear();
 }
 
-/******************** BASIC COMMANDS ********************/
+/********************** BASIC COMMANDS **********************/
 
 // Replace nickname of user by 'newNick'
 void	IRCServer::nickCmd(User* user, std::string newNick)
@@ -273,14 +273,15 @@ void	IRCServer::partCmd(User* user, std::string name)
 	// checker si il ne reste plus de users ?
 }
 
-/************** OPERATOR COMMANDS ***************/
+/******************** OPERATOR COMMANDS ******************/
 
 	// void 	kickCmd();
 	// void 	inviteCmd();
 	// void 	topicCmd();
 	// void 	modeCmd();
 
-/*************** UTILS FOR TESTS ***************/
+
+/********************* UTILS FOR TESTS ******************/
 
 void IRCServer::fonctionTest()
 {
@@ -319,7 +320,7 @@ void IRCServer::fonctionTest()
 		showUsersOfChannel("#1");
 
 	}
-	catch (std::exception & e) {
+	catch (CmdError & e) {
 		std::cerr << e.what() << std::endl;
 	}
 }
@@ -390,7 +391,7 @@ void IRCServer::showUsersOfChannel(std::string channel) const
 
 }
 
-/************** EXCEPTION ***************/
+/********************** EXCEPTION ********************/
 
 IRCServer::CmdError::CmdError(std::string what): Error(what)
 {
