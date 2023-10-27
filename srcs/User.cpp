@@ -1,6 +1,6 @@
 #include "../includes/User.hpp"
 
-/************** CONSTRUCTOR & DESTRUCTORS ****************/
+/************** CONSTRUCTORS & DESTRUCTOR ****************/
 
 User::User(ASocket *socket)
 {

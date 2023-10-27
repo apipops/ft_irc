@@ -38,7 +38,7 @@ public:
 	void showUsersOfChannel(std::string channel) const;
 
 private:
-	// DEQUE FOR STORAGE (users, channels)
+	// VECTOR FOR STORAGE (users, channels)
 	std::vector<User*>		m_users;
 	std::vector<Channel*>	m_channels;
 

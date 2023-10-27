@@ -1,6 +1,6 @@
 #include "../includes/Message.hpp"
 
-/************** CONSTRUCTORS & DESTRUCTORS **************/
+/**************** CONSTRUCTORS & DESTRUCTORS ***************/
 
 Message::Message()
 {
@@ -43,7 +43,8 @@ Message::~Message()
 {
 }
 
-/*********************** GETTERS *********************/
+/************************* GETTERS *************************/
+
 std::string	Message::getMessage() const {
 	std::string msg = m_prefix + m_cmd;
 	for (int i = 0; i < 15; i++)
@@ -51,7 +52,8 @@ std::string	Message::getMessage() const {
 	return msg;
 }
 
-/****************** UTILS FOR TESTING ****************/
+/********************* UTILS FOR TESTING *******************/
+
 void Message::showMessage() const {
 	std::cout << "- prefix: " << m_prefix << std::endl;
 	std::cout << "- cmd: " << m_cmd << std::endl;
@@ -61,16 +63,16 @@ void Message::showMessage() const {
 	}
 }
 
-
-/*********************** PARSING *********************/
+/************************* PARSING ************************/
 
 void Message::parseMsg(std::string msg)
 {
 	std::stringstream 	stream(msg);
 	std::string			token;
 
-	// Prefix
 	std::getline(stream, token, ' ');
+
+	// Prefix
 	if (token[0] == ':') {
 		m_prefix = token;
 		std::getline(stream, token, ' '); 
@@ -111,25 +113,25 @@ void Message::checkCmdFormat(std::string str)
 	int	alpha = 0;
 
 	if (str.empty())
-		throw MsgError("Invalid format message");
+		throw MsgError("Invalid message format");
 	for(int i = 0; str[i]; i++) {
 		if (str[i] >= 'A' && str[i] <= 'Z') {
 			if (!digit)
 				alpha++;
 			else
-				throw MsgError("Invalid format message");
+				throw MsgError("Invalid message format");
 		}
 		else if (std::isdigit(str[i])) {
 			if (!alpha)
 				digit++;
 			else
-				throw MsgError("Invalid format message");
+				throw MsgError("Invalid message format");
 		}
 		else
-			throw MsgError("Invalid format message");
+			throw MsgError("Invalid message format");
 	}
 	if (!alpha && digit != 3)
-		throw MsgError("Invalid format message");
+		throw MsgError("Invalid message format");
 }
 
 /********************** EXCEPTION ********************/

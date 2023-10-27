@@ -6,7 +6,7 @@ SRC_PATH 	= srcs/
 SRCS 		+= main.cpp
 SRCS 		+= User.cpp
 SRCS 		+= Channel.cpp
-SRCS 		+= Message.cpp
+#SRCS 		+= Message.cpp
 SRCS 		+= IRCServer.cpp
 
 vpath %.cpp $(SRC_PATH)
@@ -19,7 +19,7 @@ OBJS		= $(patsubst %.cpp, $(PATH_OBJS)/%.o, $(SRCS))
 INCLUDES 	+= includes/params.hpp
 INCLUDES 	+= includes/Channel.hpp
 INCLUDES 	+= includes/User.hpp
-INCLUDES 	+= includes/Message.hpp
+#INCLUDES 	+= includes/Message.hpp
 INCLUDES 	+= includes/IRCServer.hpp
 
 #### LIB RAPH
@@ -57,7 +57,7 @@ raph:
 	@printf "$(RED)------Lib 'TCP_IPv4' created-------$(DEFAULT)\n\n"
 
 clean:
-	@$(RM) -R $(PATH_OBJS)
+	@$(RM) -R $(PATH_OBJS) server.log
 	@make clean -C $(PATH_RAPH)
 	@printf "$(PURPLE)------Object files deleted-------$(DEFAULT)\n\n"
 

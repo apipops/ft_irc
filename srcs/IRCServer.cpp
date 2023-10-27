@@ -223,7 +223,7 @@ void	IRCServer::nickCmd(User* user, std::string newNick)
 // Replace username by 'newUser'
 void	IRCServer::userCmd(User* user, std::string newUser)
 {
-	checkUserFormat("Username", newUser); // Check duplicates ?
+	checkUserFormat("Username", newUser);
 	user->m_user = newUser;
 
 }
