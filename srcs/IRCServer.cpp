@@ -129,30 +129,28 @@ void IRCServer::addUser(std::string nick, std::string username, ASocket* socket)
 }
 
 // Add a channel to IRC server - without password
-void IRCServer::addChannel(std::string name, std::string topic)
+void IRCServer::addChannel(std::string name)
 {
 	// Parsing
 	checkChanDup(name);
 	checkChanFormat(name);
-	checkTopicFormat(topic);
 
 	// Adding to vector and map
-	Channel *channel = new Channel(name, topic);
+	Channel *channel = new Channel(name);
 	m_channels.push_back(channel);
 	m_mapChan[name] = m_channels.back();
 }
 
 // Add a channel to IRC server - with a password
-void IRCServer::addChannel(std::string name, std::string topic, std::string pwd)
+void IRCServer::addChannel(std::string name, std::string pwd)
 {
 	// Parsing
 	checkChanDup(name);
 	checkChanFormat(name);
-	checkTopicFormat(topic);
 	checkPwdFormat(pwd);
 
 	// Adding to vector and map
-	Channel *channel = new Channel(name, topic);
+	Channel *channel = new Channel(name, pwd);
 	m_channels.push_back(channel);
 	m_mapChan[name] = m_channels.back();
 }
@@ -256,36 +254,55 @@ void	IRCServer::userCmd(User* user, std::string newUser)
 void	IRCServer::joinCmd(User* user, std::string name)
 {
 	mapChannel::const_iterator it = m_mapChan.find(name);
-	if (it == m_mapChan.end())
-		addChannel(name, "");
-	Channel *channel = it->second;
-	if (!(channel->m_pwd.empty()))
-		throw CmdError("Access denied to channel '" + name + "'. Password required.");
-	if (channel->m_invitMode && !channel->checkInvit(user->m_nick))
-		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
-	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
-		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
-	
-	channel->m_users.push_back(user);
-	user->m_allChan[name] = channel;
+	// Creating or joing existing channel
+	if (it == m_mapChan.end()) {
+		addChannel(name);
+		Channel *channel = m_mapChan[name];
+		channel->addOps(user);
+		channel->addUser(user);
+		user->m_allChan[name];
+		user->m_opsChan[name] = channel;
+	}
+	else {
+		Channel *channel = it->second;
+		if (!(channel->m_pwd.empty()))
+			throw CmdError("Access denied to channel '" + name + "'. Password required.");
+		if (channel->m_invitMode && !channel->checkInvit(user->m_nick))
+			throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
+		if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
+			throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
+		channel->addUser(user);
+		user->m_allChan[name] = channel;
+	}
 }
 
 // Make a user join a channel named 'name' - with a password
 void	IRCServer::joinCmd(User* user, std::string name, std::string pwd)
 {
 	mapChannel::const_iterator it = m_mapChan.find(name);
-	if (it == m_mapChan.end())
-		throw CmdError("Acces denied. Channel '" + name + "' does not exit.");
-	Channel *channel = it->second;
-	if (pwd != channel->m_pwd)
-		throw CmdError("Access denied to channel \'" + name + "\'. Incorrect password.");
-	if (channel->m_invitMode && !channel->checkInvit(user->m_nick))
-		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
-	if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
-		throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
-	
-	channel->m_users.push_back(user);
-	user->m_allChan[name] = channel;
+	// Creating or joing existing channel
+	if (it == m_mapChan.end()) {
+		addChannel(name, pwd);
+		Channel *channel = m_mapChan[name];
+		channel->addOps(user);
+		channel->addUser(user);
+		user->m_allChan[name];
+		user->m_opsChan[name] = channel;
+	}
+	else {
+		Channel *channel = it->second;
+		if (pwd != channel->m_pwd)
+		{
+			std::cout << "pwd: " << channel->m_pwd << " vs. given pwd: " << pwd << std::endl;
+			throw CmdError("Access denied to channel '" + name + "'. Incorrect password.");
+		}
+		if (channel->m_invitMode && !channel->checkInvit(user->m_nick))
+			throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Invitation only.");
+		if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
+			throw CmdError("Access denied to channel \'" + channel->m_name + "\'. Maximum numbers of users reached.");
+		channel->addUser(user);
+		user->m_allChan[name] = channel;
+	}
 }
 
 void	IRCServer::partCmd(User* user, std::string name)
@@ -300,6 +317,8 @@ void	IRCServer::partCmd(User* user, std::string name)
 	user->m_opsChan.erase(name);
 
 	// Check if users are remaining
+	if (m_mapChan[name]->m_users.empty())
+		removeChannel(name);
 }
 
 /******************** OPERATOR COMMANDS ******************/
@@ -332,28 +351,20 @@ void IRCServer::fonctionTest()
 		showMapUsers();
 		showVecUsers();
 
-		addChannel("#1", "random");
-		addChannel("#2", "random");
-		addChannel("#3", "random");
-
-		showMapChannels();
-		showvecChans();
-
-		joinCmd(m_mapUser["mark"], "#1");
+		joinCmd(m_mapUser["mark"], "#1", "pwd");
 		joinCmd(m_mapUser["mark"], "#2");
 		joinCmd(m_mapUser["mark"], "#3");
+		joinCmd(m_mapUser["john"], "#1", "pwd");
 
-		showChannelsOfUser("mark");
-		showUsersOfChannel("#3");
-
-		removeChannel("#3");
-		showChannelsOfUser("mark");
 		showMapChannels();
 		showvecChans();
+
+		showChannelsOfUser("mark");
+		showUsersOfChannel("#1");
 
 		partCmd(m_mapUser["mark"], "#1");
 		showChannelsOfUser("mark");
-		showUsersOfChannel("#1");
+		showUsersOfChannel("#2");
 
 	}
 	catch (CmdError & e) {

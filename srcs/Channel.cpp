@@ -2,19 +2,17 @@
 
 /************** CONSTRUCTORS AND DESTRUCTOR ****************/
 
-Channel::Channel(std::string name, std::string topic)
+Channel::Channel(std::string name)
 {
 	this->m_name = name;
-	this->m_topic = topic;
 	this->m_invitMode = 0;
 	this->m_topicRestrict = 0;
 	this->m_maxUsers = NONE;
 }
 
-Channel::Channel(std::string name, std::string topic, std::string pwd)
+Channel::Channel(std::string name, std::string pwd)
 {
 	this->m_name = name;
-	this->m_topic = topic;
 	this->m_pwd = pwd;
 	this->m_invitMode = 0;
 	this->m_topicRestrict = 0;
@@ -45,6 +43,24 @@ Channel::~Channel()
 }
 
 /**************** SETTERS & GETTERS (users) ***************/
+
+// Add user to standard user list
+void Channel::addUser(User *user)
+{
+	m_users.push_back(user);
+}
+
+// Add user to channel operator list
+void Channel::addOps(User *user)
+{
+	m_ops.push_back(user);
+}
+
+// Add user to invitation list
+void Channel::addInvit(User *user)
+{
+	m_invited.push_back(user);
+}
 
 // Remove user from the channel
 void Channel::removeUser(std::string nick)

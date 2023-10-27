@@ -19,8 +19,8 @@ public:
 	
 	// SERVER SETTER (users, channels, memory)
 	void addUser(std::string nick, std::string user, ASocket* socket);
-	void addChannel(std::string name, std::string topic);
-	void addChannel(std::string name, std::string topic, std::string pwd);
+	void addChannel(std::string name);
+	void addChannel(std::string name, std::string pwd);
 	void removeUser(std::string nick);
 	void removeChannel(std::string name);
 	void freeMemory(void);

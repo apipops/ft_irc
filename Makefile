@@ -37,8 +37,8 @@ BLUE = \033[1;94m
 PURPLE = \033[1;95m
 GREEN = \033[1;92m
 YELLOW = \033[1;93m
-RED=\033[1;31m
-DEFAULT=\033[39m
+RED= \033[1;31m
+DEFAULT=\033[1;39m
 
 #### RULES
 all: raph $(NAME)
@@ -46,7 +46,7 @@ all: raph $(NAME)
 
 $(NAME): $(OBJS) $(INCLUDES) Makefile
 	@$(COMP) $(FLAGS) $(OBJS) -o $(NAME) ./raph/TCP_IPv4.a
-	@printf "$(YELLOW)------Compilation executed------$(DEFAULT)\n\n"
+	@printf "$(YELLOW)-------------COMPILATION EXECUTED--------------$(DEFAULT)\n\n"
 
 $(OBJS): $(PATH_OBJS)/%.o: %.cpp $(INCLUDES)
 	@mkdir -p $(PATH_OBJS)
@@ -54,17 +54,17 @@ $(OBJS): $(PATH_OBJS)/%.o: %.cpp $(INCLUDES)
 
 raph:
 	@make -C $(PATH_RAPH)
-	@printf "$(RED)------Lib 'TCP_IPv4' created-------$(DEFAULT)\n\n"
+	@printf "$(RED)------------LIB 'TCP_IPv4' CREATED-------------$(DEFAULT)\n\n"
 
 clean:
 	@$(RM) -R $(PATH_OBJS) server.log
 	@make clean -C $(PATH_RAPH)
-	@printf "$(PURPLE)------Object files deleted-------$(DEFAULT)\n\n"
+	@printf "$(PURPLE)---------------OBJECT FILES DELETED------------$(DEFAULT)\n\n"
 
 fclean: clean
 	@$(RM) $(NAME)
 	@make fclean -C $(PATH_RAPH)
-	@printf "$(GREEN)----Executable files deleted-----$(DEFAULT)\n\n"
+	@printf "$(GREEN)-------------EXECUTABLE FILES DELETED----------$(DEFAULT)\n\n"
 
 re: fclean all
 

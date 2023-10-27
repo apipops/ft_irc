@@ -6,9 +6,20 @@
 
 using namespace TCP_IPv4;
 
-int main()
+int main(int ac, char **av)
 {
 	IRCServer server("test");
 
-	server.fonctionTest();
+	// (void)ac;
+	// (void)av;
+	// server.fonctionTest();
+
+	if (ac < 2)
+		return -1;
+	
+	server.start(av[1]);
+	while (1)
+		server.runTest();
+
+	return 0;
 }

@@ -19,13 +19,16 @@ public:
 	friend class IRCServer;
 
 	// CONSTRUCTORS AND DESTRUCTOR
-	Channel(std::string name, std::string topic);
-	Channel(std::string name, std::string topic, std::string pwd);
+	Channel(std::string name);
+	Channel(std::string name, std::string pwd);
 	Channel(const Channel & src);
 	Channel & operator=(const Channel & src);
 	~Channel();
 
 	// SETTERS & GETTER (users)
+	void addUser(User *user);
+	void addOps(User *user);
+	void addInvit(User *user);
 	void removeUser(std::string nick);
 	void removeOps(std::string nick);
 	bool checkInvit(std::string nick);
