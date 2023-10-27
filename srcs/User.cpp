@@ -5,6 +5,7 @@
 User::User(ASocket *socket)
 {
 	m_socket = socket;
+	this->m_servOps = 0;
 }
 
 User::User(std::string nick, std::string user, ASocket* socket)

@@ -44,12 +44,12 @@ Channel::~Channel()
 {
 }
 
-/********************* SETTERS FOR USERS ************************/
+/**************** SETTERS & GETTERS (users) ***************/
 
 // Remove user from the channel
 void Channel::removeUser(std::string nick)
 {
-	std::vector<User*>::iterator it = m_users.begin();
+	vecUser::iterator it = m_users.begin();
 	
 	while (it != m_users.end() && (*it)->getNick() != nick)
 		it++;
@@ -60,12 +60,24 @@ void Channel::removeUser(std::string nick)
 // Remove ops user from the channel
 void Channel::removeOps(std::string nick)
 {
-	std::vector<User*>::iterator it = m_ops.begin();
+	vecUser::iterator it = m_ops.begin();
 	
 	while (it != m_ops.end() && (*it)->getNick() != nick)
 		it++;
 	if (it != m_ops.end())
 		m_ops.erase(it);
+}
+
+// Check if user has been invited to the channel
+bool Channel::checkInvit(std::string nick)
+{
+	vecUser::iterator it = m_invited.begin();
+	
+	while (it != m_invited.end() && (*it)->getNick() != nick)
+		it++;
+	if (it != m_invited.end())
+		return true;
+	return false;
 }
 
 /********************** EXCEPTIONS ***********************/

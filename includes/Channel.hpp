@@ -25,9 +25,10 @@ public:
 	Channel & operator=(const Channel & src);
 	~Channel();
 
-	// SETTERS (users)
+	// SETTERS & GETTER (users)
 	void removeUser(std::string nick);
 	void removeOps(std::string nick);
+	bool checkInvit(std::string nick);
 
 
 	// EXCEPTIONS
@@ -43,8 +44,9 @@ private:
 	std::string m_pwd;
 
 	// USERS & OPERATORS
-	std::vector<User*> m_users;
-	std::vector<User*> m_ops;
+	vecUser m_users;
+	vecUser m_ops;
+	vecUser m_invited;
 
 	// MODE 
 	bool	m_invitMode;

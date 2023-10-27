@@ -22,8 +22,8 @@ public:
 	void addChannel(std::string name, std::string topic);
 	void addChannel(std::string name, std::string topic, std::string pwd);
 	void removeUser(std::string nick);
+	void removeChannel(std::string name);
 	void freeMemory(void);
-
 
 	// UTILS FOR TESTING
 	void fonctionTest();
@@ -33,14 +33,14 @@ public:
 	void showMapUsers() const;
 	void showMapChannels() const;
 	void showVecUsers() const;
-	void showVecChannels() const;
+	void showvecChans() const;
 	void showChannelsOfUser(std::string nick) const;
 	void showUsersOfChannel(std::string channel) const;
 
 private:
 	// VECTOR FOR STORAGE (users, channels)
-	std::vector<User*>		m_users;
-	std::vector<Channel*>	m_channels;
+	vecUser		m_users;
+	vecChan	m_channels;
 
 	// MAPS FOR EASY FIND (users, channels)
 	mapChannel	m_mapChan;
