@@ -81,9 +81,16 @@ private:
 	void 	modeCmd();
 
 	// EXCEPTION
-	class CmdError : public Error {
+	class CmdError : public std::exception {
 		public:
 			CmdError(std::string what);
+			CmdError(std::string what, std::string s1);
+			CmdError(std::string what, std::string s1, std::string s2);
+			~CmdError() _NOEXCEPT;
+
+			const char *what() const _NOEXCEPT;
+		private:
+			std::string m_what;
 	};
 
 };

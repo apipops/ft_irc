@@ -7,6 +7,7 @@ SRCS 		+= main.cpp
 SRCS 		+= User.cpp
 SRCS 		+= Channel.cpp
 SRCS 		+= Message.cpp
+SRCS 		+= IRCCommands.cpp
 SRCS 		+= IRCServer.cpp
 
 vpath %.cpp $(SRC_PATH)
