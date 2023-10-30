@@ -52,7 +52,9 @@
 		"typeinfo": "cpp",
 		"cinttypes": "cpp",
 		"fstream": "cpp",
-		"sstream": "cpp"
+		"sstream": "cpp",
+		"ctime": "cpp",
+		"iomanip": "cpp"
 	},
 	"C_Cpp.dimInactiveRegions": false
 }

@@ -3,6 +3,7 @@
 
 # include "Channel.hpp"
 # include "User.hpp"
+# include "Message.hpp"
 # include "../raph/TCP_IPv4"
 # include "params.hpp"
 
@@ -17,13 +18,20 @@ public:
 	IRCServer & operator=(const IRCServer & src);
 	virtual ~IRCServer();
 	
+	// LAUNCHING
+	void checkCommands();
+	void sendWelcome(ASocket *socket);
+	void executeCommand(User *user, std::string cmd);
+
 	// SERVER SETTER (users, channels, memory)
+	void addUser(ASocket* socket);
 	void addUser(std::string nick, std::string user, ASocket* socket);
 	void addChannel(std::string name);
 	void addChannel(std::string name, std::string pwd);
 	void removeUser(std::string nick);
 	void removeChannel(std::string name);
 	void freeMemory(void);
+	void sendError(User *user, std::string msg);
 
 	// UTILS FOR TESTING
 	void fonctionTest();
@@ -40,26 +48,25 @@ public:
 private:
 	// VECTOR FOR STORAGE (users, channels)
 	vecUser		m_users;
-	vecChan	m_channels;
+	vecChan		m_channels;
 
 	// MAPS FOR EASY FIND (users, channels)
 	mapChannel	m_mapChan;
 	mapUser 	m_mapUser;
 
 	// PARSING
-	void checkUserDup(std::string nick);
+	void checkNickDup(std::string nick);
 	void checkChanDup(std::string channel);
-	void checkUserFormat(std::string type, std::string name);
+	void checkNickFormat(std::string type);
 	void checkChanFormat(std::string name);
 	void checkTopicFormat(std::string topic);
 	void checkPwdFormat(std::string pwd);
 
 	// BASIC COMMANDS
-	void	nickCmd(User* user, std::string newNick);
-	void	userCmd(User* user, std::string newUser);
-	void	joinCmd(User* user, std::string name);
-	void	joinCmd(User* user, std::string name, std::string pwd);
-	void	partCmd(User* user, std::string name);
+	void	nickCmd(User* user, Message &msg);
+	void	userCmd(User* user, Message &msg);
+	void	joinCmd(User* user, Message &msg);
+	void	partCmd(User* user, Message &msg);
 
 	// OPERATOR COMMANDS
 	void 	kickCmd();

@@ -19,6 +19,7 @@ typedef std::map<std::string, Channel* > mapChannel;
 typedef std::vector<User*> vecUser;
 typedef std::vector<Channel*> vecChan;
 typedef std::vector<std::string> vecStr;
+//typedef	void	(IRCServer::*t_cmd)(User *, Message &);
 
 // USERNAME POLICY
 #define USER_MINCHAR 1
@@ -34,5 +35,22 @@ typedef std::vector<std::string> vecStr;
 
 // MESSAGE POLICY
 #define MSG_MAXCHAR 510
+
+// ERROR REPLIES
+
+// generic
+#define ERR_NEEDMOREPARAMS		"461 :Not enough parameters"
+
+// nickname
+#define ERR_NONICKNAMEGIVEN 	"431 :No nickname given"
+#define ERR_ERRONEOUSNICKNAME	"432 :Erroneous nickname"
+#define ERR_NICKNAMEINUSE		"433 :Nickname is already in use"
+
+// channels
+#define ERR_NOSUCHCHANNEL		"403 :No such channel"
+#define ERR_NOTONCHANNEL		"442 :You're not on that channel"
+#define ERR_CHANNELISFULL		"471 :Cannot join channel (+l)"
+#define ERR_INVITEONLYCHAN		"473 :Cannot join channel (+i)"
+#define ERR_BADCHANNELKEY		"475 :Cannot join channel (+k)"
 
 #endif
