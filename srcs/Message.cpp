@@ -108,7 +108,7 @@ void Message::parseArgs(std::string args)
 		i++;
 	}
 	if (i > 0 && token[0] == ':') {
-		std::string first = token;
+		std::string first = token.substr(1, token.length() - 1);
 		if (std::getline(stream, token))
 			m_args.push_back(first + " " + token);
 		else

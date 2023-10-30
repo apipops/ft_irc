@@ -7,6 +7,11 @@ IRCServer::IRCServer(std::string name):Server(name)
 {
 }
 
+IRCServer::IRCServer(std::string name, std::string pwd):Server(name)
+{
+	m_pwd = pwd;
+}
+
 IRCServer::IRCServer(const IRCServer & src):Server(src.m_name)
 { 
 	*this = src;
@@ -14,8 +19,9 @@ IRCServer::IRCServer(const IRCServer & src):Server(src.m_name)
 
 IRCServer & IRCServer::operator=(const IRCServer & src)
 { 
-	// Copy basic servor members
+	// Copy basic servor members and pwd
 	Server::operator=(src);
+	m_pwd = src.m_pwd;
 
 	// Free memory
 	this->freeMemory();
@@ -55,7 +61,6 @@ void	IRCServer::checkCommands()
 	if (this->pendingConnection()) {
 		TCP_IPv4::ASocket *newASocket = this->newConnection();
 		addUser(newASocket);
-		sendWelcome(newASocket);
 	}
 	for (size_t i = 0; i < m_users.size(); ++i) {
 		if (m_users[i]->m_socket->isReadable()) {
@@ -75,40 +80,46 @@ void	IRCServer::checkCommands()
 }
 
 // Send welcome message at the first connection
-void	IRCServer::sendWelcome(ASocket *newASocket)
+void	IRCServer::sendWelcome(User *user, std::string nick)
 {
-	newASocket->write(":" + m_name + " 001 :Welcome to the Internet Relay Network\n");
-	newASocket->write(":" + m_name + " 002 :Your host is " + m_name + "\n");
-	newASocket->write(":" + m_name + " 375");
-	newASocket->write(":" + m_name + " 372 :-Hello\n");
-	newASocket->write(":" + m_name + " 376 :End of /MOTD command\n");
-	newASocket->send();
+	user->m_socket->write(":" + m_name + " 001 " + nick + " :Welcome to the Internet Relay Network!\n");
+	user->m_socket->write(":" + m_name + " 002 " + nick + " :Your host is " + m_name + ".\n");
+	user->m_socket->write(":" + m_name + " 003 " + nick + " :This server was created " + m_creationTime + "\n");
+	// user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " OurIRC-1.0 abBcCFiIoqrRswx ov\n");
+	// user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(ohv)@+ CHANTYPES=# CHANMODES=itkol :are supported on this server.\n");
+	// user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\n");
+	user->m_socket->send();
 }
 
 // Execute commands
 void	IRCServer::executeCommand(User *user, std::string cmd)
 {
 	Message msg(cmd);
+	mapCmd	cmds;
+
+	cmds["NICK"] = &IRCServer::nickCmd;
+	cmds["USER"] = &IRCServer::nickCmd;
+	cmds["PING"] = &IRCServer::pingCmd;
+	cmds["WHOIS"] = &IRCServer::whoisCmd;
+	cmds["JOIN"] = &IRCServer::joinCmd;
+	cmds["PART"] = &IRCServer::partCmd;
 
 	try {
-		if (msg.m_cmd == "NICK")
-			nickCmd(user, msg);
-		if (msg.m_cmd == "USER")
-			userCmd(user, msg);
-		if (msg.m_cmd == "JOIN")
-			joinCmd(user, msg);
-		if (msg.m_cmd == "PART")
-			partCmd(user, msg);
+		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
+		if (it != cmds.end())
+			(it->second)(user, msg);
+			// COMMENT DEREFERENCER ?
 	}
 	catch (CmdError &e) {
-		sendError(user, e.what());
+		sendReply(user, e.what());
 	}
+
 }
 
-void	IRCServer::sendError(User *user, const std::string error)
+void	IRCServer::sendReply(User *user, const std::string reply)
 {
-	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl << error;
-	user->m_socket->write(":" + m_name + " " + error);
+	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl << reply << std::endl;
+	user->m_socket->write(":" + m_name + " " + reply);
 	user->m_socket->send();
 }
 
@@ -120,7 +131,6 @@ void IRCServer::addUser(ASocket* socket)
 	// Adding to vector and map
 	User *user = new User(socket);
 	m_users.push_back(user);
-	// m_mapUser[nick] = m_users.back();
 }
 
 // Add a user to IRC server
@@ -140,7 +150,6 @@ void IRCServer::addUser(std::string nick, std::string username, ASocket* socket)
 void IRCServer::addChannel(std::string name)
 {
 	// Parsing
-	checkChanDup(name);
 	checkChanFormat(name);
 
 	// Adding to vector and map
@@ -153,7 +162,6 @@ void IRCServer::addChannel(std::string name)
 void IRCServer::addChannel(std::string name, std::string pwd)
 {
 	// Parsing
-	checkChanDup(name);
 	checkChanFormat(name);
 	checkPwdFormat(pwd);
 
@@ -236,7 +244,7 @@ void	IRCServer::freeMemory(void)
 
 /********************** BASIC COMMANDS **********************/
 
-// Replace nickname of user by 'newNick'
+// Add/replace nickname of user
 void	IRCServer::nickCmd(User* user, Message &msg)
 {
 	// Parsing - throw exception
@@ -246,13 +254,15 @@ void	IRCServer::nickCmd(User* user, Message &msg)
 	checkNickDup(msg.m_args[0]);
 
 	// Suppress from map, update in vector and add again in map
+	if (user->m_nick.empty())
+		sendWelcome(user, msg.m_args[0]);
 	m_mapUser.erase(user->m_nick);
 	user->m_nick = msg.m_args[0];
 	m_mapUser[msg.m_args[0]] = user;
 }
 
 
-// Replace username and realname
+// Add/replace username and realname of user
 void	IRCServer::userCmd(User* user, Message &msg)
 {
 	if (msg.m_args.size() != 4)
@@ -262,8 +272,32 @@ void	IRCServer::userCmd(User* user, Message &msg)
 	user->m_real = msg.m_args[3];
 }
 
+// Answer 'PING' command
+void	IRCServer::pingCmd(User* user, Message &msg)
+{
+	(void)msg;
+	sendReply(user, "PONG");
+}
 
-// Make a user join a channel named 'name' - without password
+// Answer 'WHOIS' command
+void	IRCServer::whoisCmd(User* user, Message &msg)
+{
+	std::string reply;
+	if (!msg.m_args.size())
+		throw CmdError(ERR_NEEDMOREPARAMS);
+	else if (msg.m_args[0] == user->m_nick)
+	{
+		reply = static_cast<std::string>(RPL_WHOISUSER) + " " + user->m_nick + " " + user->m_user + " * " + ":" + user->m_real;
+		
+	}
+	else if (msg.m_args[0] == m_name)
+	{
+		reply = static_cast<std::string>(RPL_WHOISERVER) + " " + user->m_nick + " " + m_name + " * " + ":This server is our own IRC server";
+		sendReply(user, reply);
+	}
+}
+
+// Make user join/create a channel
 void	IRCServer::joinCmd(User* user, Message &msg)
 {
 	if (!msg.m_args.size())
@@ -310,7 +344,7 @@ void	IRCServer::joinCmd(User* user, Message &msg)
 	}
 }
 
-
+// Make user leave a channel
 void	IRCServer::partCmd(User* user, Message &msg)
 {
 	if (!msg.m_args.size())
@@ -359,13 +393,6 @@ void IRCServer::checkNickDup(std::string nick)
 		throw CmdError(ERR_NICKNAMEINUSE);
 }
 
-// Check if channel "channel" already exists
-void IRCServer::checkChanDup(std::string channel)
-{
-	if (m_mapChan.find(channel) != m_mapChan.end())
-		throw CmdError("Channel \'" + channel + "\' already exists");
-}
-
 // Check if nickanme "name" matches policy name
 void IRCServer::checkNickFormat(std::string name)
 {
@@ -385,14 +412,14 @@ void IRCServer::checkNickFormat(std::string name)
 void IRCServer::checkChanFormat(std::string name)
 {
 	if (name.length() < CHAN_MINCHAR)
-		throw CmdError("Channel name \'" + name +"\' is too short");
+		throw CmdError(ERR_INVALIDCHANNELNAME);
 	if (name.length() > CHAN_MAXCHAR)
-		throw CmdError("Channel name \'" + name +"\' is too long");
+		throw CmdError(ERR_INVALIDCHANNELNAME);
 	if (name[0] != '#')
-		throw CmdError("Channel name must start with character \'#\'");
+		throw CmdError(ERR_INVALIDCHANNELNAME);
 	for(int i = 0; name[i]; i++) {
 		if (!isprint(name[i]) || name[i] == ' ' || name[i] == ',' || name[i] == ':')
-			throw CmdError("Chanel name \'" + name +"\' has invalid character(s)");
+			throw CmdError(ERR_INVALIDCHANNELNAME);
 	}
 }
 
@@ -411,9 +438,9 @@ void IRCServer::checkTopicFormat(std::string topic)
 void IRCServer::checkPwdFormat(std::string pwd)
 {
 	if (pwd.length() < PWD_MINCHAR)
-		throw CmdError("Password is too short");
+		throw CmdError(ERR_INVALIDKEYFORMAT);
 	if (pwd.length() > PWD_MAXCHAR)
-		throw CmdError("Password is too long");
+		throw CmdError(ERR_INVALIDKEYFORMAT);
 }
 
 /********************* UTILS FOR TESTS ******************/
@@ -474,7 +501,7 @@ void IRCServer::showMapUsers() const
 	std::cout << "[USERS - MAP]:" << std::endl;
 	mapUser::const_iterator it = m_mapUser.begin();
 	for (; it != m_mapUser.end(); ++it)
-		std::cout << " User: " << it->first << std::endl;
+		std::cout << " Nick: " << it->first << ", User: " << it->second->m_user << ", Real: " << it->second->m_real << std::endl;
 }
 
 

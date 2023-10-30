@@ -14,13 +14,14 @@ class IRCServer: public TCP_IPv4::Server
 public:
 	// CONSTRUCTORS AND DESTRUCTORS
 	IRCServer(std::string name);
+	IRCServer(std::string name, std::string pwd);
 	IRCServer(const IRCServer & src);
 	IRCServer & operator=(const IRCServer & src);
 	virtual ~IRCServer();
 	
 	// LAUNCHING
 	void checkCommands();
-	void sendWelcome(ASocket *socket);
+	void sendWelcome(User *user, std::string nick);
 	void executeCommand(User *user, std::string cmd);
 
 	// SERVER SETTER (users, channels, memory)
@@ -31,7 +32,7 @@ public:
 	void removeUser(std::string nick);
 	void removeChannel(std::string name);
 	void freeMemory(void);
-	void sendError(User *user, std::string msg);
+	void sendReply(User *user, std::string reply);
 
 	// UTILS FOR TESTING
 	void fonctionTest();
@@ -46,6 +47,9 @@ public:
 	void showUsersOfChannel(std::string channel) const;
 
 private:
+	// PASSWORD
+	std::string m_pwd;
+
 	// VECTOR FOR STORAGE (users, channels)
 	vecUser		m_users;
 	vecChan		m_channels;
@@ -56,7 +60,6 @@ private:
 
 	// PARSING
 	void checkNickDup(std::string nick);
-	void checkChanDup(std::string channel);
 	void checkNickFormat(std::string type);
 	void checkChanFormat(std::string name);
 	void checkTopicFormat(std::string topic);
@@ -65,8 +68,11 @@ private:
 	// BASIC COMMANDS
 	void	nickCmd(User* user, Message &msg);
 	void	userCmd(User* user, Message &msg);
+	void	pingCmd(User* user, Message &msg);
+	void	whoisCmd(User* user, Message &msg);
 	void	joinCmd(User* user, Message &msg);
 	void	partCmd(User* user, Message &msg);
+	void	quitCmd(User* user, Message &msg);
 
 	// OPERATOR COMMANDS
 	void 	kickCmd();
