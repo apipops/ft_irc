@@ -33,9 +33,10 @@ Message & Message::operator=(Message & src)
 {
 	this->m_prefix = src.m_prefix;
 	this->m_cmd = src.m_cmd;
-	for(int i = 0; i < 15; i++)
-		this->m_args[i] = src.m_args[i];
-	
+	vecStr::const_iterator it = src.m_args.begin();
+	for(; it != src.m_args.end(); it++)
+		this->m_args.push_back(*it);
+
 	return *this;
 }
 
@@ -46,9 +47,15 @@ Message::~Message()
 /************************* GETTERS *************************/
 
 std::string	Message::getMessage() const {
-	std::string msg = m_prefix + m_cmd;
-	for (int i = 0; i < 15; i++)
-		msg += m_args[i];
+	std::string msg;
+	if (!m_prefix.empty())
+		msg = m_prefix + " " + m_cmd;
+	else
+		msg = m_cmd;
+	vecStr::const_iterator it = m_args.begin();
+	for(; it != m_args.end(); it++) {
+		msg += " " + (*it);
+	}
 	return msg;
 }
 
@@ -57,9 +64,11 @@ std::string	Message::getMessage() const {
 void Message::showMessage() const {
 	std::cout << "- prefix: " << m_prefix << std::endl;
 	std::cout << "- cmd: " << m_cmd << std::endl;
-	for (int i = 0; i < 15; i++) {
-		if (!m_args[i].empty())
-			std::cout << "- arg" << i << ": " << m_args[i] << std::endl;
+	vecStr::const_iterator it = m_args.begin();
+	int i = 0;
+	for(; it != m_args.end(); it++) {
+		std::cout << "- arg" << i << ": " << *it << std::endl;
+		i++;
 	}
 }
 
@@ -95,15 +104,15 @@ void Message::parseArgs(std::string args)
 
 	while (std::getline(stream, token, ' ') && token[0] != ':')
 	{
-		m_args[i] = token;
+		m_args.push_back(token);
 		i++;
 	}
 	if (i > 0 && token[0] == ':') {
 		std::string first = token;
 		if (std::getline(stream, token))
-			m_args[i] = first + " " + token;
+			m_args.push_back(first + " " + token);
 		else
-			m_args[i] = first;
+			m_args.push_back(first);
 	}
 }
 

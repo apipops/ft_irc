@@ -49,7 +49,7 @@ private:
 	std::string	m_msg;
 	std::string m_prefix;
 	std::string m_cmd;
-	std::string m_args[15];
+	vecStr 		m_args;
 
 	// PARSING
 	void	parseMsg(std::string msg);

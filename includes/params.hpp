@@ -16,8 +16,9 @@ class User;
 class Channel;
 typedef std::map<std::string, User* > mapUser;
 typedef std::map<std::string, Channel* > mapChannel;
-typedef std::vector<User* > vecUser;
-typedef std::vector<Channel* > vecChan;
+typedef std::vector<User*> vecUser;
+typedef std::vector<Channel*> vecChan;
+typedef std::vector<std::string> vecStr;
 
 // USERNAME POLICY
 #define USER_MINCHAR 1

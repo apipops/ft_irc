@@ -6,7 +6,7 @@ SRC_PATH 	= srcs/
 SRCS 		+= main.cpp
 SRCS 		+= User.cpp
 SRCS 		+= Channel.cpp
-# SRCS 		+= Message.cpp
+SRCS 		+= Message.cpp
 SRCS 		+= IRCServer.cpp
 
 vpath %.cpp $(SRC_PATH)
@@ -19,7 +19,7 @@ OBJS		= $(patsubst %.cpp, $(PATH_OBJS)/%.o, $(SRCS))
 INCLUDES 	+= includes/params.hpp
 INCLUDES 	+= includes/Channel.hpp
 INCLUDES 	+= includes/User.hpp
-# INCLUDES 	+= includes/Message.hpp
+INCLUDES 	+= includes/Message.hpp
 INCLUDES 	+= includes/IRCServer.hpp
 
 #### LIB RAPH
@@ -38,7 +38,7 @@ PURPLE = \033[1;95m
 GREEN = \033[1;92m
 YELLOW = \033[1;93m
 RED= \033[1;31m
-DEFAULT=\033[1;39m
+DEFAULT=\033[0;39m
 
 #### RULES
 all: raph $(NAME)
