@@ -95,25 +95,43 @@ void	IRCServer::sendWelcome(User *user, std::string nick)
 void	IRCServer::executeCommand(User *user, std::string cmd)
 {
 	Message msg(cmd);
-	mapCmd	cmds;
 
-	cmds["NICK"] = &IRCServer::nickCmd;
-	cmds["USER"] = &IRCServer::nickCmd;
-	cmds["PING"] = &IRCServer::pingCmd;
-	cmds["WHOIS"] = &IRCServer::whoisCmd;
-	cmds["JOIN"] = &IRCServer::joinCmd;
-	cmds["PART"] = &IRCServer::partCmd;
+	// mapCmd	cmds;
+
+	// cmds["NICK"] = &IRCServer::nickCmd;
+	// cmds["USER"] = &IRCServer::nickCmd;
+	// cmds["PING"] = &IRCServer::pingCmd;
+	// cmds["WHOIS"] = &IRCServer::whoisCmd;
+	// cmds["JOIN"] = &IRCServer::joinCmd;
+	// cmds["PART"] = &IRCServer::partCmd;
+
+	// try {
+	// 	mapCmd::const_iterator it = cmds.find(msg.m_cmd);
+	// 	if (it != cmds.end())
+	// 		(this->*(it->second))(user, msg);
+	// 		// COMMENT DEREFERENCER ?
+	// }
+	// catch (CmdError &e) {
+	// 	sendReply(user, e.what());
+	// }
 
 	try {
-		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
-		if (it != cmds.end())
-			(it->second)(user, msg);
-			// COMMENT DEREFERENCER ?
+		if (msg.m_cmd == "NICK")
+			nickCmd(user, msg);
+		else if (msg.m_cmd == "USER")
+			userCmd(user, msg);
+		else if (msg.m_cmd == "PING")
+			pingCmd(user, msg);
+		else if (msg.m_cmd == "WHOIS")
+			whoisCmd(user, msg);
+		else if (msg.m_cmd == "JOIN")
+			joinCmd(user, msg);
+		else if (msg.m_cmd == "PART")
+			partCmd(user, msg);
 	}
 	catch (CmdError &e) {
 		sendReply(user, e.what());
 	}
-
 }
 
 void	IRCServer::sendReply(User *user, const std::string reply)
