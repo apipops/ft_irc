@@ -52,7 +52,7 @@ IRCServer::~IRCServer()
 	freeMemory();
 }
 
-/************************ LAUNCHING *********************/
+/************************ EXECUTION *********************/
 
 // Wait for events and parse commands
 void	IRCServer::checkCommands()
@@ -63,6 +63,7 @@ void	IRCServer::checkCommands()
 		addUser(newASocket);
 	}
 	for (size_t i = 0; i < m_users.size(); ++i) {
+		//TCP_IPv4::ASocket	*m_users[i]->m_socket = m_users[i]->m_socket;
 		if (m_users[i]->m_socket->isReadable()) {
 			m_users[i]->m_socket->receive();
 			while (!this->isdown() && !m_users.empty() && m_users[i]->m_socket->pendingData()) {
@@ -73,14 +74,15 @@ void	IRCServer::checkCommands()
 								<< buf << std::endl;
 					executeCommand(m_users[i], buf);
 				}
-
 			}
+			if (!m_users.empty())
+				m_users[i]->m_socket->send();
 		}
 	}
 }
 
 // Send welcome message at the first connection
-void	IRCServer::sendWelcome(User *user, std::string nick)
+void	IRCServer::writeWelcome(User *user, std::string nick)
 {
 	user->m_socket->write(":" + m_name + " 001 " + nick + " :Welcome to the Internet Relay Network!\n");
 	user->m_socket->write(":" + m_name + " 002 " + nick + " :Your host is " + m_name + ".\n");
@@ -88,7 +90,6 @@ void	IRCServer::sendWelcome(User *user, std::string nick)
 	// user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " OurIRC-1.0 abBcCFiIoqrRswx ov\n");
 	// user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(ohv)@+ CHANTYPES=# CHANMODES=itkol :are supported on this server.\n");
 	// user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\n");
-	user->m_socket->send();
 }
 
 // Execute commands
@@ -102,33 +103,41 @@ void	IRCServer::executeCommand(User *user, std::string cmd)
 		cmds["USER"] = &IRCServer::userCmd;
 		cmds["PING"] = &IRCServer::pingCmd;
 		cmds["WHOIS"] = &IRCServer::whoisCmd;
-		cmds["JOIN"] = &IRCServer::joinCmd;
+		cmds["JOIN"] = &IRCServer::joinCmd; // in progress
 		cmds["PART"] = &IRCServer::partCmd;
 		cmds["QUIT"] = &IRCServer::quitCmd;
 
-		try {
-			mapCmd::const_iterator it = cmds.find(msg.m_cmd);
-			if (it != cmds.end())
-				(this->*(it->second))(user, msg);
-		}
-		catch (CmdError &e) {
-			sendReply(user, e.what());
+		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
+		if (it != cmds.end()) {
+			(this->*(cmds[msg.m_cmd]))(user, msg);
 		}
 	}
-	catch (Message::MsgError &e) {
+	catch (CmdError &e) {
+		writeReply(user, SERVER_PFX, e.what());
+	}
+	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
 	}
 }
 
-void	IRCServer::sendReply(User *user, const std::string reply)
+// Write reply with prefix in buffer and logfile
+void	IRCServer::writeReply(User *user, int prefix, const std::string reply)
 {
-	std::string fullReply = ":" + m_name + " " + reply;
+	std::string fullReply;
 
-	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl
-				<< fullReply << std::endl;
+	// Adding prefix
+	if (prefix == SERVER_PFX)
+		fullReply = ":" + m_name + " " + reply;
+	else if (prefix == USER_PFX)
+		fullReply = ":" + user->m_nick + "!" + user->m_user + " " + reply;
+	else
+		fullReply = reply;
+
+	// Writing in logfile and buffer
+	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl << fullReply << std::endl;
 	user->m_socket->write(fullReply);
-	user->m_socket->send();
 }
+
 
 /******************* SERVER SETTER (users, channels, memory) *****************/
 
@@ -140,24 +149,11 @@ void IRCServer::addUser(ASocket* socket)
 	m_users.push_back(user);
 }
 
-// Add a user to IRC server
-void IRCServer::addUser(std::string nick, std::string username, ASocket* socket)
-{
-	// Parsing
-	checkNickDup(nick);
-	checkNickFormat(nick);
-
-	// Adding to vector and map
-	User *user = new User(nick, username, socket);
-	m_users.push_back(user);
-	m_mapUser[nick] = m_users.back();
-}
-
 // Add a channel to IRC server - without password
-void IRCServer::addChannel(std::string name)
+void IRCServer::addChannel(std::string name, User *user)
 {
 	// Parsing
-	checkChanFormat(name);
+	checkChanFormat(name, user);
 
 	// Adding to vector and map
 	Channel *channel = new Channel(name);
@@ -166,11 +162,11 @@ void IRCServer::addChannel(std::string name)
 }
 
 // Add a channel to IRC server - with a password
-void IRCServer::addChannel(std::string name, std::string pwd)
+void IRCServer::addChannel(std::string name, std::string pwd, User *user)
 {
 	// Parsing
-	checkChanFormat(name);
-	checkPwdFormat(pwd);
+	checkChanFormat(name, user);
+	checkPwdFormat(pwd, user);
 
 	// Adding to vector and map
 	Channel *channel = new Channel(name, pwd);
@@ -250,63 +246,114 @@ void	IRCServer::freeMemory(void)
 }
 
 
-/************************* PARSING **********************/
+/**************************** UTILS **************************/
+
+// Build a reply based on the IRC norm - without inserting argument
+std::string IRCServer::buildReply(User *user, std::string what)
+{
+	std::string reply;
+
+	// Adding commands and arguments
+	size_t mid = what.find(':');
+	if (mid != std::string::npos)
+		reply += what.substr(0, mid) + user->m_nick + " " + what.substr(mid, what.length() - mid);
+	else {
+		mid = what.find('\r');
+		reply += what.substr(0, mid) + user->m_nick + what.substr(mid, what.length() - mid);
+	} 
+	return reply;
+}
+
+// Build a reply based on the IRC norm - inserting 1 argument
+std::string IRCServer::buildReply(User *user, std::string what, std::string arg)
+{
+	std::string reply;
+
+	// Adding commands and arguments
+	size_t mid = what.find(':');
+	if (mid != std::string::npos)
+		reply = what.substr(0, mid) + user->m_nick + " " + arg + " " + what.substr(mid, what.length() - mid);
+	else {
+		mid = what.find('\r');
+		reply = what.substr(0, mid) + user->m_nick + " " + arg + what.substr(mid, what.length() - mid);
+	} 
+	return reply;
+}
+
+// Build a reply based on the IRC norm - inserting 2 arguments
+std::string IRCServer::buildReply(User *user, std::string what, std::string arg1, std::string arg2)
+{
+	std::string reply;
+
+	// Adding commands and arguments
+	size_t mid = what.find(':');
+	if (mid != std::string::npos)
+		reply = what.substr(0, mid) + user->m_nick + " " + arg1 + " " + arg2 + " " + what.substr(mid, what.length() - mid);
+	else {
+		mid = what.find('\r');
+		reply = what.substr(0, mid) + user->m_nick + " " + arg1 + " " + arg2 + what.substr(mid, what.length() - mid);
+	} 
+	return reply;
+}
+
+
+/**************************** PARSING *************************/
 
 // Check if nickname "nick" already exists
-void IRCServer::checkNickDup(std::string nick)
+void IRCServer::checkNickDup(std::string nick, User *user)
 {
 	if (m_mapUser.find(nick) != m_mapUser.end())
-		throw CmdError(ERR_NICKNAMEINUSE, nick);
+		throw CmdError(ERR_NICKNAMEINUSE, user, nick);
 }
 
 // Check if nickanme "name" matches policy name
-void IRCServer::checkNickFormat(std::string name)
+void IRCServer::checkNickFormat(std::string nick, User *user)
 {
-	if (name.length() < USER_MINCHAR)
-		throw CmdError(ERR_ERRONEOUSNICKNAME, name);
-	if (name.length() > USER_MAXCHAR)
-		throw CmdError(ERR_ERRONEOUSNICKNAME, name);
-	for(int i = 0; name[i]; i++) {
-		if (!isalnum(name[i]) && name[i] != '-' && name[i] != '_')
-			throw CmdError(ERR_ERRONEOUSNICKNAME, name);
+	if (nick.length() < USER_MINCHAR)
+		throw CmdError(ERR_ERRONEOUSNICKNAME, user, nick);
+	if (nick.length() > USER_MAXCHAR)
+		throw CmdError(ERR_ERRONEOUSNICKNAME, user, nick);
+	for(int i = 0; nick[i]; i++) {
+		if (!isalnum(nick[i]) && nick[i] != '-' && nick[i] != '_')
+			throw CmdError(ERR_ERRONEOUSNICKNAME, user, nick);
 	}
-	if (!isalpha(name[0]))
-		throw CmdError(ERR_ERRONEOUSNICKNAME, name);
+	if (!isalpha(nick[0]))
+		throw CmdError(ERR_ERRONEOUSNICKNAME, user, nick);
 }
 
 // Check if channel "name" matches policy
-void IRCServer::checkChanFormat(std::string name)
+void IRCServer::checkChanFormat(std::string name, User *user)
 {
 	if (name.length() < CHAN_MINCHAR)
-		throw CmdError(ERR_INVALIDCHANNELNAME, "avast", name);
+		throw CmdError(ERR_INVALIDCHANNELNAME, user, name);
 	if (name.length() > CHAN_MAXCHAR)
-		throw CmdError(ERR_INVALIDCHANNELNAME, name);
+		throw CmdError(ERR_INVALIDCHANNELNAME, user, name);
 	if (name[0] != '#')
-		throw CmdError(ERR_INVALIDCHANNELNAME, name);
+		throw CmdError(ERR_INVALIDCHANNELNAME, user, name);
 	for(int i = 0; name[i]; i++) {
 		if (!isprint(name[i]) || name[i] == ' ' || name[i] == ',' || name[i] == ':')
-			throw CmdError(ERR_INVALIDCHANNELNAME, name);
+			throw CmdError(ERR_INVALIDCHANNELNAME, user, name);
 	}
 }
 
 // Check if topic description format matches the policy
-void IRCServer::checkTopicFormat(std::string topic)
+void IRCServer::checkTopicFormat(std::string topic, User *user)
 {
 	if (topic.length() > TOPIC_MAXCHAR)
-		throw CmdError("Topic description is too long");
+		throw CmdError("Topic description is too long", user);
 	for(int i = 0; topic[i]; i++) {
 		if (!isprint(topic[i]))
-			throw CmdError("Topic description has invalid character(s)");
+			throw CmdError("Topic description has invalid character(s)", user);
 	}
  }
 
 // Check if password format matches the policy
-void IRCServer::checkPwdFormat(std::string pwd)
+void IRCServer::checkPwdFormat(std::string pwd, User *user)
 {
 	if (pwd.length() < PWD_MINCHAR)
-		throw CmdError(ERR_INVALIDKEYFORMAT);
+		throw CmdError(ERR_INVALIDKEYFORMAT, user);
 	if (pwd.length() > PWD_MAXCHAR)
-		throw CmdError(ERR_INVALIDKEYFORMAT);
+		throw CmdError(ERR_INVALIDKEYFORMAT, user);
 }
 
 /********************* UTILS FOR TESTS ******************/
@@ -420,22 +467,18 @@ void IRCServer::showUsersOfChannel(std::string channel) const
 
 /*************************** EXCEPTIONS **************************/
 
-IRCServer::CmdError::CmdError(std::string what)
+// Instanciate an error message according to IRC norm - without argument
+IRCServer::CmdError::CmdError(std::string what, User *user)
 {
-	m_what = what;
+	m_what = buildReply(user, what);
 }
 
-IRCServer::CmdError::CmdError(std::string what, std::string nick)
+// Instanciate an error message according to IRC norm - with an argument
+IRCServer::CmdError::CmdError(std::string what, User *user, std::string arg)
 {
-	size_t mid = what.find(':');
-	m_what = what.substr(0, mid) + nick + " " + what.substr(mid, what.length() - mid);
+	m_what = buildReply(user, what, arg);
 }
 
-IRCServer::CmdError::CmdError(std::string what, std::string nick, std::string arg)
-{
-	size_t mid = what.find(':');
-	m_what = what.substr(0, mid) + nick + " " + arg + " " + what.substr(mid, what.length() - mid);
-}
 
 IRCServer::CmdError::~CmdError() _NOEXCEPT
 {

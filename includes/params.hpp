@@ -24,6 +24,10 @@ typedef std::vector<std::string> vecStr;
 typedef	void	(IRCServer::*t_cmd)(User *, Message &);
 typedef std::map<std::string, t_cmd> mapCmd;
 
+// PREFIXE
+#define SERVER_PFX 1
+#define USER_PFX 2
+
 // USERNAME POLICY
 #define USER_MINCHAR 1
 #define USER_MAXCHAR 9
@@ -40,28 +44,31 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define MSG_MAXCHAR 510
 
 // REPLIES
-#define RPL_WHOISUSER			"311"
-#define RPL_WHOISERVER			"312"
-// #define	RPL_ENDOFWHOIS
-//               "<nick> :End of WHOIS list"
+#define RPL_WHOISUSER			"311\r\n"
+#define RPL_WHOISERVER			"312\r\n"
+#define	RPL_ENDOFWHOIS			"318\r\n"
+#define RPL_TOPIC				"332\r\n"
+#define RPL_TOPIC				"332\r\n"
+#define RPL_NAMREPLY			"353\r\n"
+#define RPL_ENDOFNAMES			"366 :End of Names\r\n"
 
 // ERRORS
 
 // generic
-#define ERR_NEEDMOREPARAMS		"461 :Not enough parameters"
+#define ERR_NEEDMOREPARAMS		"461 :Not enough parameters\r\n"
 
 // nickname
-#define ERR_NONICKNAMEGIVEN 	"431 :No nickname given"
-#define ERR_ERRONEOUSNICKNAME	"432 :Erroneous nickname"
-#define ERR_NICKNAMEINUSE		"433 :Nickname is already in use"
+#define ERR_NONICKNAMEGIVEN 	"431 :No nickname given\r\n"
+#define ERR_ERRONEOUSNICKNAME	"432 :Erroneous nickname\r\n"
+#define ERR_NICKNAMEINUSE		"433 :Nickname is already in use\r\n"
 
 // channels
-#define ERR_NOSUCHCHANNEL		"403 avast :No such channel"
-#define ERR_INVALIDCHANNELNAME	"403 :Invalid channel name"
-#define ERR_NOTONCHANNEL		"442 :You're not on that channel"
-#define ERR_CHANNELISFULL		"471 :Cannot join channel (+l)"
-#define ERR_INVITEONLYCHAN		"473 :Cannot join channel (+i)"
-#define ERR_BADCHANNELKEY		"475 :Cannot join channel (+k)"
-#define ERR_INVALIDKEYFORMAT	"475 :Cannot create channel (+k)"
+#define ERR_NOSUCHCHANNEL		"403 :No such channel\r\n"
+#define ERR_INVALIDCHANNELNAME	"403 :Invalid channel name\r\n"
+#define ERR_NOTONCHANNEL		"442 :You're not on that channel\r\n"
+#define ERR_CHANNELISFULL		"471 :Cannot join channel (+l)\r\n"
+#define ERR_INVITEONLYCHAN		"473 :Cannot join channel (+i)\r\n"
+#define ERR_BADCHANNELKEY		"475 :Cannot join channel (+k)\r\n"
+#define ERR_INVALIDKEYFORMAT	"475 :Cannot create channel (+k)\r\n"
 
 #endif

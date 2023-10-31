@@ -57,8 +57,11 @@ raph:
 	@make -C $(PATH_RAPH)
 	@printf "$(RED)------------LIB 'TCP_IPv4' CREATED-------------$(DEFAULT)\n\n"
 
-clean:
-	@$(RM) -R $(PATH_OBJS) server.log
+logclean:
+	@$(RM) *.log
+
+clean: logclean
+	@$(RM) -R $(PATH_OBJS)
 	@make clean -C $(PATH_RAPH)
 	@printf "$(PURPLE)---------------OBJECT FILES DELETED------------$(DEFAULT)\n\n"
 
@@ -69,4 +72,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY : all clean fclean re raph
+.PHONY : all clean fclean re raph logclean
