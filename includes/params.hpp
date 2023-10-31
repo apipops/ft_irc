@@ -42,6 +42,8 @@ typedef std::map<std::string, t_cmd> mapCmd;
 // REPLIES
 #define RPL_WHOISUSER			"311"
 #define RPL_WHOISERVER			"312"
+// #define	RPL_ENDOFWHOIS
+//               "<nick> :End of WHOIS list"
 
 // ERRORS
 
@@ -54,7 +56,7 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define ERR_NICKNAMEINUSE		"433 :Nickname is already in use"
 
 // channels
-#define ERR_NOSUCHCHANNEL		"403 :No such channel"
+#define ERR_NOSUCHCHANNEL		"403 avast :No such channel"
 #define ERR_INVALIDCHANNELNAME	"403 :Invalid channel name"
 #define ERR_NOTONCHANNEL		"442 :You're not on that channel"
 #define ERR_CHANNELISFULL		"471 :Cannot join channel (+l)"

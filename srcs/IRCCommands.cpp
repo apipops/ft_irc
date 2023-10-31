@@ -33,7 +33,13 @@ void	IRCServer::userCmd(User* user, Message &msg)
 void	IRCServer::pingCmd(User* user, Message &msg)
 {
 	(void)msg;
-	sendReply(user, "PONG " + m_name);
+
+	std::string reply = "PONG " + msg.m_args[0] + "\n"; 
+	//sendReply(user, "PONG " + m_name + " :" + user->m_nick );
+	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl
+				<< reply << std::endl;
+	user->m_socket->write(reply);
+	user->m_socket->send();
 }
 
 // Answer 'WHOIS' command
@@ -44,7 +50,8 @@ void	IRCServer::whoisCmd(User* user, Message &msg)
 		throw CmdError(ERR_NEEDMOREPARAMS);
 	else if (msg.m_args[0] == user->m_nick)
 	{
-		reply = static_cast<std::string>(RPL_WHOISUSER) + " " + user->m_nick + " " + user->m_user + " * " + ":" + user->m_real;
+		reply = static_cast<std::string>(RPL_WHOISUSER) + " " + user->m_nick + " " + user->m_user + " * " + ":" + user->m_real + CRLF;
+		//reply +=
 		
 	}
 	else if (msg.m_args[0] == m_name)
@@ -135,9 +142,9 @@ void	IRCServer::partCmd(User* user, Message &msg)
 // Delete a user from IRC server
 void	IRCServer::quitCmd(User* user, Message &msg)
 {
-	// (void)msg;
-	// std::string nick = user->m_nick;
-	// removeUser(nick);
+	(void)msg;
+	std::string nick = user->m_nick;
+	removeUser(nick);
 }
 
 /******************** OPERATOR COMMANDS ******************/

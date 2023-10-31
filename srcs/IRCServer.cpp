@@ -65,7 +65,7 @@ void	IRCServer::checkCommands()
 	for (size_t i = 0; i < m_users.size(); ++i) {
 		if (m_users[i]->m_socket->isReadable()) {
 			m_users[i]->m_socket->receive();
-			while (m_users[i]->m_socket->pendingData()) {
+			while (!this->isdown() && !m_users.empty() && m_users[i]->m_socket->pendingData()) {
 				std::string buf;
 				if (m_users[i]->m_socket->extractData(buf, CRLF)) {
 					this->log()	<< "command from " << "[" << m_users[i]->m_socket->host()
@@ -84,7 +84,7 @@ void	IRCServer::sendWelcome(User *user, std::string nick)
 {
 	user->m_socket->write(":" + m_name + " 001 " + nick + " :Welcome to the Internet Relay Network!\n");
 	user->m_socket->write(":" + m_name + " 002 " + nick + " :Your host is " + m_name + ".\n");
-	user->m_socket->write(":" + m_name + " 003 " + nick + " :This server was created " + m_creationTime + "\n");
+	user->m_socket->write(":" + m_name + " 003 " + nick + " :This server was created " + m_creationTime);
 	// user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " OurIRC-1.0 abBcCFiIoqrRswx ov\n");
 	// user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(ohv)@+ CHANTYPES=# CHANMODES=itkol :are supported on this server.\n");
 	// user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\n");
@@ -94,31 +94,39 @@ void	IRCServer::sendWelcome(User *user, std::string nick)
 // Execute commands
 void	IRCServer::executeCommand(User *user, std::string cmd)
 {
-	Message msg(cmd);
-	mapCmd	cmds;
-
-	cmds["NICK"] = &IRCServer::nickCmd;
-	cmds["USER"] = &IRCServer::userCmd;
-	cmds["PING"] = &IRCServer::pingCmd;
-	cmds["WHOIS"] = &IRCServer::whoisCmd;
-	cmds["JOIN"] = &IRCServer::joinCmd;
-	cmds["PART"] = &IRCServer::partCmd;
-	cmds["QUIT"] = &IRCServer::quitCmd;
-
 	try {
-		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
-		if (it != cmds.end())
-			(this->*(it->second))(user, msg);
+		Message msg(cmd);
+		mapCmd	cmds;
+
+		cmds["NICK"] = &IRCServer::nickCmd;
+		cmds["USER"] = &IRCServer::userCmd;
+		cmds["PING"] = &IRCServer::pingCmd;
+		cmds["WHOIS"] = &IRCServer::whoisCmd;
+		cmds["JOIN"] = &IRCServer::joinCmd;
+		cmds["PART"] = &IRCServer::partCmd;
+		cmds["QUIT"] = &IRCServer::quitCmd;
+
+		try {
+			mapCmd::const_iterator it = cmds.find(msg.m_cmd);
+			if (it != cmds.end())
+				(this->*(it->second))(user, msg);
+		}
+		catch (CmdError &e) {
+			sendReply(user, e.what());
+		}
 	}
-	catch (CmdError &e) {
-		sendReply(user, e.what());
+	catch (Message::MsgError &e) {
+		std::cerr << e.what() << std::endl;
 	}
 }
 
 void	IRCServer::sendReply(User *user, const std::string reply)
 {
-	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl << reply << std::endl;
-	user->m_socket->write(":" + m_name + " " + reply);
+	std::string fullReply = ":" + m_name + " " + reply;
+
+	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl
+				<< fullReply << std::endl;
+	user->m_socket->write(fullReply);
 	user->m_socket->send();
 }
 
@@ -270,7 +278,7 @@ void IRCServer::checkNickFormat(std::string name)
 void IRCServer::checkChanFormat(std::string name)
 {
 	if (name.length() < CHAN_MINCHAR)
-		throw CmdError(ERR_INVALIDCHANNELNAME, name);
+		throw CmdError(ERR_INVALIDCHANNELNAME, "avast", name);
 	if (name.length() > CHAN_MAXCHAR)
 		throw CmdError(ERR_INVALIDCHANNELNAME, name);
 	if (name[0] != '#')
@@ -417,16 +425,16 @@ IRCServer::CmdError::CmdError(std::string what)
 	m_what = what;
 }
 
-IRCServer::CmdError::CmdError(std::string what, std::string s1)
+IRCServer::CmdError::CmdError(std::string what, std::string nick)
 {
 	size_t mid = what.find(':');
-	m_what = what.substr(0, mid) + s1 + " " + what.substr(mid, what.length() - mid);
+	m_what = what.substr(0, mid) + nick + " " + what.substr(mid, what.length() - mid);
 }
 
-IRCServer::CmdError::CmdError(std::string what, std::string s1, std::string s2)
+IRCServer::CmdError::CmdError(std::string what, std::string nick, std::string arg)
 {
 	size_t mid = what.find(':');
-	m_what = what.substr(0, mid) + s1 + " " + s2 + " " + what.substr(mid, what.length() - mid);
+	m_what = what.substr(0, mid) + nick + " " + arg + " " + what.substr(mid, what.length() - mid);
 }
 
 IRCServer::CmdError::~CmdError() _NOEXCEPT
