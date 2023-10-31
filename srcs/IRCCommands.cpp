@@ -2,7 +2,7 @@
 
 /********************** BASIC COMMANDS **********************/
 
-// Add/replace nickname of user
+// [NICK] Add/replace nickname of user
 void	IRCServer::nickCmd(User* user, Message &msg)
 {
 	// Parsing - throw exception
@@ -20,7 +20,7 @@ void	IRCServer::nickCmd(User* user, Message &msg)
 }
 
 
-// Add/replace username and realname of user
+// [USER] Add/replace username and realname of user
 void	IRCServer::userCmd(User* user, Message &msg)
 {
 	if (msg.m_args.size() != 4)
@@ -29,7 +29,7 @@ void	IRCServer::userCmd(User* user, Message &msg)
 	user->m_real = msg.m_args[3];
 }
 
-// Answer 'PING' command
+// [PING] Notify the client the server is up
 void	IRCServer::pingCmd(User* user, Message &msg)
 {
 	(void)msg;
@@ -37,7 +37,7 @@ void	IRCServer::pingCmd(User* user, Message &msg)
 	writeReply(user, SERVER_PFX, reply);
 }
 
-// Answer 'WHOIS' command
+// [WHOIS] Give information on user and server
 void	IRCServer::whoisCmd(User* user, Message &msg)
 {
 	std::string reply;
@@ -58,7 +58,7 @@ void	IRCServer::whoisCmd(User* user, Message &msg)
 	}
 }
 
-// Make user join/create a channel
+// [JOIN] Make user join/create a channel
 void	IRCServer::joinCmd(User* user, Message &msg)
 {
 	if (!msg.m_args.size())
@@ -104,10 +104,41 @@ void	IRCServer::joinCmd(User* user, Message &msg)
 			user->m_allChan[chans[i]] = channel;
 		}
 		writeReply(user, USER_PFX, "JOIN :" + chans[i] + "\r\n");
+		Message name("", "NAMES", chans[i]);
+		name.showMessage();
+		namesCmd(user, name);
 	}
 }
 
-// Make user leave a channel
+void	IRCServer::namesCmd(User* user, Message &msg)
+{
+	if (!msg.m_args.size())
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+
+	// Getting channels
+	vecStr 				chans;
+	std::string 		chan_buf;
+	std::stringstream 	chan_stream(msg.m_args[0]);
+	while (std::getline(chan_stream, chan_buf, ','))
+		chans.push_back(chan_buf);	
+
+	std::cout << "DEBUG" << std::endl;
+	// List names
+	for (size_t i = 0; i < chans.size(); i++)
+	{
+		std::string userlist = ":";
+		if (m_mapChan.find(chans[i]) != m_mapChan.end()) {
+			vecUser users = m_mapChan[chans[i]]->m_users;
+			for (size_t i = 0; i < users.size(); i++)
+				userlist += users[i]->m_nick + " ";
+			writeReply(user, SERVER_PFX, buildReply(user, RPL_NAMREPLY, "= " + chans[i], userlist));
+			writeReply(user, SERVER_PFX, buildReply(user, RPL_ENDOFNAMES, chans[i]));
+		}
+	}
+
+}
+
+// [PART] Make user leave a channel
 void	IRCServer::partCmd(User* user, Message &msg)
 {
 	if (!msg.m_args.size())
@@ -138,7 +169,7 @@ void	IRCServer::partCmd(User* user, Message &msg)
 	}
 }
 
-// Delete a user from IRC server
+// [QUIT] Delete a user from IRC server
 void	IRCServer::quitCmd(User* user, Message &msg)
 {
 	(void)msg;

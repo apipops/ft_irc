@@ -75,6 +75,7 @@ private:
 	void	pingCmd(User* user, Message &msg);
 	void	whoisCmd(User* user, Message &msg);
 	void	joinCmd(User* user, Message &msg);
+	void	namesCmd(User* user, Message &msg);
 	void	partCmd(User* user, Message &msg);
 	void	quitCmd(User* user, Message &msg);
 

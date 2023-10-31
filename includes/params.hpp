@@ -48,7 +48,6 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define RPL_WHOISERVER			"312\r\n"
 #define	RPL_ENDOFWHOIS			"318\r\n"
 #define RPL_TOPIC				"332\r\n"
-#define RPL_TOPIC				"332\r\n"
 #define RPL_NAMREPLY			"353\r\n"
 #define RPL_ENDOFNAMES			"366 :End of Names\r\n"
 
