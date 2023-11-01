@@ -99,6 +99,7 @@ int	IRCServer::executeCommand(User *user, std::string cmd)
 		Message msg(cmd);
 		mapCmd	cmds;
 
+		cmds["PASS"] = &IRCServer::passCmd;
 		cmds["NICK"] = &IRCServer::nickCmd;
 		cmds["USER"] = &IRCServer::userCmd;
 		cmds["PING"] = &IRCServer::pingCmd;

@@ -73,6 +73,7 @@ private:
 	void checkPwdFormat(std::string pwd, User *user);
 
 	// BASIC COMMANDS
+	void	passCmd(User* user, Message &msg);
 	void	nickCmd(User* user, Message &msg);
 	void	userCmd(User* user, Message &msg);
 	void	pingCmd(User* user, Message &msg);

@@ -8,15 +8,15 @@ using namespace TCP_IPv4;
 
 int main(int ac, char **av)
 {
-	IRCServer server("test");
 
 	// // (void)ac;
 	// // (void)av;
 	// // server.fonctionTest();
 
-	if (ac < 2)
+	if (ac != 3)
 		return -1;
 	
+	IRCServer server("test", av[1]);
 	server.start(av[1]);
 	while (!server.isdown()) {
 		server.checkCommands();

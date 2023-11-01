@@ -2,6 +2,20 @@
 
 /********************** BASIC COMMANDS **********************/
 
+// [PASS] Check if password is correct
+void	IRCServer::passCmd(User* user, Message &msg)
+{
+	// if (!msg.m_args.size()) 
+	// 	throw CmdError(ERR_NEEDMOREPARAMS, user);
+	// if (msg.m_args[0] != m_pwd) {
+	// 	writeReply(user, m_name, ERR_NEEDMOREPARAMS);
+	// 	user->m_socket->send();
+	// 	// supprimer la connexion
+	// }
+
+	// close connection
+}
+
 // [NICK] Add/replace nickname of user
 void	IRCServer::nickCmd(User* user, Message &msg)
 {
@@ -189,7 +203,7 @@ void	IRCServer::privmsgCmd(User *user, Message &msg)
 	vecStr		recip = parseMsgArgs(msg.m_args[0]);
 	std::string reply;
 
-	// Removing user from channels
+	// Writing message in recipients' buffers
 	for (size_t i = 0; i < recip.size(); i++)
 	{
 		if (recip[i][0] == '#') {

@@ -55,6 +55,7 @@ typedef std::map<std::string, t_cmd> mapCmd;
 
 // generic
 #define ERR_NEEDMOREPARAMS		"461 :Not enough parameters\r\n"
+#define ERR_PASSWDMISMATCH		"464 :Password incorrect\r\n"
 
 // nickname
 #define ERR_NOSUCHNICK			"401 :No such nick\r\n"
