@@ -25,7 +25,7 @@ typedef	void	(IRCServer::*t_cmd)(User *, Message &);
 typedef std::map<std::string, t_cmd> mapCmd;
 
 // PREFIXE
-#define SERVER_PFX 1
+#define SERV_PFX 1
 #define USER_PFX 2
 
 // USERNAME POLICY
@@ -57,6 +57,7 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define ERR_NEEDMOREPARAMS		"461 :Not enough parameters\r\n"
 
 // nickname
+#define ERR_NOSUCHNICK			"401 :No such nick\r\n"
 #define ERR_NONICKNAMEGIVEN 	"431 :No nickname given\r\n"
 #define ERR_ERRONEOUSNICKNAME	"432 :Erroneous nickname\r\n"
 #define ERR_NICKNAMEINUSE		"433 :Nickname is already in use\r\n"
@@ -69,5 +70,10 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define ERR_INVITEONLYCHAN		"473 :Cannot join channel (+i)\r\n"
 #define ERR_BADCHANNELKEY		"475 :Cannot join channel (+k)\r\n"
 #define ERR_INVALIDKEYFORMAT	"475 :Cannot create channel (+k)\r\n"
+
+// message
+#define ERR_CANNOTSENDTOCHAN	"404 :Cannot send to channel\r\n"
+#define ERR_NORECIPIENT			"411 :No recipient given\r\n"
+#define ERR_NOTEXTTOSEND		"412 :No text to send\r\n"
 
 #endif

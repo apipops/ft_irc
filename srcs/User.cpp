@@ -56,6 +56,14 @@ std::string User::getNick() const
 	return m_nick;
 }
 
+std::string User::getPrefix() const
+{
+	if (m_servOps)
+		return m_nick + "!@" + m_user;
+	else
+		return m_nick + "!" + m_user;
+}
+
 
 /********************** EXCEPTIONS ***********************/
 

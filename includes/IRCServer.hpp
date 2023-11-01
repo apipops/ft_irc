@@ -21,9 +21,7 @@ public:
 	
 	// EXECUTION
 	void	checkCommands();
-	void	executeCommand(User *user, std::string cmd);
-	void	writeWelcome(User *user, std::string nick);
-	void	writeReply(User *user, int prefix, const std::string reply);
+	int		executeCommand(User *user, std::string cmd);
 
 	// SERVER SETTER (users, channels, memory)
 	void	addUser(ASocket* socket);
@@ -33,10 +31,15 @@ public:
 	void	removeChannel(std::string name);
 	void	freeMemory(void);
 
-	// UTILS
-	static std::string buildReply(User *user, std::string what);
-	static std::string buildReply(User *user, std::string what, std::string arg);
-	static std::string buildReply(User *user, std::string what, std::string arg1, std::string arg2);
+	// MESSAGE MANAGEMENT
+	static	std::string buildReply(User *user, std::string what);
+	static	std::string buildReply(User *user, std::string what, std::string arg);
+	static	std::string buildReply(User *user, std::string what, std::string arg1, std::string arg2);
+	void	writeWelcome(User *user, std::string nick);
+	void	writeReply(User *user, int prefix, const std::string reply);
+	void	writeReply(User *user, std::string prefix, std::string reply);
+	vecStr	parseMsgArgs(std::string arg);
+	void	sendMsgToChannel(User *sender, Channel *channel, std::string fullMsg);
 
 	// UTILS FOR TESTING
 	void		fonctionTest();
@@ -78,6 +81,7 @@ private:
 	void	namesCmd(User* user, Message &msg);
 	void	partCmd(User* user, Message &msg);
 	void	quitCmd(User* user, Message &msg);
+	void	privmsgCmd(User *user, Message &msg);
 
 	// OPERATOR COMMANDS
 	void 	kickCmd();

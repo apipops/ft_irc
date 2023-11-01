@@ -29,6 +29,7 @@ public:
 
 	// GETTERS
 	std::string	getNick() const;
+	std::string getPrefix() const;
 
 	// EXCEPTION
 	class UserError : public Error {
