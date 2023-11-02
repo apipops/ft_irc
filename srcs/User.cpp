@@ -6,26 +6,27 @@ User::User(ASocket *socket)
 {
 	m_socket = socket;
 	this->m_servOps = 0;
+	this->m_authentified = 0;
 }
 
-User::User(std::string nick, std::string user, ASocket* socket)
-{
+// User::User(std::string nick, std::string user, ASocket* socket)
+// {
 
-	this->m_nick = nick;
-	this->m_user = user;
-	this->m_socket = socket;
-	this->m_servOps = 0;
-}
+// 	this->m_nick = nick;
+// 	this->m_user = user;
+// 	this->m_socket = socket;
+// 	this->m_servOps = 0;
+// }
 
-User::User(std::string nick, std::string user, std::string real, ASocket* socket)
-{
+// User::User(std::string nick, std::string user, std::string real, ASocket* socket)
+// {
 
-	this->m_nick = nick;
-	this->m_user = user;
-	this->m_real = real;
-	this->m_socket = socket;
-	this->m_servOps = 0;
-}
+// 	this->m_nick = nick;
+// 	this->m_user = user;
+// 	this->m_real = real;
+// 	this->m_socket = socket;
+// 	this->m_servOps = 0;
+// }
 
 User::User(const User & src)
 {
@@ -38,9 +39,11 @@ User & User::operator=(const User & src)
 	this->m_user = src.m_user;
 	this->m_real = src.m_real;
 	this->m_socket = src.m_socket;
+	this->m_authentified = src.m_authentified;
 	this->m_servOps = src.m_servOps;
 	this->m_allChan = src.m_allChan;
 	this->m_opsChan = src.m_opsChan;
+	this->m_invitChan = src.m_invitChan;
 	
 	return *this;
 }

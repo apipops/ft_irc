@@ -52,11 +52,24 @@ std::string	Message::getMessage() const {
 		msg = m_prefix + " " + m_cmd;
 	else
 		msg = m_cmd;
-	vecStr::const_iterator it = m_args.begin();
-	for(; it != m_args.end(); it++) {
-		msg += " " + (*it);
-	}
+	if (m_args.size())
+		msg += " " + getArgs();
 	return msg;
+}
+
+std::string	Message::getArgs() const {
+	std::string args;
+	if (!m_args.size())
+		return args;
+	for(size_t i = 0; i < m_args.size(); i++) {
+		if (i < m_args.size() - 1)
+			args += m_args[i] + " ";
+		else if (i == m_args.size() - 1 && m_args[i].find(' ') != std::string::npos)
+			args += ":" + m_args[i];
+		else
+			args += m_args[i];
+	}
+	return args;
 }
 
 /********************* UTILS FOR TESTING *******************/

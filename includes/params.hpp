@@ -24,9 +24,7 @@ typedef std::vector<std::string> vecStr;
 typedef	void	(IRCServer::*t_cmd)(User *, Message &);
 typedef std::map<std::string, t_cmd> mapCmd;
 
-// PREFIXE
-#define SERV_PFX 1
-#define USER_PFX 2
+#define USER_REMOVED 1
 
 // USERNAME POLICY
 #define USER_MINCHAR 1

@@ -34,6 +34,7 @@ public:
 
 	// GETTERS
 	std::string getMessage() const;
+	std::string getArgs() const;
 
 	// UTILS FOR TESTING
 	void showMessage() const;

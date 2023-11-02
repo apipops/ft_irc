@@ -63,24 +63,22 @@ void	IRCServer::checkCommands()
 		TCP_IPv4::ASocket *newASocket = this->newConnection();
 		addUser(newASocket);
 	}
-	bool hasQuit;
+	bool userRemoved;
 	for (size_t i = 0; i < m_users.size(); ++i) { 
-		hasQuit = 0;
-		std::cout << "Socket of user " << m_users[i]->m_nick << ":";
-		m_users[i]->m_socket->isWriteable() ? std::cout << " writeable" << std::endl : std::cout << "non writeable" << std::endl;
+		userRemoved = 0;
+		// std::cout << "Socket of user " << m_users[i]->m_nick << ":";
+		// m_users[i]->m_socket->isWriteable() ? std::cout << " writeable" << std::endl : std::cout << "non writeable" << std::endl;
 		if (m_users[i]->m_socket->isReadable()) {
 			m_users[i]->m_socket->receive();
-			while (!this->isdown() && !hasQuit && m_users[i]->m_socket->pendingData()) {
+			while (!this->isdown() && !userRemoved && m_users[i]->m_socket->pendingData()) {
 				std::string buf;
 				if (m_users[i]->m_socket->extractData(buf, CRLF)) {
 					this->log()	<< "command from " << "[" << m_users[i]->m_socket->host()
 								<< ":" << m_users[i]->m_socket->serv() << "]:" << std::endl
 								<< buf << std::endl;
-					hasQuit = executeCommand(m_users[i], buf);
+					userRemoved = executeCommand(m_users[i], buf);
 				}
 			}
-			// if (!hasQuit && m_users[i]->m_socket->dataToSend())
-			// 	m_users[i]->m_socket->send();
 		}
 	}
 	for (size_t i = 0; i < m_users.size(); ++i) {
@@ -110,14 +108,14 @@ int	IRCServer::executeCommand(User *user, std::string cmd)
 		cmds["PRIVMSG"] = &IRCServer::privmsgCmd;
 
 		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
-		if (it != cmds.end()) {
+		if (it != cmds.end())
 			(this->*(cmds[msg.m_cmd]))(user, msg);
-			if (msg.m_cmd == "QUIT")
-				return 1;
-		}
 	}
 	catch (CmdError &e) {
-		writeReply(user, SERV_PFX, e.what());
+		writeToClient(user, m_name, e.what());
+	}
+	catch (UserRemoved &e) {
+		return 1;
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
@@ -161,10 +159,20 @@ void IRCServer::addChannel(std::string name, std::string pwd, User *user)
 	m_mapChan[name] = m_channels.back();
 }
 
-// Remove a user from their nickname
+// Remove unauthentified user
+void IRCServer::removeUser(User *user)
+{
+	// From IRC server
+	vecUser::iterator it = m_users.begin();
+	while (it != m_users.end() && (*it) != user)
+		it++;
+	delete user;
+	m_users.erase(it);
+}
+
 void IRCServer::removeUser(std::string nick)
 {
-	// From channels
+	// From channels and invit list;
 	User *user = m_mapUser[nick];
 	mapChannel::const_iterator it_chan = user->m_allChan.begin();
 	for (; it_chan != user->m_allChan.end(); it_chan++) {
@@ -172,6 +180,10 @@ void IRCServer::removeUser(std::string nick)
 		it_chan->second->removeOps(nick);
 		if (it_chan->second->m_users.empty())
 			removeChannel(it_chan->first);
+	}
+	it_chan = user->m_invitChan.begin();
+	for (; it_chan != user->m_invitChan.end(); it_chan++) {
+		it_chan->second->removeInvit(nick);
 	}
 
 	// From IRC server
@@ -189,13 +201,16 @@ void IRCServer::removeUser(std::string nick)
 // Remove a channel from its name
 void IRCServer::removeChannel(std::string name)
 {
-	// From users
+	// From users - members and invited
 	Channel *channel = m_mapChan[name];
 	vecUser::const_iterator it_user = channel->m_users.begin();
 	for (; it_user != channel->m_users.end(); it_user++) {
 		(*it_user)->m_allChan.erase(name);
 		(*it_user)->m_opsChan.erase(name);
 	}
+	it_user = channel->m_invited.begin();
+	for (; it_user != channel->m_invited.end(); it_user++)
+		(*it_user)->m_invitChan.erase(name);
 
 	// From IRC server
 	vecChan::iterator it = m_channels.begin();
@@ -242,6 +257,9 @@ std::string IRCServer::buildReply(User *user, std::string what)
 {
 	std::string reply;
 
+	if (user->m_nick.empty())
+		return (what);
+
 	size_t mid = what.find(':');
 	if (mid != std::string::npos)
 		reply += what.substr(0, mid) + user->m_nick + " " + what.substr(mid, what.length() - mid);
@@ -258,50 +276,35 @@ std::string IRCServer::buildReply(User *user, std::string what, std::string arg)
 	std::string reply;
 
 	size_t mid = what.find(':');
-	if (mid != std::string::npos)
-		reply = what.substr(0, mid) + user->m_nick + " " + arg + " " + what.substr(mid, what.length() - mid);
+	if (mid != std::string::npos) {
+		if (!user->m_nick.empty())
+			reply = what.substr(0, mid) + user->m_nick + " " + arg + " " + what.substr(mid, what.length() - mid);
+		else
+			reply = what.substr(0, mid) + arg + " " + what.substr(mid, what.length() - mid);
+	}
 	else {
 		mid = what.find('\r');
-		reply = what.substr(0, mid) + " " + user->m_nick + " " + arg + what.substr(mid, what.length() - mid);
+		if (!user->m_nick.empty())
+			reply = what.substr(0, mid) + " " + user->m_nick + " " + arg + what.substr(mid, what.length() - mid);
+		else
+			reply = what.substr(0, mid) + " " + arg + what.substr(mid, what.length() - mid);
 	} 
 	return reply;
 }
 
-// Build a reply based on the IRC norm - inserting 2 arguments
-std::string IRCServer::buildReply(User *user, std::string what, std::string arg1, std::string arg2)
+// Convert argument string with ',' separators into a vector
+vecStr	IRCServer::parseMsgArgs(std::string arg_str)
 {
-	std::string reply;
-
-	size_t mid = what.find(':');
-	if (mid != std::string::npos)
-		reply = what.substr(0, mid) + user->m_nick + " " + arg1 + " " + arg2 + " " + what.substr(mid, what.length() - mid);
-	else {
-		mid = what.find('\r');
-		reply = what.substr(0, mid) + " " + user->m_nick + " " + arg1 + " " + arg2 + what.substr(mid, what.length() - mid);
-	} 
-	return reply;
-}
-
-// Write reply  in buffer and logfile - without prefix
-void	IRCServer::writeReply(User *user, int prefix, const std::string reply)
-{
-	std::string fullReply;
-
-	// Adding prefix
-	if (prefix == SERV_PFX)
-		fullReply = ":" + m_name + " " + reply;
-	else if (prefix == USER_PFX)
-		fullReply = ":" + user->getPrefix() + " " + reply;
-	else
-		fullReply = reply;
-
-	// Writing in logfile and buffer
-	this->log() << "reply from server " << m_name << " to " << user->m_nick << ": " << std::endl << fullReply << std::endl;
-	user->m_socket->write(fullReply);
+	vecStr 				args;
+	std::string 		arg_buf;
+	std::stringstream 	arg_stream(arg_str);
+	while (std::getline(arg_stream, arg_buf, ','))
+		args.push_back(arg_buf);
+	return (args);
 }
 
 // Write reply in buffer and logfile - withou prefix
-void	IRCServer::writeReply(User *user, std::string prefix, std::string reply)
+void	IRCServer::writeToClient(User *user, std::string prefix, std::string reply)
 {
 	std::string fullReply;
 
@@ -320,28 +323,39 @@ void	IRCServer::writeWelcome(User *user, std::string nick)
 	user->m_socket->write(":" + m_name + " 002 " + nick + " :Your host is " + m_name + ".\n");
 	user->m_socket->write(":" + m_name + " 003 " + nick + " :This server was created " + m_creationTime);
 	user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " unique-version abBcCFiIoqrRswx ov\n");
-	user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=# CHANMODES=itkol :are supported on this server.\n");
+	user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(o)@ CHANTYPES=# CHANMODES=itkol :are supported on this server.\n");
 	user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\n");
 }
 
-vecStr	IRCServer::parseMsgArgs(std::string arg_str)
-{
-	vecStr 				args;
-	std::string 		arg_buf;
-	std::stringstream 	arg_stream(arg_str);
-	while (std::getline(arg_stream, arg_buf, ','))
-		args.push_back(arg_buf);
-	return (args);
-}
-
-void	IRCServer::sendMsgToChannel(User *sender, Channel *channel, std::string msg)
+void	IRCServer::writeToChannel(User *sender, Channel *channel, std::string msg)
 {
 	vecUser users = channel->m_users;
 	for (size_t i = 0; i < users.size(); i++) {
 		if (users[i]->m_nick != sender->m_nick) {
-			writeReply(users[i], sender->getPrefix(), msg);
-			//users[i]->m_socket->send();
+			writeToClient(users[i], sender->getPrefix(), msg);
 		}
+	}
+}
+
+void	IRCServer::writeToRelations(User *sender, std::string msg)
+{
+	for (size_t i = 0; i < m_users.size(); i++) {
+		mapChannel::const_iterator it_sender;
+		mapChannel::const_iterator it_user;
+		if (m_users[i] != sender) {
+			it_user = m_users[i]->m_allChan.begin();
+			for (; it_user != m_users[i]->m_allChan.end(); it_user++) {
+				it_sender = sender->m_allChan.begin();
+				for (; it_sender != sender->m_allChan.end(); it_sender++) {
+					if (it_sender->first == it_user->first) {
+						writeToClient(m_users[i], sender->getPrefix(), msg);
+						goto exitLoops;
+					}
+				}
+
+			}
+		}
+		exitLoops:;
 	}
 }
 
@@ -427,6 +441,11 @@ IRCServer::CmdError::~CmdError() _NOEXCEPT
 const char *IRCServer::CmdError::what() const _NOEXCEPT
 {
 	return m_what.c_str();
+}
+
+const char	*IRCServer::UserRemoved::what() const throw()
+{
+	return ("User has been removed from IRC Server");
 }
 
 /********************* UTILS FOR TESTS ******************/
@@ -541,3 +560,4 @@ void IRCServer::showUsersOfChannel(std::string channel) const
 		std::cout << " " << (*it)->m_nick << std::endl;
 
 }
+

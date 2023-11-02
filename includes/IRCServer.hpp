@@ -27,6 +27,7 @@ public:
 	void	addUser(ASocket* socket);
 	void	addChannel(std::string name, User *user);
 	void	addChannel(std::string name, std::string pwd, User *user);
+	void	removeUser(User *user);
 	void	removeUser(std::string nick);
 	void	removeChannel(std::string name);
 	void	freeMemory(void);
@@ -35,11 +36,11 @@ public:
 	static	std::string buildReply(User *user, std::string what);
 	static	std::string buildReply(User *user, std::string what, std::string arg);
 	static	std::string buildReply(User *user, std::string what, std::string arg1, std::string arg2);
-	void	writeWelcome(User *user, std::string nick);
-	void	writeReply(User *user, int prefix, const std::string reply);
-	void	writeReply(User *user, std::string prefix, std::string reply);
 	vecStr	parseMsgArgs(std::string arg);
-	void	sendMsgToChannel(User *sender, Channel *channel, std::string fullMsg);
+	void	writeWelcome(User *user, std::string nick);
+	void	writeToClient(User *user, std::string prefix, std::string reply);
+	void	writeToChannel(User *sender, Channel *channel, std::string fullMsg);
+	void	writeToRelations(User *user, std::string fullMsg);
 
 	// UTILS FOR TESTING
 	void		fonctionTest();
@@ -73,16 +74,16 @@ private:
 	void checkPwdFormat(std::string pwd, User *user);
 
 	// BASIC COMMANDS
-	void	passCmd(User* user, Message &msg);
-	void	nickCmd(User* user, Message &msg);
-	void	userCmd(User* user, Message &msg);
-	void	pingCmd(User* user, Message &msg);
-	void	whoisCmd(User* user, Message &msg);
-	void	joinCmd(User* user, Message &msg);
-	void	namesCmd(User* user, Message &msg);
-	void	partCmd(User* user, Message &msg);
-	void	quitCmd(User* user, Message &msg);
-	void	privmsgCmd(User *user, Message &msg);
+	void	passCmd(User* user, Message& msg);
+	void	nickCmd(User* user, Message& msg);
+	void	userCmd(User* user, Message& msg);
+	void	pingCmd(User* user, Message& msg);
+	void	whoisCmd(User* user, Message& msg);
+	void	joinCmd(User* user, Message& msg);
+	void	namesCmd(User* user, Message& msg);
+	void	partCmd(User* user, Message& msg);
+	void	quitCmd(User* user, Message& msg);
+	void	privmsgCmd(User *user, Message& msg);
 
 	// OPERATOR COMMANDS
 	void 	kickCmd();
@@ -90,16 +91,21 @@ private:
 	void 	topicCmd();
 	void 	modeCmd();
 
-	// EXCEPTION
+	// EXCEPTIONS
 	class CmdError : public std::exception {
 		public:
 			CmdError(std::string what, User *user);
 			CmdError(std::string what, User *user, std::string arg);
 			~CmdError() _NOEXCEPT;
 
-			const char *what() const _NOEXCEPT;
+			virtual const char *what() const _NOEXCEPT;
 		private:
 			std::string m_what;
+	};
+
+	class UserRemoved : public std::exception {
+		public:
+			virtual const char *what() const _NOEXCEPT;
 	};
 
 };

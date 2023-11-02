@@ -9,14 +9,14 @@ using namespace TCP_IPv4;
 int main(int ac, char **av)
 {
 
-	// // (void)ac;
-	// // (void)av;
-	// // server.fonctionTest();
+	// (void)ac;
+	// (void)av;
+	// server.fonctionTest();
 
 	if (ac != 3)
 		return -1;
 	
-	IRCServer server("test", av[1]);
+	IRCServer server("test", av[2]);
 	server.start(av[1]);
 	while (!server.isdown()) {
 		server.checkCommands();
@@ -28,6 +28,7 @@ int main(int ac, char **av)
 
 	// Message msg(av[1]);
 	// std::cout << msg.getMessage() << std::endl;
+	// std::cout << msg.getArgs() << std::endl;
 	// msg.showMessage();
 	// }
 	// catch (Message::MsgError & e) {

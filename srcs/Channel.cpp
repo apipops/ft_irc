@@ -84,6 +84,17 @@ void Channel::removeOps(std::string nick)
 		m_ops.erase(it);
 }
 
+// Remove user from the invit list
+void Channel::removeInvit(std::string nick)
+{
+	vecUser::iterator it = m_invited.begin();
+	
+	while (it != m_invited.end() && (*it)->getNick() != nick)
+		it++;
+	if (it != m_invited.end())
+		m_invited.erase(it);
+}
+
 // Check if user is ops of the channel
 bool Channel::checkOps(std::string nick)
 {

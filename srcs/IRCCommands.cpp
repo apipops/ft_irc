@@ -3,23 +3,26 @@
 /********************** BASIC COMMANDS **********************/
 
 // [PASS] Check if password is correct
-void	IRCServer::passCmd(User* user, Message &msg)
+void	IRCServer::passCmd(User* user, Message& msg)
 {
-	// if (!msg.m_args.size()) 
-	// 	throw CmdError(ERR_NEEDMOREPARAMS, user);
-	// if (msg.m_args[0] != m_pwd) {
-	// 	writeReply(user, m_name, ERR_NEEDMOREPARAMS);
-	// 	user->m_socket->send();
-	// 	// supprimer la connexion
-	// }
-
-	// close connection
+	if (!msg.m_args.size() || msg.m_args[0] != m_pwd) {
+ 		writeToClient(user, m_name, ERR_PASSWDMISMATCH);
+		user->m_socket->send();
+		closeConnection(user->m_socket);
+		removeUser(user);
+		throw IRCServer::UserRemoved();
+	}
+	user->m_authentified = true;
 }
 
 // [NICK] Add/replace nickname of user
-void	IRCServer::nickCmd(User* user, Message &msg)
+void	IRCServer::nickCmd(User* user, Message& msg)
 {
 	// Parsing - throw exception
+	if (!(user->m_authentified)) {
+		Message emptyMsg;
+		passCmd(user, emptyMsg);
+	}
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NONICKNAMEGIVEN, user);
 	checkNickFormat(msg.m_args[0], user);
@@ -28,14 +31,20 @@ void	IRCServer::nickCmd(User* user, Message &msg)
 	// Suppress from map, update in vector and add again in map
 	if (user->m_nick.empty())
 		writeWelcome(user, msg.m_args[0]);
+	else {
+		writeToClient(user, user->getPrefix(), "NICK :" + msg.m_args[0] + CRLF);
+		writeToRelations(user, "NICK :" + msg.m_args[0] + CRLF);
+	}
 	m_mapUser.erase(user->m_nick);
 	user->m_nick = msg.m_args[0];
 	m_mapUser[msg.m_args[0]] = user;
+	// if (!user->m_nick.empty())
+	// 	writeToClient(user, user->getPrefix(), "NICK :" + msg.m_args[0] + CRLF);
 }
 
 
 // [USER] Add/replace username and realname of user
-void	IRCServer::userCmd(User* user, Message &msg)
+void	IRCServer::userCmd(User* user, Message& msg)
 {
 	if (msg.m_args.size() != 4)
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
@@ -44,49 +53,61 @@ void	IRCServer::userCmd(User* user, Message &msg)
 }
 
 // [PING] Notify the client the server is up
-void	IRCServer::pingCmd(User* user, Message &msg)
+void	IRCServer::pingCmd(User* user, Message& msg)
 {
 	(void)msg;
 	std::string reply = "PONG " + m_name + " :" + user->m_nick + CRLF;
-	writeReply(user, SERV_PFX, reply);
+	writeToClient(user, m_name, reply);
 }
 
 // [WHOIS] Give information on user and server
-void	IRCServer::whoisCmd(User* user, Message &msg)
+void	IRCServer::whoisCmd(User* user, Message& msg)
 {
 	std::string reply;
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
 	reply = buildReply(user, RPL_WHOISUSER, user->m_user + " * :" + user->m_real);
-	writeReply(user, SERV_PFX, reply);
+	writeToClient(user, m_name, reply);
 	reply = buildReply(user, RPL_WHOISERVER, m_name + " * " + ":This server is our own IRC Server");
-	writeReply(user, SERV_PFX, reply);
-	writeReply(user, SERV_PFX, buildReply(user, RPL_ENDOFWHOIS));
+	writeToClient(user, m_name, reply);
+	writeToClient(user, m_name, buildReply(user, RPL_ENDOFWHOIS));
 }
 
 // [JOIN] Make user join/create a channel
-void	IRCServer::joinCmd(User* user, Message &msg)
+void	IRCServer::joinCmd(User* user, Message& msg)
 {
+	// Checking if command is "JOIN 0"
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	if (msg.m_args[0] == "0") {
+		// Removing user from all channels
+		mapChannel::const_iterator	it = user->m_allChan.begin();
+		for (; it != user->m_allChan.end(); it++) {
+			it->second->removeUser(user->m_nick);
+			it->second->removeOps(user->m_nick);
+			user->m_allChan.erase(it->first);
+			user->m_opsChan.erase(it->first);
+			writeToClient(user, user->getPrefix(), "PART " + it->first + CRLF);
 
-	// Getting channels and passwords
-	vecStr 				chans, pwds;
-	std::string 		chan_buf, pwd_buf;
-	std::stringstream 	chan_stream(msg.m_args[0]), pwd_stream;
-	while (std::getline(chan_stream, chan_buf, ','))
-		chans.push_back(chan_buf);
-	if (msg.m_args.size() > 1) {
-		pwd_stream << msg.m_args[1];
-		while (std::getline(pwd_stream, pwd_buf, ','))
-			pwds.push_back(pwd_buf);
+			// Check if users are remaining
+			if (m_mapChan[it->first]->m_users.empty())
+				removeChannel(it->first);
+		}
+		return ;
 	}
+	
+	// Getting channels and passwords
+	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
+	vecStr	pwds;
+	if (msg.m_args.size() > 1)
+		pwds = parseMsgArgs(msg.m_args[1]);
 	
 	// Creating new channels or Joining existing channels
 	std::string reply;
 	for (size_t i = 0; i < chans.size(); i++) {
 		mapChannel::const_iterator it = m_mapChan.find(chans[i]);
-		if (it == m_mapChan.end()) {
+		if (it == m_mapChan.end()) // channel does not exist
+		{
 			if (pwds.size() >= i + 1)
 				addChannel(chans[i], pwds[i], user);
 			else
@@ -96,7 +117,8 @@ void	IRCServer::joinCmd(User* user, Message &msg)
 			user->m_allChan[chans[i]] = m_mapChan[chans[i]];
 			user->m_opsChan[chans[i]] = m_mapChan[chans[i]];
 		}
-		else {
+		else // channel already exists
+		{
 			Channel *channel = it->second;
 			if (pwds.size() < i + 1 && !channel->m_pwd.empty())
 				throw CmdError(ERR_BADCHANNELKEY, user, channel->m_name);
@@ -109,26 +131,21 @@ void	IRCServer::joinCmd(User* user, Message &msg)
 			channel->addUser(user);
 			user->m_allChan[chans[i]] = channel;
 		}
-		writeReply(user, USER_PFX, "JOIN :" + chans[i] + "\r\n");
-		// topic
+		writeToClient(user, user->getPrefix(), "JOIN :" + chans[i] + "\r\n");
+		// topic cmd
 		Message namesMsg("", "NAMES", chans[i]);
 		namesCmd(user, namesMsg);
 	}
 }
 
-void	IRCServer::namesCmd(User* user, Message &msg)
+void	IRCServer::namesCmd(User* user, Message& msg)
 {
+	// Getting channels names
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
 
-	// Getting channels
-	vecStr 				chans;
-	std::string 		chan_buf;
-	std::stringstream 	chan_stream(msg.m_args[0]);
-	while (std::getline(chan_stream, chan_buf, ','))
-		chans.push_back(chan_buf);	
-
-	// List names
+	// List users
 	for (size_t i = 0; i < chans.size(); i++)
 	{
 		std::string userlist = ":";
@@ -144,25 +161,19 @@ void	IRCServer::namesCmd(User* user, Message &msg)
 				if (i < users.size() - 1)
 					userlist += " ";
 			}
-			writeReply(user, SERV_PFX, buildReply(user, RPL_NAMREPLY, "= " + chans[i], userlist));
-			writeReply(user, SERV_PFX, buildReply(user, RPL_ENDOFNAMES, chans[i]));
+			writeToClient(user, m_name, buildReply(user, RPL_NAMREPLY, "= " + chans[i] + " " + userlist));
+			writeToClient(user, m_name, buildReply(user, RPL_ENDOFNAMES, chans[i]));
 		}
 	}
-
 }
 
 // [PART] Make user leave a channel
-void	IRCServer::partCmd(User* user, Message &msg)
+void	IRCServer::partCmd(User* user, Message& msg)
 {
+	// Getting channels
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
-
-	// Getting channels
-	vecStr 				chans;
-	std::string 		chan_buf;
-	std::stringstream 	chan_stream(msg.m_args[0]);
-	while (std::getline(chan_stream, chan_buf, ','))
-		chans.push_back(chan_buf);
+	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
 
 	// Removing user from channels
 	for (size_t i = 0; i < chans.size(); i++)
@@ -175,7 +186,7 @@ void	IRCServer::partCmd(User* user, Message &msg)
 		m_mapChan[chans[i]]->removeOps(user->m_nick);
 		user->m_allChan.erase(chans[i]);
 		user->m_opsChan.erase(chans[i]);
-		writeReply(user, USER_PFX, "PART " + chans[i] + "\r\n");
+		writeToClient(user, user->getPrefix(), "PART " + chans[i] + "\r\n");
 
 		// Check if users are remaining
 		if (m_mapChan[chans[i]]->m_users.empty())
@@ -184,14 +195,16 @@ void	IRCServer::partCmd(User* user, Message &msg)
 }
 
 // [QUIT] Delete a user from IRC server
-void	IRCServer::quitCmd(User* user, Message &msg)
+void	IRCServer::quitCmd(User* user, Message& msg)
 {
 	(void)msg;
 	std::string nick = user->m_nick;
+	closeConnection(user->m_socket);
 	removeUser(nick);
+	throw IRCServer::UserRemoved();
 }
 
-void	IRCServer::privmsgCmd(User *user, Message &msg)
+void	IRCServer::privmsgCmd(User *user, Message& msg)
 {
 	// Parsing errors
 	if (!msg.m_args.size())
@@ -210,15 +223,14 @@ void	IRCServer::privmsgCmd(User *user, Message &msg)
 			if (m_mapChan.find(recip[i]) == m_mapChan.end())
 				throw CmdError(ERR_NOSUCHCHANNEL, user, recip[i]);
 			reply = "PRIVMSG " + m_mapChan[recip[i]]->m_name + " :" + msg.m_args[1] + CRLF;
-			sendMsgToChannel(user, m_mapChan[recip[i]], reply);
+			writeToChannel(user, m_mapChan[recip[i]], reply);
 		}
 		else {
 			if (m_mapUser.find(recip[i]) == m_mapUser.end())
 				throw CmdError(ERR_NOSUCHNICK, user, recip[i]);
 			User *recipUser = m_mapUser[recip[i]];
 			reply = "PRIVMSG " + recipUser->m_nick + " :" + msg.m_args[1] + CRLF;
-			writeReply(recipUser, user->getPrefix(), reply);
-			//recipUser->m_socket->send();
+			writeToClient(recipUser, user->getPrefix(), reply);
 		}
 	}
 }
