@@ -6,7 +6,7 @@
 void	IRCServer::passCmd(User* user, Message& msg)
 {
 	if (!msg.m_args.size() || msg.m_args[0] != m_pwd) {
- 		writeToClient(user, m_name, ERR_PASSWDMISMATCH);
+ 		writeToClient(user, m_name, buildReply(user, ERR_PASSWDMISMATCH));
 		user->m_socket->send();
 		closeConnection(user->m_socket);
 		removeUser(user);
@@ -38,8 +38,6 @@ void	IRCServer::nickCmd(User* user, Message& msg)
 	m_mapUser.erase(user->m_nick);
 	user->m_nick = msg.m_args[0];
 	m_mapUser[msg.m_args[0]] = user;
-	// if (!user->m_nick.empty())
-	// 	writeToClient(user, user->getPrefix(), "NICK :" + msg.m_args[0] + CRLF);
 }
 
 
@@ -88,6 +86,10 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 			user->m_allChan.erase(it->first);
 			user->m_opsChan.erase(it->first);
 			writeToClient(user, user->getPrefix(), "PART " + it->first + CRLF);
+			if (msg.m_args.size() > 1)
+				writeToRelations(user, "PART :" + msg.m_args[1] + CRLF);
+			else
+				writeToRelations(user, "PART\r\n");
 
 			// Check if users are remaining
 			if (m_mapChan[it->first]->m_users.empty())
@@ -130,6 +132,7 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 				throw CmdError(ERR_CHANNELISFULL, user, channel->m_name);
 			channel->addUser(user);
 			user->m_allChan[chans[i]] = channel;
+			writeToChannel(user, channel, "JOIN :" + channel->m_name + CRLF);
 		}
 		writeToClient(user, user->getPrefix(), "JOIN :" + chans[i] + "\r\n");
 		// topic cmd
@@ -182,11 +185,16 @@ void	IRCServer::partCmd(User* user, Message& msg)
 			throw CmdError(ERR_NOSUCHCHANNEL, user, chans[i]);
 		if (user->m_allChan.find(chans[i]) == user->m_allChan.end())
 			throw CmdError(ERR_NOTONCHANNEL, user, chans[i]);
-		m_mapChan[chans[i]]->removeUser(user->m_nick);
-		m_mapChan[chans[i]]->removeOps(user->m_nick);
+		Channel *channel = m_mapChan[chans[i]];
+		channel->removeUser(user->m_nick);
+		channel->removeOps(user->m_nick);
 		user->m_allChan.erase(chans[i]);
 		user->m_opsChan.erase(chans[i]);
 		writeToClient(user, user->getPrefix(), "PART " + chans[i] + "\r\n");
+		if (msg.m_args.size() > 1)
+			writeToChannel(user, channel, "PART " + chans[i] + " :" + msg.m_args[1] + CRLF);
+		else
+			writeToChannel(user, channel, "PART " + chans[i] + CRLF);
 
 		// Check if users are remaining
 		if (m_mapChan[chans[i]]->m_users.empty())
@@ -198,6 +206,10 @@ void	IRCServer::partCmd(User* user, Message& msg)
 void	IRCServer::quitCmd(User* user, Message& msg)
 {
 	(void)msg;
+	if (msg.m_args.size() > 1)
+		writeToRelations(user, "QUIT :Quit: " + msg.m_args[1] + CRLF);
+	else
+		writeToRelations(user, "QUIT :Quit: leaving\r\n");
 	std::string nick = user->m_nick;
 	closeConnection(user->m_socket);
 	removeUser(nick);

@@ -57,7 +57,7 @@ IRCServer::~IRCServer()
 // Wait for events and parse commands
 void	IRCServer::checkCommands()
 {
-	std::cout << std::endl <<  "....WAIT PASSAGE...." << std::endl;
+	//std::cout << std::endl <<  "....WAIT PASSAGE...." << std::endl;
 	m_socEvent.wait();
 	if (this->pendingConnection()) {
 		TCP_IPv4::ASocket *newASocket = this->newConnection();
@@ -84,7 +84,7 @@ void	IRCServer::checkCommands()
 	for (size_t i = 0; i < m_users.size(); ++i) {
 		if (m_users[i]->m_socket->dataToSend())
 		{
-			std::cout << "Call to send() for user " << m_users[i]->m_nick << std::endl;
+			//std::cout << "Call to send() for user " << m_users[i]->m_nick << std::endl;
 			m_users[i]->m_socket->send();
 		}
 	}
@@ -257,9 +257,6 @@ std::string IRCServer::buildReply(User *user, std::string what)
 {
 	std::string reply;
 
-	if (user->m_nick.empty())
-		return (what);
-
 	size_t mid = what.find(':');
 	if (mid != std::string::npos)
 		reply += what.substr(0, mid) + user->m_nick + " " + what.substr(mid, what.length() - mid);
@@ -277,17 +274,11 @@ std::string IRCServer::buildReply(User *user, std::string what, std::string arg)
 
 	size_t mid = what.find(':');
 	if (mid != std::string::npos) {
-		if (!user->m_nick.empty())
-			reply = what.substr(0, mid) + user->m_nick + " " + arg + " " + what.substr(mid, what.length() - mid);
-		else
-			reply = what.substr(0, mid) + arg + " " + what.substr(mid, what.length() - mid);
+		reply = what.substr(0, mid) + user->m_nick + " " + arg + " " + what.substr(mid, what.length() - mid);
 	}
 	else {
 		mid = what.find('\r');
-		if (!user->m_nick.empty())
-			reply = what.substr(0, mid) + " " + user->m_nick + " " + arg + what.substr(mid, what.length() - mid);
-		else
-			reply = what.substr(0, mid) + " " + arg + what.substr(mid, what.length() - mid);
+		reply = what.substr(0, mid) + " " + user->m_nick + " " + arg + what.substr(mid, what.length() - mid);
 	} 
 	return reply;
 }

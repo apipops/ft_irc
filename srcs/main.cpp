@@ -20,8 +20,8 @@ int main(int ac, char **av)
 	server.start(av[1]);
 	while (!server.isdown()) {
 		server.checkCommands();
-		// server.showMapUsers();
-		// server.showMapChannels();
+		server.showMapUsers();
+		server.showMapChannels();
 	}
 
 	// try {
