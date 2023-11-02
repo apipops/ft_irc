@@ -27,7 +27,7 @@ public:
 	User & operator=(const User & src);
 	~User();
 
-	// GETTERS
+	// GETTERS AND SETTERS
 	std::string	getNick() const;
 	std::string getPrefix() const;
 

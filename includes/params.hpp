@@ -46,6 +46,7 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define RPL_WHOISERVER			"312\r\n"
 #define	RPL_ENDOFWHOIS			"318\r\n"
 #define RPL_TOPIC				"332\r\n"
+#define RPL_INVITING			"341\r\n"
 #define RPL_NAMREPLY			"353\r\n"
 #define RPL_ENDOFNAMES			"366 :End of Names\r\n"
 
@@ -64,11 +65,14 @@ typedef std::map<std::string, t_cmd> mapCmd;
 // channels
 #define ERR_NOSUCHCHANNEL		"403 :No such channel\r\n"
 #define ERR_INVALIDCHANNELNAME	"403 :Invalid channel name\r\n"
+#define ERR_USERNOTINCHANNEL	"441 :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL		"442 :You're not on that channel\r\n"
+#define ERR_USERONCHANNEL		"443 :is already on channel\r\n"
 #define ERR_CHANNELISFULL		"471 :Cannot join channel (+l)\r\n"
 #define ERR_INVITEONLYCHAN		"473 :Cannot join channel (+i)\r\n"
 #define ERR_BADCHANNELKEY		"475 :Cannot join channel (+k)\r\n"
 #define ERR_INVALIDKEYFORMAT	"475 :Cannot create channel (+k)\r\n"
+#define ERR_CHANOPRIVSNEEDED	"482 :You're not channel operator\r\n"
 
 // message
 #define ERR_CANNOTSENDTOCHAN	"404 :Cannot send to channel\r\n"

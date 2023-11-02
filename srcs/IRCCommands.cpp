@@ -118,6 +118,7 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 			m_mapChan[chans[i]]->addUser(user);
 			user->m_allChan[chans[i]] = m_mapChan[chans[i]];
 			user->m_opsChan[chans[i]] = m_mapChan[chans[i]];
+			writeToClient(user, user->getPrefix(), "JOIN :" + chans[i] + CRLF);
 		}
 		else // channel already exists
 		{
@@ -132,9 +133,9 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 				throw CmdError(ERR_CHANNELISFULL, user, channel->m_name);
 			channel->addUser(user);
 			user->m_allChan[chans[i]] = channel;
-			writeToChannel(user, channel, "JOIN :" + channel->m_name + CRLF);
+			writeToChannel(user, channel, true, "JOIN :" + channel->m_name + CRLF);
 		}
-		writeToClient(user, user->getPrefix(), "JOIN :" + chans[i] + "\r\n");
+		
 		// topic cmd
 		Message namesMsg("", "NAMES", chans[i]);
 		namesCmd(user, namesMsg);
@@ -179,22 +180,24 @@ void	IRCServer::partCmd(User* user, Message& msg)
 	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
 
 	// Removing user from channels
+	Channel		*channel;
+	std::string reply;
 	for (size_t i = 0; i < chans.size(); i++)
 	{
 		if (m_mapChan.find(chans[i]) == m_mapChan.end())
 			throw CmdError(ERR_NOSUCHCHANNEL, user, chans[i]);
 		if (user->m_allChan.find(chans[i]) == user->m_allChan.end())
 			throw CmdError(ERR_NOTONCHANNEL, user, chans[i]);
-		Channel *channel = m_mapChan[chans[i]];
+		channel = m_mapChan[chans[i]];
+		if (msg.m_args.size() > 1)
+			reply = "PART " + chans[i] + " :" + msg.m_args[1] + CRLF;
+		else
+			reply = "PART " + chans[i] + CRLF;
+		writeToChannel(user, channel, true, reply);
 		channel->removeUser(user->m_nick);
 		channel->removeOps(user->m_nick);
 		user->m_allChan.erase(chans[i]);
 		user->m_opsChan.erase(chans[i]);
-		writeToClient(user, user->getPrefix(), "PART " + chans[i] + "\r\n");
-		if (msg.m_args.size() > 1)
-			writeToChannel(user, channel, "PART " + chans[i] + " :" + msg.m_args[1] + CRLF);
-		else
-			writeToChannel(user, channel, "PART " + chans[i] + CRLF);
 
 		// Check if users are remaining
 		if (m_mapChan[chans[i]]->m_users.empty())
@@ -235,7 +238,7 @@ void	IRCServer::privmsgCmd(User *user, Message& msg)
 			if (m_mapChan.find(recip[i]) == m_mapChan.end())
 				throw CmdError(ERR_NOSUCHCHANNEL, user, recip[i]);
 			reply = "PRIVMSG " + m_mapChan[recip[i]]->m_name + " :" + msg.m_args[1] + CRLF;
-			writeToChannel(user, m_mapChan[recip[i]], reply);
+			writeToChannel(user, m_mapChan[recip[i]], false, reply);
 		}
 		else {
 			if (m_mapUser.find(recip[i]) == m_mapUser.end())
@@ -250,7 +253,74 @@ void	IRCServer::privmsgCmd(User *user, Message& msg)
 
 /******************** OPERATOR COMMANDS ******************/
 
-	// void 	kickCmd();
-	// void 	inviteCmd();
-	// void 	topicCmd();
-	// void 	modeCmd();
+
+// [KICK] Kicking user(s) from channel(s)
+void 	IRCServer::kickCmd(User* user, Message& msg)
+{
+	// Getting parameters
+	if (msg.m_args.size() < 2)
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
+	vecStr 	users = parseMsgArgs(msg.m_args[1]);
+
+	// Kick each user from each channel
+	Channel		*channel;
+	User		*target;
+	std::string	reply;
+	for (size_t i = 0; i < chans.size(); i++) {
+		// Check if user can kick
+		if (m_mapChan.find(chans[i]) == m_mapChan.end())
+			throw CmdError(ERR_NOSUCHCHANNEL, user, chans[i]);
+		channel = m_mapChan[chans[i]];
+		if (!channel->checkUser(user->m_nick))
+			throw CmdError(ERR_NOTONCHANNEL, user, chans[i]);
+		if (!channel->checkOps(user->m_nick))
+			throw CmdError(ERR_CHANOPRIVSNEEDED, user, chans[i]);
+		for (size_t j = 0; j < users.size(); j++) {
+			if (m_mapUser.find(users[j]) == m_mapUser.end() || !(channel->checkUser(users[j])))
+				throw CmdError(ERR_USERNOTINCHANNEL, user, users[j] + " " + chans[i]);
+			// Kicking user and sending reply
+			reply = "KICK " + chans[i] + " " + users[j] + " :" + msg.m_args[2] + CRLF;
+			writeToChannel(user, channel, true, reply);
+			target = m_mapUser[users[j]];
+			channel->removeUser(users[j]);
+			channel->removeOps(users[j]);
+			target->m_allChan.erase(chans[i]);
+			target->m_opsChan.erase(chans[i]);
+		}
+		// Check if users are remaining
+		if (channel->m_users.empty())
+			removeChannel(chans[i]);
+	}
+}
+
+void 	IRCServer::inviteCmd(User* user, Message& msg)
+{
+	// Getting parameters
+	if (msg.m_args.size() < 2)
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	if (m_mapUser.find(msg.m_args[0]) == m_mapUser.end())
+		throw CmdError(ERR_NOSUCHNICK, user, msg.m_args[0]);
+	if (m_mapChan.find(msg.m_args[1]) == m_mapChan.end())
+		throw CmdError(ERR_NOSUCHCHANNEL, user, msg.m_args[1]); // nick ?
+	User	*target = m_mapUser[msg.m_args[0]];
+	Channel *channel = m_mapChan[msg.m_args[1]];
+	if (channel->checkUser(target->m_nick))
+		throw CmdError(ERR_USERONCHANNEL, user, target->m_nick + " " + channel->m_name);
+	if (!(channel->checkOps(user->m_nick)))
+		throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
+
+	// Add to invit list
+	if (!channel->checkInvit(target->m_nick))
+		channel->addInvit(target);
+
+	// Send confirmation to user, target and operators
+	writeToClient(user, m_name, buildReply(user, RPL_INVITING, target->m_nick + " " + channel->m_name));
+	writeToClient(target, user->getPrefix(), "INVITE " + target->m_nick + " " + channel->m_name + CRLF);
+	std::string opsNotice = " :" + user->m_nick + " invited " + target->m_nick + " into channel " + channel->m_name + CRLF;
+	writeToOps(user, channel, "NOTICE @" + channel->m_name + opsNotice);
+}
+
+
+	// void 	topicCmd(User* user, Message& msg);
+	// void 	modeCmd(User* user, Message& msg);

@@ -106,6 +106,8 @@ int	IRCServer::executeCommand(User *user, std::string cmd)
 		cmds["PART"] = &IRCServer::partCmd;
 		cmds["QUIT"] = &IRCServer::quitCmd;
 		cmds["PRIVMSG"] = &IRCServer::privmsgCmd;
+		cmds["KICK"] = &IRCServer::kickCmd;
+		cmds["INVITE"] = &IRCServer::inviteCmd;
 
 		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
 		if (it != cmds.end())
@@ -318,14 +320,20 @@ void	IRCServer::writeWelcome(User *user, std::string nick)
 	user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\n");
 }
 
-void	IRCServer::writeToChannel(User *sender, Channel *channel, std::string msg)
+void	IRCServer::writeToChannel(User *sender, Channel *channel, bool inclSender, std::string msg)
 {
 	vecUser users = channel->m_users;
 	for (size_t i = 0; i < users.size(); i++) {
-		if (users[i]->m_nick != sender->m_nick) {
+		if (inclSender || (!inclSender && users[i]->m_nick != sender->m_nick))
 			writeToClient(users[i], sender->getPrefix(), msg);
-		}
 	}
+}
+
+void	IRCServer::writeToOps(User *sender, Channel *channel, std::string msg)
+{
+	vecUser ops = channel->m_ops;
+	for (size_t i = 0; i < ops.size(); i++)
+			writeToClient(ops[i], sender->getPrefix(), msg);
 }
 
 void	IRCServer::writeToRelations(User *sender, std::string msg)

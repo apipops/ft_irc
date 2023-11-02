@@ -95,6 +95,18 @@ void Channel::removeInvit(std::string nick)
 		m_invited.erase(it);
 }
 
+// Check if user user of the channel
+bool Channel::checkUser(std::string nick)
+{
+	vecUser::iterator it = m_users.begin();
+	
+	while (it != m_users.end() && (*it)->getNick() != nick)
+		it++;
+	if (it != m_users.end())
+		return true;
+	return false;
+}
+
 // Check if user is ops of the channel
 bool Channel::checkOps(std::string nick)
 {

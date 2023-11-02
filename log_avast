@@ -12,12 +12,12 @@
 >> :choopa.nj.us.dal.net 004 avast choopa.nj.us.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
 >> :choopa.nj.us.dal.net 005 avast NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=20 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:20 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
 >> :choopa.nj.us.dal.net 005 avast CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
->> :choopa.nj.us.dal.net 251 avast :There are 66 users and 7564 invisible on 38 servers
->> :choopa.nj.us.dal.net 252 avast 77 :IRC Operators online
->> :choopa.nj.us.dal.net 254 avast 3778 :channels formed
->> :choopa.nj.us.dal.net 255 avast :I have 292 clients and 1 servers
->> :choopa.nj.us.dal.net 265 avast :Current local users: 292 Max: 2193
->> :choopa.nj.us.dal.net 266 avast :Current global users: 7630 Max: 12809
+>> :choopa.nj.us.dal.net 251 avast :There are 66 users and 7757 invisible on 38 servers
+>> :choopa.nj.us.dal.net 252 avast 76 :IRC Operators online
+>> :choopa.nj.us.dal.net 254 avast 3808 :channels formed
+>> :choopa.nj.us.dal.net 255 avast :I have 308 clients and 1 servers
+>> :choopa.nj.us.dal.net 265 avast :Current local users: 308 Max: 2193
+>> :choopa.nj.us.dal.net 266 avast :Current global users: 7823 Max: 12809
 >> :choopa.nj.us.dal.net NOTICE avast :*** Notice -- motd was last changed at 16/3/2021 11:13
 >> :choopa.nj.us.dal.net 375 avast :- choopa.nj.us.dal.net Message of the Day - 
 >> :choopa.nj.us.dal.net 372 avast :-16/3/2021 11:13
@@ -45,52 +45,47 @@
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
-<< JOIN #mychan1,#mychan2
->> :avast!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#mychan1
->> :choopa.nj.us.dal.net 353 avast = #mychan1 :@avast 
->> :choopa.nj.us.dal.net 366 avast #mychan1 :End of /NAMES list.
-<< MODE #mychan1
->> :avast!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#mychan2
->> :choopa.nj.us.dal.net 353 avast = #mychan2 :@avast 
->> :choopa.nj.us.dal.net 366 avast #mychan2 :End of /NAMES list.
->> :choopa.nj.us.dal.net 324 avast #mychan1 + 
+<< JOIN #c1,#c2
+>> :avast!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#c1
+>> :choopa.nj.us.dal.net 353 avast = #c1 :@avast 
+>> :choopa.nj.us.dal.net 366 avast #c1 :End of /NAMES list.
+<< MODE #c1
+>> :avast!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#c2
+>> :choopa.nj.us.dal.net 353 avast = #c2 :@avast 
+>> :choopa.nj.us.dal.net 366 avast #c2 :End of /NAMES list.
+>> :choopa.nj.us.dal.net 324 avast #c1 + 
 --> chanquery mode
-<< MODE #mychan2
->> :choopa.nj.us.dal.net 329 avast #mychan1 1698930352
+<< MODE #c2
+>> :choopa.nj.us.dal.net 329 avast #c1 1698941305
 --> event 329
->> :choopa.nj.us.dal.net 324 avast #mychan2 + 
+>> :choopa.nj.us.dal.net 324 avast #c2 + 
 --> chanquery mode
-<< WHO #mychan1
->> :choopa.nj.us.dal.net 329 avast #mychan2 1698930352
+<< WHO #c1
+>> :choopa.nj.us.dal.net 329 avast #c2 1698941305
 --> event 329
->> :choopa.nj.us.dal.net 352 avast #mychan1 ~avast 5313-1a21-15d0-d125-9a18.210.62.ip choopa.nj.us.dal.net avast H@ :0 Apolline VAST
+>> :choopa.nj.us.dal.net 352 avast #c1 ~avast 5313-1a21-15d0-d125-9a18.210.62.ip choopa.nj.us.dal.net avast H@ :0 Apolline VAST
 --> silent event who
->> :choopa.nj.us.dal.net 315 avast #mychan1 :End of /WHO list.
+>> :choopa.nj.us.dal.net 315 avast #c1 :End of /WHO list.
 --> chanquery who end
-<< WHO #mychan2
->> :choopa.nj.us.dal.net 352 avast #mychan2 ~avast 5313-1a21-15d0-d125-9a18.210.62.ip choopa.nj.us.dal.net avast H@ :0 Apolline VAST
+<< WHO #c2
+>> :choopa.nj.us.dal.net 352 avast #c2 ~avast 5313-1a21-15d0-d125-9a18.210.62.ip choopa.nj.us.dal.net avast H@ :0 Apolline VAST
 --> silent event who
->> :choopa.nj.us.dal.net 315 avast #mychan2 :End of /WHO list.
+>> :choopa.nj.us.dal.net 315 avast #c2 :End of /WHO list.
 --> chanquery who end
-<< MODE #mychan1 b
->> :choopa.nj.us.dal.net 368 avast #mychan1 :End of Channel Ban List
+<< MODE #c1 b
+>> :choopa.nj.us.dal.net 368 avast #c1 :End of Channel Ban List
 --> chanquery ban end
-<< MODE #mychan2 b
->> :choopa.nj.us.dal.net 368 avast #mychan2 :End of Channel Ban List
+<< MODE #c2 b
+>> :choopa.nj.us.dal.net 368 avast #c2 :End of Channel Ban List
 --> chanquery ban end
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#mychan1
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#mychan2
+>> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#c1
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip PART #mychan2 :bye
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip QUIT :Quit: bye
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
+<< INVITE raphou #c1
+>> :choopa.nj.us.dal.net 443 avast raphou #c1 :is already on channel
+<< INVITE raphou chan3
+>> :choopa.nj.us.dal.net 403 avast chan3 :No such channel
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
@@ -100,16 +95,12 @@
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#mychan1
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#mychan2
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip PART #mychan2
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip QUIT :Quit: leaving
+<< INVITE random #c1
+>> :choopa.nj.us.dal.net 341 avast random #c1
+>> :choopa.nj.us.dal.net 301 avast random :!help
+>> :sakura.jp.as.dal.net NOTICE @#c1 :avast invited random into channel #c1
+<< INVITE bloubloublou #c1
+>> :choopa.nj.us.dal.net 401 avast bloubloublou :No such nick/channel
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
@@ -122,10 +113,21 @@
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
+<< INVITE raphou #c2
+>> :choopa.nj.us.dal.net 341 avast raphou #c2
+>> :lion.tx.us.dal.net NOTICE @#c2 :avast invited raphou into channel #c2
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
+<< INVITE raphou #c1
+>> :choopa.nj.us.dal.net 443 avast raphou #c1 :is already on channel
+<< INVITE raphou #c1
+>> :choopa.nj.us.dal.net 443 avast raphou #c1 :is already on channel
+<< INVITE raphou #c2
+>> :choopa.nj.us.dal.net 341 avast raphou #c2
+>> :lion.tx.us.dal.net NOTICE @#c2 :avast invited raphou into channel #c2
 << PING choopa.nj.us.dal.net
 >> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
 --> lag pong
-<< QUIT :leaving
+>> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip QUIT :Quit: Lost terminal
+<< QUIT :Lost terminal

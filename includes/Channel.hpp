@@ -32,6 +32,7 @@ public:
 	void removeUser(std::string nick);
 	void removeOps(std::string nick);
 	void removeInvit(std::string nick);
+	bool checkUser(std::string nick);
 	bool checkOps(std::string nick);
 	bool checkInvit(std::string nick);
 

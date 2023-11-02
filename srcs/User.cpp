@@ -9,25 +9,6 @@ User::User(ASocket *socket)
 	this->m_authentified = 0;
 }
 
-// User::User(std::string nick, std::string user, ASocket* socket)
-// {
-
-// 	this->m_nick = nick;
-// 	this->m_user = user;
-// 	this->m_socket = socket;
-// 	this->m_servOps = 0;
-// }
-
-// User::User(std::string nick, std::string user, std::string real, ASocket* socket)
-// {
-
-// 	this->m_nick = nick;
-// 	this->m_user = user;
-// 	this->m_real = real;
-// 	this->m_socket = socket;
-// 	this->m_servOps = 0;
-// }
-
 User::User(const User & src)
 {
 	*this = src;
@@ -52,7 +33,7 @@ User::~User()
 {
 }
 
-/************************ GETTERS ************************/
+/********************* GETTERS & SETTERS ********************/
 
 std::string User::getNick() const
 {
