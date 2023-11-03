@@ -131,3 +131,117 @@
 --> lag pong
 >> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip QUIT :Quit: Lost terminal
 << QUIT :Lost terminal
+<< CAP LS
+<< NICK avast
+<< USER avast avast irc.dal.net :Apolline
+>> :choopa.nj.us.dal.net NOTICE AUTH :*** Looking up your hostname...
+>> :choopa.nj.us.dal.net NOTICE AUTH :*** Checking Ident
+>> :choopa.nj.us.dal.net NOTICE AUTH :*** Found your hostname
+>> :choopa.nj.us.dal.net NOTICE AUTH :*** No Ident response
+>> :choopa.nj.us.dal.net 433 * avast :Nickname is already in use.
+<< NICK avast_
+>> :choopa.nj.us.dal.net 001 avast_ :Welcome to the DALnet IRC Network avast_!~avast@176-161-54-210.abo.bbox.fr
+<< MODE avast_ +i
+<< WHOIS avast
+>> :choopa.nj.us.dal.net 002 avast_ :Your host is choopa.nj.us.dal.net, running version bahamut-2.2.2
+>> :choopa.nj.us.dal.net 003 avast_ :This server was created Tue Aug 23 2022 at 00:35:14 EDT
+>> :choopa.nj.us.dal.net 004 avast_ choopa.nj.us.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
+>> :choopa.nj.us.dal.net 005 avast_ NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=20 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:20 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
+>> :choopa.nj.us.dal.net 005 avast_ CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
+>> :choopa.nj.us.dal.net 251 avast_ :There are 63 users and 7468 invisible on 37 servers
+>> :choopa.nj.us.dal.net 252 avast_ 74 :IRC Operators online
+>> :choopa.nj.us.dal.net 254 avast_ 3728 :channels formed
+>> :choopa.nj.us.dal.net 255 avast_ :I have 293 clients and 1 servers
+>> :choopa.nj.us.dal.net 265 avast_ :Current local users: 293 Max: 2193
+>> :choopa.nj.us.dal.net 266 avast_ :Current global users: 7531 Max: 12809
+>> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- motd was last changed at 16/3/2021 11:13
+>> :choopa.nj.us.dal.net 375 avast_ :- choopa.nj.us.dal.net Message of the Day - 
+>> :choopa.nj.us.dal.net 372 avast_ :-16/3/2021 11:13
+>> :choopa.nj.us.dal.net 372 avast_ :- Welcome to choopa.nj.us.dal.net!
+>> :choopa.nj.us.dal.net 372 avast_ :- 
+>> :choopa.nj.us.dal.net 372 avast_ :-   .,-:::::   ::   .:      ...         ...   ::::::::::. :::.
+>> :choopa.nj.us.dal.net 372 avast_ :- ,;;;'````'  ,;;   ;;,  .;;;;;;;.   .;;;;;;;. `;;;```.;;;;;`;;
+>> :choopa.nj.us.dal.net 372 avast_ :- [[[        ,[[[,,,[[[ ,[[     \[[,,[[     \[[,`]]nnn]]',[[ '[[,
+>> :choopa.nj.us.dal.net 372 avast_ :- $$$        "$$$"""$$$ $$$,     $$$$$$,     $$$ $$$""  c$$$cc$$$c
+>> :choopa.nj.us.dal.net 372 avast_ :- `88bo,__,o, 888   "88o"888,_ _,88P"888,_ _,88P 888o    888   888,
+>> :choopa.nj.us.dal.net 372 avast_ :-   "YUMMMMMP"MMM    YMM  "YMMMMMP"   "YMMMMMP"  YMMMb   YMM   ""`
+>> :choopa.nj.us.dal.net 372 avast_ :- 
+>> :choopa.nj.us.dal.net 372 avast_ :- Server generously sponsored by http://www.choopa.com/
+>> :choopa.nj.us.dal.net 372 avast_ :- 
+>> :choopa.nj.us.dal.net 372 avast_ :- By connecting to this server you agree to be bound by the terms put forth
+>> :choopa.nj.us.dal.net 372 avast_ :- in DALnet's Acceptable Use Policy (http://www.dal.net/aup/)
+>> :choopa.nj.us.dal.net 372 avast_ :- 
+>> :choopa.nj.us.dal.net 372 avast_ :- For questions; please contact choopa-staff@dal.net
+>> :choopa.nj.us.dal.net 376 avast_ :End of /MOTD command.
+>> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- This server runs an open proxy monitor to prevent abuse.
+>> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- If you see connections on various ports from 108.61.240.240
+>> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- please disregard them, as they are the monitor in action.
+>> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- For more information please visit kline.dal.net/proxy/wingate.htm
+>> :avast_ MODE avast_ :+iH
+>> :NickServ!service@dal.net NOTICE avast_ :Bienvenue à DALnet! Saviez-vous que nos services prennent en charge votre langue?Tapez: /NickServ LANG FR pour l'essayer.
+>> :choopa.nj.us.dal.net 311 avast_ avast ~avast d68c-d1e4-c473-735f-244e.abo.bbox.fr * :Apolline
+--> nickfind event whois
+>> :choopa.nj.us.dal.net 312 avast_ avast halcyon.il.us.dal.net :valar dohaeris
+--> event empty
+>> :choopa.nj.us.dal.net 318 avast_ avast :End of /WHOIS list.
+--> event empty
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< JOIN #c1
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr JOIN :#c1
+>> :choopa.nj.us.dal.net 353 avast_ = #c1 :@avast_ 
+>> :choopa.nj.us.dal.net 366 avast_ #c1 :End of /NAMES list.
+<< MODE #c1
+>> :choopa.nj.us.dal.net 324 avast_ #c1 + 
+--> chanquery mode
+<< WHO #c1
+>> :choopa.nj.us.dal.net 329 avast_ #c1 1699005690
+--> event 329
+>> :choopa.nj.us.dal.net 352 avast_ #c1 ~avast d68c-d1e4-c473-735f-244e.abo.bbox.fr choopa.nj.us.dal.net avast_ H@ :0 Apolline
+--> silent event who
+>> :choopa.nj.us.dal.net 315 avast_ #c1 :End of /WHO list.
+--> chanquery who end
+<< MODE #c1 b
+>> :choopa.nj.us.dal.net 368 avast_ #c1 :End of Channel Ban List
+--> chanquery ban end
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< TOPIC #c1 :Ceci est le topic du channel!
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :Ceci est le topic du channel!
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+>> :raphou!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr JOIN :#c1
+>> :raphou!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :je cange le topic
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< MODE #c1 -t
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr MODE #c1 -t 
+>> :raphou!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :yooo
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< MODE #c1 +t
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr MODE #c1 +t 
+<< TOPIC #c1 :""
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :""
+<< PING choopa.nj.us.dal.net
+>> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+--> lag pong
+<< TOPIC #c1 :''
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :''
+<< TOPIC #c1 : 
+>> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 : 
+<< QUIT :leaving

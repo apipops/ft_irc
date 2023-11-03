@@ -35,7 +35,7 @@ public:
 	bool checkUser(std::string nick);
 	bool checkOps(std::string nick);
 	bool checkInvit(std::string nick);
-
+	void setModifInfo(User *user);
 
 	// EXCEPTIONS
 	class ChannelError : public Error {
@@ -46,8 +46,9 @@ public:
 private:
 	// IDENTIFICATION
 	std::string	m_name;
-	std::string m_topic;
 	std::string m_pwd;
+	std::string m_topic;
+	std::string m_modifInfo;
 
 	// USERS & OPERATORS
 	vecUser m_users;

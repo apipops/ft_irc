@@ -10,6 +10,7 @@
 # include <string>
 # include <sstream>
 # include <exception>
+# include <ctime>
 
 // TYPEDEF
 class IRCServer;
@@ -45,7 +46,9 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define RPL_WHOISUSER			"311\r\n"
 #define RPL_WHOISERVER			"312\r\n"
 #define	RPL_ENDOFWHOIS			"318\r\n"
+#define RPL_NOTOPIC				"331 :No topic is set\r\n"
 #define RPL_TOPIC				"332\r\n"
+#define RPL_TOPICWHOTIME		"333\r\n"
 #define RPL_INVITING			"341\r\n"
 #define RPL_NAMREPLY			"353\r\n"
 #define RPL_ENDOFNAMES			"366 :End of Names\r\n"

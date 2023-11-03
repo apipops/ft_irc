@@ -43,9 +43,9 @@ std::string User::getNick() const
 std::string User::getPrefix() const
 {
 	if (m_servOps)
-		return m_nick + "!@" + m_user;
+		return m_nick + "!@" + m_user + "@" + m_socket->host();
 	else
-		return m_nick + "!" + m_user;
+		return m_nick + "!" + m_user + "@" + m_socket->host();
 }
 
 

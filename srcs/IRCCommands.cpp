@@ -322,5 +322,36 @@ void 	IRCServer::inviteCmd(User* user, Message& msg)
 }
 
 
-	// void 	topicCmd(User* user, Message& msg);
-	// void 	modeCmd(User* user, Message& msg);
+void	IRCServer::topicCmd(User* user, Message& msg)
+{
+	// Parsing arguments
+	std::cout << msg.getMessage() << std::endl;
+	msg.showMessage();
+	if (!msg.m_args.size())
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	if (m_mapChan.find(msg.m_args[0]) == m_mapChan.end())
+		throw CmdError(ERR_NOSUCHCHANNEL, user, msg.m_args[0]);
+	Channel *channel = m_mapChan[msg.m_args[0]];
+
+	// Showing the topic or Modifying the topic
+	if (msg.m_args.size() == 1) {
+		if (channel->m_topic.empty())
+			writeToClient(user, m_name, buildReply(user, RPL_NOTOPIC, msg.m_args[0]));
+		else {
+			writeToClient(user, m_name, buildReply(user, RPL_TOPIC, msg.m_args[0] + " :" + channel->m_topic));
+			writeToClient(user, m_name, buildReply(user, RPL_TOPICWHOTIME, channel->m_modifInfo));
+		}
+	}
+	else {
+		if (!(channel->checkUser(user->m_nick)))
+			throw CmdError(ERR_NOTONCHANNEL, user, msg.m_args[0]);
+		if (channel->m_topicRestrict && !(channel->checkOps(user->m_nick)))
+			throw CmdError(ERR_CHANOPRIVSNEEDED, user, msg.m_args[0]);
+		channel->m_topic = msg.m_args[1];
+		channel->setModifInfo(user);
+		writeToChannel(user, channel, 1, "TOPIC " + msg.m_args[0] + " :" +  msg.m_args[1] + CRLF);
+	}
+}
+
+
+// void 	modeCmd(User* user, Message& msg);

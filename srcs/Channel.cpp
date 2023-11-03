@@ -131,6 +131,17 @@ bool Channel::checkInvit(std::string nick)
 	return false;
 }
 
+// Set the modification information sent in RPL_TOPICWHOTIME (333)
+void	Channel::setModifInfo(User *user)
+{
+	std::time_t	timestamp = std::time(NULL);
+	std::stringstream ss;
+    ss << timestamp;
+    std::string timestampStr = ss.str();
+
+	m_modifInfo = m_name + " " + user->getPrefix() + " " + timestampStr;
+}
+
 /********************** EXCEPTIONS ***********************/
 
 Channel::ChannelError::ChannelError(std::string what): Error(what)
