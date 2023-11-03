@@ -129,7 +129,7 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 				throw CmdError(ERR_BADCHANNELKEY, user, channel->m_name);
 			if (channel->m_invitMode && !channel->checkInvit(user->m_nick))
 				throw CmdError(ERR_INVITEONLYCHAN, user, channel->m_name);
-			if (channel->m_maxUsers == static_cast<int>(channel->m_users.size()))
+			if (channel->m_maxUsers >= static_cast<int>(channel->m_users.size()))
 				throw CmdError(ERR_CHANNELISFULL, user, channel->m_name);
 			channel->addUser(user);
 			user->m_allChan[chans[i]] = channel;
@@ -325,8 +325,6 @@ void 	IRCServer::inviteCmd(User* user, Message& msg)
 void	IRCServer::topicCmd(User* user, Message& msg)
 {
 	// Parsing arguments
-	std::cout << msg.getMessage() << std::endl;
-	msg.showMessage();
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
 	if (m_mapChan.find(msg.m_args[0]) == m_mapChan.end())
@@ -336,22 +334,114 @@ void	IRCServer::topicCmd(User* user, Message& msg)
 	// Showing the topic or Modifying the topic
 	if (msg.m_args.size() == 1) {
 		if (channel->m_topic.empty())
-			writeToClient(user, m_name, buildReply(user, RPL_NOTOPIC, msg.m_args[0]));
+			writeToClient(user, m_name, buildReply(user, RPL_NOTOPIC, channel->m_name));
 		else {
-			writeToClient(user, m_name, buildReply(user, RPL_TOPIC, msg.m_args[0] + " :" + channel->m_topic));
+			writeToClient(user, m_name, buildReply(user, RPL_TOPIC, channel->m_name + " :" + channel->m_topic));
 			writeToClient(user, m_name, buildReply(user, RPL_TOPICWHOTIME, channel->m_modifInfo));
 		}
 	}
 	else {
 		if (!(channel->checkUser(user->m_nick)))
-			throw CmdError(ERR_NOTONCHANNEL, user, msg.m_args[0]);
+			throw CmdError(ERR_NOTONCHANNEL, user, channel->m_name);
 		if (channel->m_topicRestrict && !(channel->checkOps(user->m_nick)))
-			throw CmdError(ERR_CHANOPRIVSNEEDED, user, msg.m_args[0]);
+			throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
 		channel->m_topic = msg.m_args[1];
 		channel->setModifInfo(user);
-		writeToChannel(user, channel, 1, "TOPIC " + msg.m_args[0] + " :" +  msg.m_args[1] + CRLF);
+		writeToChannel(user, channel, 1, "TOPIC " + channel->m_name + " :" +  msg.m_args[1] + CRLF);
 	}
 }
 
+void	IRCServer::modeCmd(User* user, Message& msg)
+{
+	// Parsing arguments
+	if (!msg.m_args.size())
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	if (msg.m_args[0] == user->m_nick)
+		return;
+	if (m_mapChan.find(msg.m_args[0]) == m_mapChan.end())
+		throw CmdError(ERR_NOSUCHCHANNEL, user, msg.m_args[0]);
+	Channel *channel = m_mapChan[msg.m_args[0]];
 
-// void 	modeCmd(User* user, Message& msg);
+	// Showing the mode or Modifying the mode
+	if (msg.m_args.size() == 1) {
+		writeToClient(user, m_name, buildReply(user, RPL_CHANNELMODEIS, channel->getModeStr()));
+		writeToClient(user, m_name, buildReply(user, RPL_CREATIONTIME, channel->m_createInfo));
+	}
+	else {
+		if (!(channel->checkOps(user->m_nick)))
+			throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
+		std::string	reply = "MODE " + channel->m_name;
+		bool	i = 0, t = 0, other = 0;
+		int		add = 0, sub = 0;
+		std::string flags = msg.m_args[1];
+		for (size_t c = 0; flags[c]; c++) {
+			if (flags[c] == '+') {
+				add = add + 1 + sub;
+				reply += " +";
+			}
+			else if (flags[c] == '-') {
+				sub = sub + 1 + add;
+				reply += " -";
+			}
+			else if (flags[c] == 'i' && !i) {
+				(add > sub) ? channel->m_invitMode = true : channel->m_invitMode = false;
+				i = true;
+				reply += "i";
+			}
+			else if (flags[c] == 't' && !t) {
+				if (add > sub)
+					channel->m_topicRestrict = true;
+				else if (sub > add)
+					channel->m_topicRestrict = false;
+				t = true;
+				reply += "t";
+			}
+			else if (flags[c] == 'k' && !other && msg.m_args.size() > 2) {
+				if (add > sub && msg.m_args.size() > 2)
+					channel->m_pwd = msg.m_args[2];
+				else if (sub > add)
+					channel->m_pwd.clear();
+				other = true;
+				reply += "k";
+				if (msg.m_args.size() > 2) 
+					reply += " " + msg.m_args[2];
+			}
+			else if (flags[c] == 'o' && !other && msg.m_args.size() > 2) {
+				if (m_mapUser.find(msg.m_args[2]) == m_mapUser.end())
+					throw CmdError(ERR_USERNOTINCHANNEL, user, msg.m_args[2] + " " + channel->m_name);
+				User *otherUser = m_mapUser[msg.m_args[2]];
+				if (add > sub) {
+					channel->addOps(otherUser);
+					otherUser->m_opsChan[channel->m_name] = channel;
+				}
+				else if (sub > add) {
+					channel->removeOps(otherUser->m_nick);
+					otherUser->m_opsChan.erase(channel->m_name);
+				}
+				other = true;
+				reply += "o";
+				if (msg.m_args.size() > 2) 
+					reply += " " + msg.m_args[2];
+			} 
+			else if (flags[c] == 'l' && !other) {
+				if (msg.m_args.size() < 3 || std::atoi(msg.m_args[2].c_str()) <= 0)
+					throw CmdError (ERR_NEEDMOREPARAMS, user, "MODE +l");
+				if (add > sub)
+					channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
+				else if (sub > add)
+					channel->m_maxUsers = NONE;
+				other = true;
+				reply += "l" ;
+				if (msg.m_args.size() > 2) 
+					reply += " " + msg.m_args[2];
+			}
+			else if (flags[c] != 'i' && flags[c] != 't' && flags[c] != 'o' && flags[c] != 'k' && flags[c] != 'l')
+				throw CmdError(ERR_UNKNOWNMODE, user, flags.substr(c, 1));
+		}
+		if (reply.find("+ ") != std::string::npos)
+			reply.erase(reply.find("+ "), 2);
+		if (reply.find("-\0") != std::string::npos)
+			reply.erase(reply.find("-\0"), 2); // fonctionne pour mode +i-i
+		writeToChannel(user, channel, true, reply + CRLF);
+	}	
+}

@@ -109,6 +109,7 @@ int	IRCServer::executeCommand(User *user, std::string cmd)
 		cmds["KICK"] = &IRCServer::kickCmd;
 		cmds["INVITE"] = &IRCServer::inviteCmd;
 		cmds["TOPIC"] = &IRCServer::topicCmd;
+		cmds["MODE"] = &IRCServer::modeCmd;
 
 		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
 		if (it != cmds.end())

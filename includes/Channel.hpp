@@ -25,17 +25,18 @@ public:
 	Channel & operator=(const Channel & src);
 	~Channel();
 
-	// SETTERS & GETTER (users)
-	void addUser(User *user);
-	void addOps(User *user);
-	void addInvit(User *user);
-	void removeUser(std::string nick);
-	void removeOps(std::string nick);
-	void removeInvit(std::string nick);
-	bool checkUser(std::string nick);
-	bool checkOps(std::string nick);
-	bool checkInvit(std::string nick);
-	void setModifInfo(User *user);
+	// SETTERS & GETTER
+	void		addUser(User *user);
+	void		addOps(User *user);
+	void		addInvit(User *user);
+	void		removeUser(std::string nick);
+	void		removeOps(std::string nick);
+	void		removeInvit(std::string nick);
+	bool		checkUser(std::string nick);
+	bool		checkOps(std::string nick);
+	bool		checkInvit(std::string nick);
+	void		setModifInfo(User *user);
+	std::string	getModeStr();
 
 	// EXCEPTIONS
 	class ChannelError : public Error {
@@ -48,6 +49,7 @@ private:
 	std::string	m_name;
 	std::string m_pwd;
 	std::string m_topic;
+	std::string m_createInfo;
 	std::string m_modifInfo;
 
 	// USERS & OPERATORS

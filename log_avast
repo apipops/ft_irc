@@ -1,247 +1,154 @@
 << CAP LS
 << NICK avast
-<< USER avast avast irc.dal.net :Apolline VAST
->> :choopa.nj.us.dal.net NOTICE AUTH :*** Looking up your hostname...
->> :choopa.nj.us.dal.net NOTICE AUTH :*** Checking Ident
->> :choopa.nj.us.dal.net NOTICE AUTH :*** Couldn't look up your hostname
->> :choopa.nj.us.dal.net NOTICE AUTH :*** No Ident response
->> :choopa.nj.us.dal.net 001 avast :Welcome to the DALnet IRC Network avast!~avast@62.210.34.213
-<< MODE avast +i
->> :choopa.nj.us.dal.net 002 avast :Your host is choopa.nj.us.dal.net, running version bahamut-2.2.2
->> :choopa.nj.us.dal.net 003 avast :This server was created Tue Aug 23 2022 at 00:35:14 EDT
->> :choopa.nj.us.dal.net 004 avast choopa.nj.us.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
->> :choopa.nj.us.dal.net 005 avast NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=20 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:20 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
->> :choopa.nj.us.dal.net 005 avast CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
->> :choopa.nj.us.dal.net 251 avast :There are 66 users and 7757 invisible on 38 servers
->> :choopa.nj.us.dal.net 252 avast 76 :IRC Operators online
->> :choopa.nj.us.dal.net 254 avast 3808 :channels formed
->> :choopa.nj.us.dal.net 255 avast :I have 308 clients and 1 servers
->> :choopa.nj.us.dal.net 265 avast :Current local users: 308 Max: 2193
->> :choopa.nj.us.dal.net 266 avast :Current global users: 7823 Max: 12809
->> :choopa.nj.us.dal.net NOTICE avast :*** Notice -- motd was last changed at 16/3/2021 11:13
->> :choopa.nj.us.dal.net 375 avast :- choopa.nj.us.dal.net Message of the Day - 
->> :choopa.nj.us.dal.net 372 avast :-16/3/2021 11:13
->> :choopa.nj.us.dal.net 372 avast :- Welcome to choopa.nj.us.dal.net!
->> :choopa.nj.us.dal.net 372 avast :- 
->> :choopa.nj.us.dal.net 372 avast :-   .,-:::::   ::   .:      ...         ...   ::::::::::. :::.
->> :choopa.nj.us.dal.net 372 avast :- ,;;;'````'  ,;;   ;;,  .;;;;;;;.   .;;;;;;;. `;;;```.;;;;;`;;
->> :choopa.nj.us.dal.net 372 avast :- [[[        ,[[[,,,[[[ ,[[     \[[,,[[     \[[,`]]nnn]]',[[ '[[,
->> :choopa.nj.us.dal.net 372 avast :- $$$        "$$$"""$$$ $$$,     $$$$$$,     $$$ $$$""  c$$$cc$$$c
->> :choopa.nj.us.dal.net 372 avast :- `88bo,__,o, 888   "88o"888,_ _,88P"888,_ _,88P 888o    888   888,
->> :choopa.nj.us.dal.net 372 avast :-   "YUMMMMMP"MMM    YMM  "YMMMMMP"   "YMMMMMP"  YMMMb   YMM   ""`
->> :choopa.nj.us.dal.net 372 avast :- 
->> :choopa.nj.us.dal.net 372 avast :- Server generously sponsored by http://www.choopa.com/
->> :choopa.nj.us.dal.net 372 avast :- 
->> :choopa.nj.us.dal.net 372 avast :- By connecting to this server you agree to be bound by the terms put forth
->> :choopa.nj.us.dal.net 372 avast :- in DALnet's Acceptable Use Policy (http://www.dal.net/aup/)
->> :choopa.nj.us.dal.net 372 avast :- 
->> :choopa.nj.us.dal.net 372 avast :- For questions; please contact choopa-staff@dal.net
->> :choopa.nj.us.dal.net 376 avast :End of /MOTD command.
->> :choopa.nj.us.dal.net NOTICE avast :*** Notice -- This server runs an open proxy monitor to prevent abuse.
->> :choopa.nj.us.dal.net NOTICE avast :*** Notice -- If you see connections on various ports from 108.61.240.240
->> :choopa.nj.us.dal.net NOTICE avast :*** Notice -- please disregard them, as they are the monitor in action.
->> :choopa.nj.us.dal.net NOTICE avast :*** Notice -- For more information please visit kline.dal.net/proxy/wingate.htm
->> :avast MODE avast :+iH
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< JOIN #c1,#c2
->> :avast!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#c1
->> :choopa.nj.us.dal.net 353 avast = #c1 :@avast 
->> :choopa.nj.us.dal.net 366 avast #c1 :End of /NAMES list.
-<< MODE #c1
->> :avast!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#c2
->> :choopa.nj.us.dal.net 353 avast = #c2 :@avast 
->> :choopa.nj.us.dal.net 366 avast #c2 :End of /NAMES list.
->> :choopa.nj.us.dal.net 324 avast #c1 + 
---> chanquery mode
-<< MODE #c2
->> :choopa.nj.us.dal.net 329 avast #c1 1698941305
---> event 329
->> :choopa.nj.us.dal.net 324 avast #c2 + 
---> chanquery mode
-<< WHO #c1
->> :choopa.nj.us.dal.net 329 avast #c2 1698941305
---> event 329
->> :choopa.nj.us.dal.net 352 avast #c1 ~avast 5313-1a21-15d0-d125-9a18.210.62.ip choopa.nj.us.dal.net avast H@ :0 Apolline VAST
---> silent event who
->> :choopa.nj.us.dal.net 315 avast #c1 :End of /WHO list.
---> chanquery who end
-<< WHO #c2
->> :choopa.nj.us.dal.net 352 avast #c2 ~avast 5313-1a21-15d0-d125-9a18.210.62.ip choopa.nj.us.dal.net avast H@ :0 Apolline VAST
---> silent event who
->> :choopa.nj.us.dal.net 315 avast #c2 :End of /WHO list.
---> chanquery who end
-<< MODE #c1 b
->> :choopa.nj.us.dal.net 368 avast #c1 :End of Channel Ban List
---> chanquery ban end
-<< MODE #c2 b
->> :choopa.nj.us.dal.net 368 avast #c2 :End of Channel Ban List
---> chanquery ban end
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip JOIN :#c1
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< INVITE raphou #c1
->> :choopa.nj.us.dal.net 443 avast raphou #c1 :is already on channel
-<< INVITE raphou chan3
->> :choopa.nj.us.dal.net 403 avast chan3 :No such channel
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< INVITE random #c1
->> :choopa.nj.us.dal.net 341 avast random #c1
->> :choopa.nj.us.dal.net 301 avast random :!help
->> :sakura.jp.as.dal.net NOTICE @#c1 :avast invited random into channel #c1
-<< INVITE bloubloublou #c1
->> :choopa.nj.us.dal.net 401 avast bloubloublou :No such nick/channel
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< INVITE raphou #c2
->> :choopa.nj.us.dal.net 341 avast raphou #c2
->> :lion.tx.us.dal.net NOTICE @#c2 :avast invited raphou into channel #c2
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
-<< INVITE raphou #c1
->> :choopa.nj.us.dal.net 443 avast raphou #c1 :is already on channel
-<< INVITE raphou #c1
->> :choopa.nj.us.dal.net 443 avast raphou #c1 :is already on channel
-<< INVITE raphou #c2
->> :choopa.nj.us.dal.net 341 avast raphou #c2
->> :lion.tx.us.dal.net NOTICE @#c2 :avast invited raphou into channel #c2
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast
---> lag pong
->> :raphou!~avast@5313-1a21-15d0-d125-9a18.210.62.ip QUIT :Quit: Lost terminal
-<< QUIT :Lost terminal
-<< CAP LS
-<< NICK avast
 << USER avast avast irc.dal.net :Apolline
->> :choopa.nj.us.dal.net NOTICE AUTH :*** Looking up your hostname...
->> :choopa.nj.us.dal.net NOTICE AUTH :*** Checking Ident
->> :choopa.nj.us.dal.net NOTICE AUTH :*** Found your hostname
->> :choopa.nj.us.dal.net NOTICE AUTH :*** No Ident response
->> :choopa.nj.us.dal.net 433 * avast :Nickname is already in use.
-<< NICK avast_
->> :choopa.nj.us.dal.net 001 avast_ :Welcome to the DALnet IRC Network avast_!~avast@176-161-54-210.abo.bbox.fr
-<< MODE avast_ +i
-<< WHOIS avast
->> :choopa.nj.us.dal.net 002 avast_ :Your host is choopa.nj.us.dal.net, running version bahamut-2.2.2
->> :choopa.nj.us.dal.net 003 avast_ :This server was created Tue Aug 23 2022 at 00:35:14 EDT
->> :choopa.nj.us.dal.net 004 avast_ choopa.nj.us.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
->> :choopa.nj.us.dal.net 005 avast_ NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=20 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:20 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
->> :choopa.nj.us.dal.net 005 avast_ CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
->> :choopa.nj.us.dal.net 251 avast_ :There are 63 users and 7468 invisible on 37 servers
->> :choopa.nj.us.dal.net 252 avast_ 74 :IRC Operators online
->> :choopa.nj.us.dal.net 254 avast_ 3728 :channels formed
->> :choopa.nj.us.dal.net 255 avast_ :I have 293 clients and 1 servers
->> :choopa.nj.us.dal.net 265 avast_ :Current local users: 293 Max: 2193
->> :choopa.nj.us.dal.net 266 avast_ :Current global users: 7531 Max: 12809
->> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- motd was last changed at 16/3/2021 11:13
->> :choopa.nj.us.dal.net 375 avast_ :- choopa.nj.us.dal.net Message of the Day - 
->> :choopa.nj.us.dal.net 372 avast_ :-16/3/2021 11:13
->> :choopa.nj.us.dal.net 372 avast_ :- Welcome to choopa.nj.us.dal.net!
->> :choopa.nj.us.dal.net 372 avast_ :- 
->> :choopa.nj.us.dal.net 372 avast_ :-   .,-:::::   ::   .:      ...         ...   ::::::::::. :::.
->> :choopa.nj.us.dal.net 372 avast_ :- ,;;;'````'  ,;;   ;;,  .;;;;;;;.   .;;;;;;;. `;;;```.;;;;;`;;
->> :choopa.nj.us.dal.net 372 avast_ :- [[[        ,[[[,,,[[[ ,[[     \[[,,[[     \[[,`]]nnn]]',[[ '[[,
->> :choopa.nj.us.dal.net 372 avast_ :- $$$        "$$$"""$$$ $$$,     $$$$$$,     $$$ $$$""  c$$$cc$$$c
->> :choopa.nj.us.dal.net 372 avast_ :- `88bo,__,o, 888   "88o"888,_ _,88P"888,_ _,88P 888o    888   888,
->> :choopa.nj.us.dal.net 372 avast_ :-   "YUMMMMMP"MMM    YMM  "YMMMMMP"   "YMMMMMP"  YMMMb   YMM   ""`
->> :choopa.nj.us.dal.net 372 avast_ :- 
->> :choopa.nj.us.dal.net 372 avast_ :- Server generously sponsored by http://www.choopa.com/
->> :choopa.nj.us.dal.net 372 avast_ :- 
->> :choopa.nj.us.dal.net 372 avast_ :- By connecting to this server you agree to be bound by the terms put forth
->> :choopa.nj.us.dal.net 372 avast_ :- in DALnet's Acceptable Use Policy (http://www.dal.net/aup/)
->> :choopa.nj.us.dal.net 372 avast_ :- 
->> :choopa.nj.us.dal.net 372 avast_ :- For questions; please contact choopa-staff@dal.net
->> :choopa.nj.us.dal.net 376 avast_ :End of /MOTD command.
->> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- This server runs an open proxy monitor to prevent abuse.
->> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- If you see connections on various ports from 108.61.240.240
->> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- please disregard them, as they are the monitor in action.
->> :choopa.nj.us.dal.net NOTICE avast_ :*** Notice -- For more information please visit kline.dal.net/proxy/wingate.htm
->> :avast_ MODE avast_ :+iH
->> :NickServ!service@dal.net NOTICE avast_ :Bienvenue à DALnet! Saviez-vous que nos services prennent en charge votre langue?Tapez: /NickServ LANG FR pour l'essayer.
->> :choopa.nj.us.dal.net 311 avast_ avast ~avast d68c-d1e4-c473-735f-244e.abo.bbox.fr * :Apolline
---> nickfind event whois
->> :choopa.nj.us.dal.net 312 avast_ avast halcyon.il.us.dal.net :valar dohaeris
---> event empty
->> :choopa.nj.us.dal.net 318 avast_ avast :End of /WHOIS list.
---> event empty
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
---> lag pong
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+>> :atw.hu.eu.dal.net NOTICE AUTH :*** Looking up your hostname...
+>> :atw.hu.eu.dal.net NOTICE AUTH :*** Checking Ident
+>> :atw.hu.eu.dal.net NOTICE AUTH :*** Found your hostname
+>> :atw.hu.eu.dal.net NOTICE AUTH :*** No Ident response
+>> :atw.hu.eu.dal.net 001 avast :Welcome to the DALnet IRC Network avast!~avast@176-161-55-137.abo.bbox.fr
+<< MODE avast +i
+>> :atw.hu.eu.dal.net 002 avast :Your host is atw.hu.eu.dal.net, running version bahamut-2.2.2
+>> :atw.hu.eu.dal.net 003 avast :This server was created Sat 08 Oct CEST at 2022 02:30:58 PM
+>> :atw.hu.eu.dal.net 004 avast atw.hu.eu.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
+>> :atw.hu.eu.dal.net 005 avast NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=50 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:50 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
+>> :atw.hu.eu.dal.net 005 avast CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
+>> :atw.hu.eu.dal.net 251 avast :There are 62 users and 7466 invisible on 37 servers
+>> :atw.hu.eu.dal.net 252 avast 74 :IRC Operators online
+>> :atw.hu.eu.dal.net 254 avast 3765 :channels formed
+>> :atw.hu.eu.dal.net 255 avast :I have 1072 clients and 1 servers
+>> :atw.hu.eu.dal.net 265 avast :Current local users: 1072 Max: 2113
+>> :atw.hu.eu.dal.net 266 avast :Current global users: 7528 Max: 12060
+>> :atw.hu.eu.dal.net NOTICE avast :*** Notice -- motd was last changed at 20/1/2021 6:02
+>> :atw.hu.eu.dal.net 375 avast :- atw.hu.eu.dal.net Message of the Day - 
+>> :atw.hu.eu.dal.net 372 avast :-20/1/2021 6:02
+>> :atw.hu.eu.dal.net 372 avast :- Welcome to DALnet!  By connecting to this network, you agree to abide
+>> :atw.hu.eu.dal.net 372 avast :- by its acceptable use policy, available here: http://www.dal.net/aup
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :- Server Policies:
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :-    *   We reserve the right to deny access to this server without
+>> :atw.hu.eu.dal.net 372 avast :-        warning or explanation
+>> :atw.hu.eu.dal.net 372 avast :-    *   No malicious bots, including flood and nick/channel chasers
+>> :atw.hu.eu.dal.net 372 avast :-    *   No channel filler bots/clients/psybncs
+>> :atw.hu.eu.dal.net 372 avast :-          - A channel filler is a client, bnc, or bot which is
+>> :atw.hu.eu.dal.net 372 avast :-            connected just to fill a channel and make it look
+>> :atw.hu.eu.dal.net 372 avast :-            bigger
+>> :atw.hu.eu.dal.net 372 avast :-    *   Operator impersonation, spamming, or any other abuse will
+>> :atw.hu.eu.dal.net 372 avast :-        cause you to be banned from this server
+>> :atw.hu.eu.dal.net 372 avast :-    *   Abide by DALnet's AUP (www.dal.net/aup)
+>> :atw.hu.eu.dal.net 372 avast :-    *   Please have fun and enjoy DALnet!
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :-      ///admins////////////////////////////////////////
+>> :atw.hu.eu.dal.net 372 avast :-      //                                             //
+>> :atw.hu.eu.dal.net 372 avast :-      //  [ Hidden  - administrator             ]    //
+>> :atw.hu.eu.dal.net 372 avast :-      //                                             // 
+>> :atw.hu.eu.dal.net 372 avast :-      //  [ koszik  - assistant administrator   ]    //
+>> :atw.hu.eu.dal.net 372 avast :-      //                                             //
+>> :atw.hu.eu.dal.net 372 avast :-      ///operators/////////////////////////////////////
+>> :atw.hu.eu.dal.net 372 avast :-      //                                             //
+>> :atw.hu.eu.dal.net 372 avast :-      //                                             //
+>> :atw.hu.eu.dal.net 372 avast :-      //                                             //
+>> :atw.hu.eu.dal.net 372 avast :-      /////////////////////////////////////////////////
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :- For IRCop assistance, please /join #operhelp or message one of our
+>> :atw.hu.eu.dal.net 372 avast :- friendly server staff listed above.
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :- For multilingual information:  <http://docs.dal.net/>
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 372 avast :- Thank you for using DALnet!  We hope you have a pleasant day.
+>> :atw.hu.eu.dal.net 372 avast :- 
+>> :atw.hu.eu.dal.net 376 avast :End of /MOTD command.
+>> :avast MODE avast :+iH
+>> :NickServ!service@dal.net NOTICE avast :Bienvenue à DALnet! Saviez-vous que nos services prennent en charge votre langue?Tapez: /NickServ LANG FR pour l'essayer.
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
 << JOIN #c1
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr JOIN :#c1
->> :choopa.nj.us.dal.net 353 avast_ = #c1 :@avast_ 
->> :choopa.nj.us.dal.net 366 avast_ #c1 :End of /NAMES list.
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr JOIN :#c1
+>> :atw.hu.eu.dal.net 353 avast = #c1 :@avast 
+>> :atw.hu.eu.dal.net 366 avast #c1 :End of /NAMES list.
 << MODE #c1
->> :choopa.nj.us.dal.net 324 avast_ #c1 + 
+>> :atw.hu.eu.dal.net 324 avast #c1 + 
 --> chanquery mode
 << WHO #c1
->> :choopa.nj.us.dal.net 329 avast_ #c1 1699005690
+>> :atw.hu.eu.dal.net 329 avast #c1 1699016351
 --> event 329
->> :choopa.nj.us.dal.net 352 avast_ #c1 ~avast d68c-d1e4-c473-735f-244e.abo.bbox.fr choopa.nj.us.dal.net avast_ H@ :0 Apolline
+>> :atw.hu.eu.dal.net 352 avast #c1 ~avast 9298-29dc-8244-d853-4c65.abo.bbox.fr atw.hu.eu.dal.net avast H@ :0 Apolline
 --> silent event who
->> :choopa.nj.us.dal.net 315 avast_ #c1 :End of /WHO list.
+>> :atw.hu.eu.dal.net 315 avast #c1 :End of /WHO list.
 --> chanquery who end
 << MODE #c1 b
->> :choopa.nj.us.dal.net 368 avast_ #c1 :End of Channel Ban List
+>> :atw.hu.eu.dal.net 368 avast #c1 :End of Channel Ban List
 --> chanquery ban end
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+<< MODE #c1 +i-i
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 +i 
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
-<< TOPIC #c1 :Ceci est le topic du channel!
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :Ceci est le topic du channel!
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+<< MODE #c1 -i+i
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 -i 
+<< MODE #c1 -i+i
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 -i 
+<< MODE =-i -+i
+>> :atw.hu.eu.dal.net 403 avast =-i :No such channel
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
->> :raphou!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr JOIN :#c1
->> :raphou!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :je cange le topic
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+<< MODE #c1 -i+i
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 -i 
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
-<< MODE #c1 -t
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr MODE #c1 -t 
->> :raphou!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :yooo
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+<< MODE #c1 -i
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 -i 
+<< MODE #c1 -it
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 -it 
+<< MODE #c1 -i+t
+>> :avast!~avast@9298-29dc-8244-d853-4c65.abo.bbox.fr MODE #c1 -i+t 
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
-<< MODE #c1 +t
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr MODE #c1 +t 
-<< TOPIC #c1 :""
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :""
-<< PING choopa.nj.us.dal.net
->> :choopa.nj.us.dal.net PONG choopa.nj.us.dal.net :avast_
+<< MODE #c1 +z
+>> :atw.hu.eu.dal.net 472 avast z :is unknown mode char to me
+<< MODE you +i
+>> :atw.hu.eu.dal.net 403 avast you :No such channel
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
-<< TOPIC #c1 :''
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 :''
-<< TOPIC #c1 : 
->> :avast_!~avast@d68c-d1e4-c473-735f-244e.abo.bbox.fr TOPIC #c1 : 
-<< QUIT :leaving
+<< MODE yo +z
+>> :atw.hu.eu.dal.net 403 avast yo :No such channel
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
+>> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
+--> lag pong
+<< PING atw.hu.eu.dal.net
