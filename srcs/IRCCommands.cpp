@@ -370,78 +370,179 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 	else {
 		if (!(channel->checkOps(user->m_nick)))
 			throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
-		std::string	reply = "MODE " + channel->m_name;
-		bool	i = 0, t = 0, other = 0;
-		int		add = 0, sub = 0;
-		std::string flags = msg.m_args[1];
+		std::string flags = msg.m_args[1], reply, reply_params;
+		bool		i = 0, t = 0, k = 0, o = 0, l = 0;
+		int			add = 0, sub = 0;
 		for (size_t c = 0; flags[c]; c++) {
-			if (flags[c] == '+') {
-				add = add + 1 + sub;
-				reply += " +";
-			}
-			else if (flags[c] == '-') {
-				sub = sub + 1 + add;
-				reply += " -";
-			}
-			else if (flags[c] == 'i' && !i) {
-				(add > sub) ? channel->m_invitMode = true : channel->m_invitMode = false;
+			if (flags[c] == '+')
+				add = sub + 1;
+			else if (flags[c] == '-')
+				sub = add + 1;
+			else if (flags[c] == 'i') {
+				if (add > sub && !i) {
+					//std::cout << "je passe ici" << std::endl;
+					channel->m_invitMode = true;
+					(reply.find('+') != std::string::npos) ? reply += "i" : reply += "+i";
+				}
+				else if (sub > add && !i) {
+					channel->m_invitMode = false;
+					i = true;
+					(reply.find('-') != std::string::npos) ? reply += "i" : reply += "-i";
+				}
 				i = true;
-				reply += "i";
 			}
-			else if (flags[c] == 't' && !t) {
-				if (add > sub)
+			else if (flags[c] == 't') {
+				if (add > sub && !t) {
 					channel->m_topicRestrict = true;
-				else if (sub > add)
+					(reply.find('+') != std::string::npos) ? reply += "t" : reply += "+t";
+				}
+				else if (sub > add && !t) {
 					channel->m_topicRestrict = false;
+					(reply.find('-') != std::string::npos) ? reply += "t" : reply += "-t";
+				}	
 				t = true;
-				reply += "t";
 			}
-			else if (flags[c] == 'k' && !other && msg.m_args.size() > 2) {
-				if (add > sub && msg.m_args.size() > 2)
-					channel->m_pwd = msg.m_args[2];
-				else if (sub > add)
-					channel->m_pwd.clear();
-				other = true;
-				reply += "k";
-				if (msg.m_args.size() > 2) 
-					reply += " " + msg.m_args[2];
-			}
-			else if (flags[c] == 'o' && !other && msg.m_args.size() > 2) {
-				if (m_mapUser.find(msg.m_args[2]) == m_mapUser.end())
-					throw CmdError(ERR_USERNOTINCHANNEL, user, msg.m_args[2] + " " + channel->m_name);
+			else if (flags[c] == 'o') {
+				if (msg.m_args.size() < 3)
+					goto endLoop;
+				else if (m_mapUser.find(msg.m_args[2]) == m_mapUser.end()) {
+					writeToClient(user, m_name, buildReply(user, ERR_USERNOTINCHANNEL, msg.m_args[2] + " " + channel->m_name));
+					goto endLoop;				
+				}
 				User *otherUser = m_mapUser[msg.m_args[2]];
-				if (add > sub) {
+				if (add > sub && !o && !k && !l) {
 					channel->addOps(otherUser);
 					otherUser->m_opsChan[channel->m_name] = channel;
+					(reply.find('+') != std::string::npos) ? reply += "o" : reply += "-o";
+					reply_params = " " + msg.m_args[2];
 				}
-				else if (sub > add) {
-					channel->removeOps(otherUser->m_nick);
-					otherUser->m_opsChan.erase(channel->m_name);
+				else if (sub > add && !o && !k) { // le !k bizarrerie propre a IRC
+					channel->removeOps(user->m_nick);
+					user->m_opsChan.erase(channel->m_name);
+					(reply.find('-') != std::string::npos) ? reply += "o" : reply += "-o";
+					reply_params += " " + msg.m_args[2];
 				}
-				other = true;
-				reply += "o";
-				if (msg.m_args.size() > 2) 
-					reply += " " + msg.m_args[2];
-			} 
-			else if (flags[c] == 'l' && !other) {
-				if (msg.m_args.size() < 3 || std::atoi(msg.m_args[2].c_str()) <= 0)
-					throw CmdError (ERR_NEEDMOREPARAMS, user, "MODE +l");
-				if (add > sub)
-					channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
-				else if (sub > add)
-					channel->m_maxUsers = NONE;
-				other = true;
-				reply += "l" ;
-				if (msg.m_args.size() > 2) 
-					reply += " " + msg.m_args[2];
+				o = true;
 			}
-			else if (flags[c] != 'i' && flags[c] != 't' && flags[c] != 'o' && flags[c] != 'k' && flags[c] != 'l')
-				throw CmdError(ERR_UNKNOWNMODE, user, flags.substr(c, 1));
+			else if (flags[c] == 'k') {
+				if (add > sub && !o && !k && !l) {
+					if (msg.m_args.size() > 2) {
+						channel->m_pwd = msg.m_args[2];
+						reply_params = " " + msg.m_args[2];
+					}
+					else // montrer le msd si pas de param
+						reply_params = " " + channel->m_pwd;
+					(reply.find('+') != std::string::npos) ? reply += "k" : reply += "+k";
+				}
+				else if (sub > add && !k && !channel->m_pwd.empty()) { // ne s'applique pas si pas de mdp
+					reply_params += " " + channel->m_pwd;
+					channel->m_pwd.clear();
+					(reply.find('-') != std::string::npos) ? reply += "k" : reply += "-k";
+				}
+				k = true;
+			}
+			else if (flags[c] == 'l') {
+				if (add > sub && !o && !k && !l) {
+					if (msg.m_args.size() < 3) { // propre au flag l
+						writeToClient(user, m_name, buildReply(user, ERR_NEEDMOREPARAMS, "MODE +l"));
+						goto endLoop;
+					}
+					if (std::atoi(msg.m_args[2].c_str()) > 0) {
+						channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
+						(reply.find('+') != std::string::npos) ? reply += "l" : reply += "+l";
+						reply_params = msg.m_args[2];
+					}
+				}
+				else if (sub > add && !l) {
+					std::stringstream maxStr;
+					maxStr << channel->m_maxUsers;
+					reply_params += " " + maxStr.str();
+					channel->m_maxUsers = NONE;
+					(reply.find('-') != std::string::npos) ? reply += "l" : reply += "-l";
+				}
+				l = true;
+			}
+			else
+				writeToClient(user, m_name, buildReply(user, ERR_UNKNOWNMODE, flags.substr(c, 1)));
+			endLoop:;
 		}
-		if (reply.find("+ ") != std::string::npos)
-			reply.erase(reply.find("+ "), 2);
-		if (reply.find("-\0") != std::string::npos)
-			reply.erase(reply.find("-\0"), 2); // fonctionne pour mode +i-i
-		writeToChannel(user, channel, true, reply + CRLF);
-	}	
+		if (!reply.empty())
+			writeToChannel(user, channel, true, "MODE " + channel->m_name + " " + reply + reply_params + CRLF);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+// 			else if (flags[c] == 'i' && !i) {
+// 				(add > sub) ? channel->m_invitMode = true : channel->m_invitMode = false;
+// 				i = true;
+// 				reply += "i";
+// 			}
+// 			else if (flags[c] == 't' && !t) {
+// 				if (add > sub)
+// 					channel->m_topicRestrict = true;
+// 				else if (sub > add)
+// 					channel->m_topicRestrict = false;
+// 				t = true;
+// 				reply += "t";
+// 			}
+// 			else if (flags[c] == 'k' && !other && msg.m_args.size() > 2) {
+// 				if (add > sub && msg.m_args.size() > 2)
+// 					channel->m_pwd = msg.m_args[2];
+// 				else if (sub > add)
+// 					channel->m_pwd.clear();
+// 				other = true;
+// 				reply += "k";
+// 				if (msg.m_args.size() > 2) 
+// 					reply += " " + msg.m_args[2];
+// 			}
+// 			else if (flags[c] == 'o' && !other && msg.m_args.size() > 2) {
+// 				if (m_mapUser.find(msg.m_args[2]) == m_mapUser.end())
+// 					throw CmdError(ERR_USERNOTINCHANNEL, user, msg.m_args[2] + " " + channel->m_name);
+// 				User *otherUser = m_mapUser[msg.m_args[2]];
+// 				if (add > sub) {
+// 					channel->addOps(otherUser);
+// 					otherUser->m_opsChan[channel->m_name] = channel;
+// 				}
+// 				else if (sub > add) {
+// 					channel->removeOps(otherUser->m_nick);
+// 					otherUser->m_opsChan.erase(channel->m_name);
+// 				}
+// 				other = true;
+// 				reply += "o";
+// 				if (msg.m_args.size() > 2) 
+// 					reply += " " + msg.m_args[2];
+// 			} 
+// 			else if (flags[c] == 'l' && !other) {
+// 				if (msg.m_args.size() < 3 || std::atoi(msg.m_args[2].c_str()) <= 0)
+// 					throw CmdError (ERR_NEEDMOREPARAMS, user, "MODE +l");
+// 				if (add > sub)
+// 					channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
+// 				else if (sub > add)
+// 					channel->m_maxUsers = NONE;
+// 				other = true;
+// 				reply += "l" ;
+// 				if (msg.m_args.size() > 2) 
+// 					reply += " " + msg.m_args[2];
+// 			}
+// 			else if (flags[c] != 'i' && flags[c] != 't' && flags[c] != 'o' && flags[c] != 'k' && flags[c] != 'l')
+// 				throw CmdError(ERR_UNKNOWNMODE, user, flags.substr(c, 1));
+// 		}
+// 		std::cout << reply << std::endl;
+// 		(reply.find("+\0") == std::string::npos) ? std::cout << "NOT FOUND" << std::endl : std::cout << "FOUND" << std::endl;
+// 		if (reply.find("+\0") != std::string::npos || reply.find("+ ") != std::string::npos)
+// 			reply.erase(reply.find('+'), 2);
+// 		else if (reply.find("-\0") != std::string::npos || reply.find("- ") != std::string::npos)
+// 			reply.erase(reply.find('-'), 2);
+// 		reply = "MODE " + channel->m_name + reply;
+// 		writeToChannel(user, channel, true, reply + CRLF);
+// 	}	
+// }
+
