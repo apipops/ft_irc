@@ -25,7 +25,7 @@ int main(int ac, char **av)
 			return -1;
 		}
 
-		IRCServer server("MiniRC", av[2]);
+		IRCServer server("miniRC", av[2]);
 		server.start(av[1]);
 		while (!server.isdown()) {
 			server.checkEvents();

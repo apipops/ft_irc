@@ -319,6 +319,19 @@ void	IRCServer::writeWelcome(User *user, std::string nick)
 	user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " unique-version o ov\r\n");
 	user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(o)@ CHANTYPES=# CHANMODES=itkol :are supported on this server.\r\n");
 	user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\r\n");
+	user->m_socket->write(":" + m_name + " 375 " + nick + " :" + m_name + " Message of the day -\r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :                                                                  \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :                                                                  \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+"   Welcome to     ███              ███  ███████████     █████████ \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+"                 ░░░              ░░░  ░░███░░░░░███   ███░░░░░███\r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+" █████████████   ████  ████████   ████  ░███    ░███  ███     ░░░ \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+"░░███░░███░░███ ░░███ ░░███░░███ ░░███  ░██████████  ░███         \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+" ░███ ░███ ░███  ░███  ░███ ░███  ░███  ░███░░░░░███ ░███         \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+" ░███ ░███ ░███  ░███  ░███ ░███  ░███  ░███    ░███ ░░███     ███\r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+" █████░███ █████ █████ ████ █████ █████ █████   █████ ░░█████████ \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :"+RED_DARK+"░░░░░ ░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░░ ░░░░░   ░░░░░   ░░░░░░░░░  \r\n");
+	user->m_socket->write(":" + m_name + " 372 " + nick + " :                                                                  \r\n");
+	user->m_socket->write(":" + m_name + " 376 " + nick + " :End of /MOTD command.\r\n");
 }
 
 void	IRCServer::writeToChannel(User *sender, Channel *channel, bool inclSender, std::string msg)

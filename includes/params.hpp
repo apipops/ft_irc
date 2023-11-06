@@ -2,16 +2,20 @@
 #define PARAMS_HPP
 
 // LIBRARIES
-# include <iostream>
-# include <map>
-# include <vector>
-# include <algorithm>
-# include <iostream>
-# include <string>
-# include <sstream>
-# include <exception>
-# include <ctime>
-# include <climits>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <exception>
+#include <ctime>
+#include <climits>
+
+// COLORS
+#define RED_DARK "\x1b[38;2;147;25;25m"
+//147, 25, 25
 
 // TYPEDEF
 class IRCServer;
