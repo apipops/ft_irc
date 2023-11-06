@@ -1,6 +1,6 @@
 #include "../includes/IRCServer.hpp"
 
-/********************** BASIC COMMANDS **********************/
+/********************** BASIC USER COMMANDS **********************/
 
 // [PASS] Check if password is correct
 void	IRCServer::passCmd(User* user, Message& msg)
@@ -48,27 +48,6 @@ void	IRCServer::userCmd(User* user, Message& msg)
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
 	user->m_user = msg.m_args[0];
 	user->m_real = msg.m_args[3];
-}
-
-// [PING] Notify the client the server is up
-void	IRCServer::pingCmd(User* user, Message& msg)
-{
-	(void)msg;
-	std::string reply = "PONG " + m_name + " :" + user->m_nick + CRLF;
-	writeToClient(user, m_name, reply);
-}
-
-// [WHOIS] Give information on user and server
-void	IRCServer::whoisCmd(User* user, Message& msg)
-{
-	std::string reply;
-	if (!msg.m_args.size())
-		throw CmdError(ERR_NEEDMOREPARAMS, user);
-	reply = buildReply(user, RPL_WHOISUSER, user->m_user + " * :" + user->m_real);
-	writeToClient(user, m_name, reply);
-	reply = buildReply(user, RPL_WHOISERVER, m_name + " * " + ":This server is our own IRC Server");
-	writeToClient(user, m_name, reply);
-	writeToClient(user, m_name, buildReply(user, RPL_ENDOFWHOIS));
 }
 
 // [JOIN] Make user join/create a channel
@@ -123,25 +102,36 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 		else // channel already exists
 		{
 			Channel *channel = it->second;
-			if (pwds.size() < i + 1 && !channel->m_pwd.empty())
-				throw CmdError(ERR_BADCHANNELKEY, user, channel->m_name);
-			if ((pwds.size() >= i + 1) && pwds[i] != channel->m_pwd)
-				throw CmdError(ERR_BADCHANNELKEY, user, channel->m_name);
-			if (channel->m_invitMode && !channel->checkInvit(user->m_nick))
-				throw CmdError(ERR_INVITEONLYCHAN, user, channel->m_name);
-			if (channel->m_maxUsers >= static_cast<int>(channel->m_users.size()))
-				throw CmdError(ERR_CHANNELISFULL, user, channel->m_name);
+			if (pwds.size() < i + 1 && !channel->m_pwd.empty()) {
+				writeToClient(user, m_name, buildReply(user, ERR_BADCHANNELKEY, channel->m_name));
+				continue;
+			}
+			if ((pwds.size() >= i + 1) && pwds[i] != channel->m_pwd) {
+				writeToClient(user, m_name, buildReply(user, ERR_BADCHANNELKEY, channel->m_name));
+				continue;
+			}
+			if (channel->m_invitMode && !channel->checkInvit(user->m_nick)) {
+				writeToClient(user, m_name, buildReply(user, ERR_INVITEONLYCHAN, channel->m_name));
+				continue;
+			}
+			if (channel->m_maxUsers >= static_cast<int>(channel->m_users.size())) {
+				writeToClient(user, m_name, buildReply(user, ERR_CHANNELISFULL, channel->m_name));
+				continue;
+			}
 			channel->addUser(user);
 			user->m_allChan[chans[i]] = channel;
 			writeToChannel(user, channel, true, "JOIN :" + channel->m_name + CRLF);
 		}
-		
-		// topic cmd
-		Message namesMsg("", "NAMES", chans[i]);
-		namesCmd(user, namesMsg);
+		Message cmdMsg("", "CMD", chans[i]);
+		if (!m_mapChan[chans[i]]->m_topic.empty()) {
+			std::cout << "je passe ici" << std::endl;
+			topicCmd(user, cmdMsg);
+		}
+		namesCmd(user, cmdMsg);
 	}
 }
 
+// [NAMES] List the users of a channel
 void	IRCServer::namesCmd(User* user, Message& msg)
 {
 	// Getting channels names
@@ -184,10 +174,14 @@ void	IRCServer::partCmd(User* user, Message& msg)
 	std::string reply;
 	for (size_t i = 0; i < chans.size(); i++)
 	{
-		if (m_mapChan.find(chans[i]) == m_mapChan.end())
-			throw CmdError(ERR_NOSUCHCHANNEL, user, chans[i]);
-		if (user->m_allChan.find(chans[i]) == user->m_allChan.end())
-			throw CmdError(ERR_NOTONCHANNEL, user, chans[i]);
+		if (m_mapChan.find(chans[i]) == m_mapChan.end()) {
+			writeToClient(user, m_name, buildReply(user, ERR_NOSUCHCHANNEL, chans[i]));
+			continue;
+		}
+		if (user->m_allChan.find(chans[i]) == user->m_allChan.end()) {
+			writeToClient(user, m_name, buildReply(user, ERR_NOTONCHANNEL, chans[i]));
+			continue;
+		}
 		channel = m_mapChan[chans[i]];
 		if (msg.m_args.size() > 1)
 			reply = "PART " + chans[i] + " :" + msg.m_args[1] + CRLF;
@@ -219,6 +213,7 @@ void	IRCServer::quitCmd(User* user, Message& msg)
 	throw IRCServer::UserRemoved();
 }
 
+// [PRIVMSG] Send a message to channels or users
 void	IRCServer::privmsgCmd(User *user, Message& msg)
 {
 	// Parsing errors
@@ -235,93 +230,56 @@ void	IRCServer::privmsgCmd(User *user, Message& msg)
 	for (size_t i = 0; i < recip.size(); i++)
 	{
 		if (recip[i][0] == '#') {
-			if (m_mapChan.find(recip[i]) == m_mapChan.end())
-				throw CmdError(ERR_NOSUCHCHANNEL, user, recip[i]);
-			reply = "PRIVMSG " + m_mapChan[recip[i]]->m_name + " :" + msg.m_args[1] + CRLF;
+			if (m_mapChan.find(recip[i]) == m_mapChan.end()){
+				writeToClient(user, m_name, buildReply(user, ERR_NOSUCHCHANNEL, recip[i]));
+				continue;
+			}
+			reply = "PRIVMSG " + recip[i] + " :" + msg.m_args[1] + CRLF;
 			writeToChannel(user, m_mapChan[recip[i]], false, reply);
 		}
 		else {
-			if (m_mapUser.find(recip[i]) == m_mapUser.end())
-				throw CmdError(ERR_NOSUCHNICK, user, recip[i]);
+			if (m_mapUser.find(recip[i]) == m_mapUser.end()){
+				writeToClient(user, m_name, buildReply(user, ERR_NOSUCHNICK, recip[i]));
+				continue;
+			}
 			User *recipUser = m_mapUser[recip[i]];
-			reply = "PRIVMSG " + recipUser->m_nick + " :" + msg.m_args[1] + CRLF;
+			reply = "PRIVMSG " + recip[i] + " :" + msg.m_args[1] + CRLF;
 			writeToClient(recipUser, user->getPrefix(), reply);
 		}
 	}
 }
 
-
-/******************** OPERATOR COMMANDS ******************/
-
-
-// [KICK] Kicking user(s) from channel(s)
-void 	IRCServer::kickCmd(User* user, Message& msg)
+// [NOTICE] Send a message to channels or users - without checking errors
+void	IRCServer::noticeCmd(User* user, Message& msg)
 {
-	// Getting parameters
+	// Parsing errors
 	if (msg.m_args.size() < 2)
-		throw CmdError(ERR_NEEDMOREPARAMS, user);
-	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
-	vecStr 	users = parseMsgArgs(msg.m_args[1]);
+		return;
 
-	// Kick each user from each channel
-	Channel		*channel;
-	User		*target;
-	std::string	reply;
-	for (size_t i = 0; i < chans.size(); i++) {
-		// Check if user can kick
-		if (m_mapChan.find(chans[i]) == m_mapChan.end())
-			throw CmdError(ERR_NOSUCHCHANNEL, user, chans[i]);
-		channel = m_mapChan[chans[i]];
-		if (!channel->checkUser(user->m_nick))
-			throw CmdError(ERR_NOTONCHANNEL, user, chans[i]);
-		if (!channel->checkOps(user->m_nick))
-			throw CmdError(ERR_CHANOPRIVSNEEDED, user, chans[i]);
-		for (size_t j = 0; j < users.size(); j++) {
-			if (m_mapUser.find(users[j]) == m_mapUser.end() || !(channel->checkUser(users[j])))
-				throw CmdError(ERR_USERNOTINCHANNEL, user, users[j] + " " + chans[i]);
-			// Kicking user and sending reply
-			reply = "KICK " + chans[i] + " " + users[j] + " :" + msg.m_args[2] + CRLF;
-			writeToChannel(user, channel, true, reply);
-			target = m_mapUser[users[j]];
-			channel->removeUser(users[j]);
-			channel->removeOps(users[j]);
-			target->m_allChan.erase(chans[i]);
-			target->m_opsChan.erase(chans[i]);
+	// Getting recipients
+	vecStr		recip = parseMsgArgs(msg.m_args[0]);
+	std::string reply;
+
+	// Writing message in recipients' buffers
+	for (size_t i = 0; i < recip.size(); i++)
+	{
+		if (recip[i][0] == '#') {
+			if (m_mapChan.find(recip[i]) == m_mapChan.end())
+				continue;
+			reply = "NOTICE " + recip[i] + " :" + msg.m_args[1] + CRLF;
+			writeToChannel(user, m_mapChan[recip[i]], false, reply);
 		}
-		// Check if users are remaining
-		if (channel->m_users.empty())
-			removeChannel(chans[i]);
+		else {
+			if (m_mapUser.find(recip[i]) == m_mapUser.end())
+				continue;
+			User *recipUser = m_mapUser[recip[i]];
+			reply = "NOTICE " + recip[i] + " :" + msg.m_args[1] + CRLF;
+			writeToClient(recipUser, user->getPrefix(), reply);
+		}
 	}
 }
 
-void 	IRCServer::inviteCmd(User* user, Message& msg)
-{
-	// Getting parameters
-	if (msg.m_args.size() < 2)
-		throw CmdError(ERR_NEEDMOREPARAMS, user);
-	if (m_mapUser.find(msg.m_args[0]) == m_mapUser.end())
-		throw CmdError(ERR_NOSUCHNICK, user, msg.m_args[0]);
-	if (m_mapChan.find(msg.m_args[1]) == m_mapChan.end())
-		throw CmdError(ERR_NOSUCHCHANNEL, user, msg.m_args[1]); // nick ?
-	User	*target = m_mapUser[msg.m_args[0]];
-	Channel *channel = m_mapChan[msg.m_args[1]];
-	if (channel->checkUser(target->m_nick))
-		throw CmdError(ERR_USERONCHANNEL, user, target->m_nick + " " + channel->m_name);
-	if (!(channel->checkOps(user->m_nick)))
-		throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
-
-	// Add to invit list
-	if (!channel->checkInvit(target->m_nick))
-		channel->addInvit(target);
-
-	// Send confirmation to user, target and operators
-	writeToClient(user, m_name, buildReply(user, RPL_INVITING, target->m_nick + " " + channel->m_name));
-	writeToClient(target, user->getPrefix(), "INVITE " + target->m_nick + " " + channel->m_name + CRLF);
-	std::string opsNotice = " :" + user->m_nick + " invited " + target->m_nick + " into channel " + channel->m_name + CRLF;
-	writeToOps(user, channel, "NOTICE @" + channel->m_name + opsNotice);
-}
-
-
+// [TOPIC] Show or modify the topic of a channel
 void	IRCServer::topicCmd(User* user, Message& msg)
 {
 	// Parsing arguments
@@ -351,13 +309,111 @@ void	IRCServer::topicCmd(User* user, Message& msg)
 	}
 }
 
+
+/******************** OPERATOR COMMANDS ******************/
+
+// [OPER] Identifying as the operator of the server
+void	IRCServer::operCmd(User *user, Message &msg)
+{
+	if (msg.m_args.size() < 2)
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	if (msg.m_args[0] != user->m_nick)
+		return;
+	if (msg.m_args[1] != OPER_PWD)
+		throw CmdError(ERR_PASSWDMISMATCH, user);
+	user->m_servOps = true;
+	writeToClient(user, m_name, "MODE " + user->m_nick + " " + user->getModeStr() + CRLF);
+	writeToClient(user, m_name, buildReply(user, RPL_YOUREOPER));
+}
+
+// [KICK] Kicking user(s) from channel(s)
+void 	IRCServer::kickCmd(User* user, Message& msg)
+{
+	// Getting parameters
+	if (msg.m_args.size() < 2)
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	vecStr 	chans = parseMsgArgs(msg.m_args[0]);
+	vecStr 	users = parseMsgArgs(msg.m_args[1]);
+
+	// Kick each user from each channel
+	Channel		*channel;
+	User		*target;
+	std::string	reply;
+	for (size_t i = 0; i < chans.size(); i++) {
+		// Check if user can kick
+		if (m_mapChan.find(chans[i]) == m_mapChan.end()) {
+			writeToClient(user, m_name, buildReply(user, ERR_NOSUCHCHANNEL, chans[i]));
+			continue;
+		}
+		channel = m_mapChan[chans[i]];
+		if (!channel->checkUser(user->m_nick)){
+			writeToClient(user, m_name, buildReply(user, ERR_NOTONCHANNEL, chans[i]));
+			continue;
+		}
+		if (!user->m_servOps && !channel->checkOps(user->m_nick)) {
+			writeToClient(user, m_name, buildReply(user, ERR_CHANOPRIVSNEEDED, chans[i]));
+			continue;
+		}
+		for (size_t j = 0; j < users.size(); j++) {
+			if (m_mapUser.find(users[j]) == m_mapUser.end() || !(channel->checkUser(users[j]))) {
+				writeToClient(user, m_name, buildReply(user, ERR_USERNOTINCHANNEL, users[j] + " " + chans[i]));
+				continue;
+			}
+			// Kicking user and sending reply
+			reply = "KICK " + chans[i] + " " + users[j] + " :" + msg.m_args[2] + CRLF;
+			writeToChannel(user, channel, true, reply);
+			target = m_mapUser[users[j]];
+			channel->removeUser(users[j]);
+			channel->removeOps(users[j]);
+			target->m_allChan.erase(chans[i]);
+			target->m_opsChan.erase(chans[i]);
+		}
+		// Check if users are remaining
+		if (channel->m_users.empty())
+			removeChannel(chans[i]);
+	}
+}
+
+// [INVITE] Invite user to invitation list
+void 	IRCServer::inviteCmd(User* user, Message& msg)
+{
+	// Getting parameters
+	if (msg.m_args.size() < 2)
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	if (m_mapUser.find(msg.m_args[0]) == m_mapUser.end())
+		throw CmdError(ERR_NOSUCHNICK, user, msg.m_args[0]);
+	if (m_mapChan.find(msg.m_args[1]) == m_mapChan.end())
+		throw CmdError(ERR_NOSUCHCHANNEL, user, msg.m_args[1]); // nick ?
+	User	*target = m_mapUser[msg.m_args[0]];
+	Channel *channel = m_mapChan[msg.m_args[1]];
+	if (channel->checkUser(target->m_nick))
+		throw CmdError(ERR_USERONCHANNEL, user, target->m_nick + " " + channel->m_name);
+	if (!user->m_servOps && !(channel->checkOps(user->m_nick)))
+		throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
+
+	// Add to invit list
+	if (!channel->checkInvit(target->m_nick))
+		channel->addInvit(target);
+
+	// Send confirmation to user, target and operators
+	writeToClient(user, m_name, buildReply(user, RPL_INVITING, target->m_nick + " " + channel->m_name));
+	writeToClient(target, user->getPrefix(), "INVITE " + target->m_nick + " " + channel->m_name + CRLF);
+	std::string opsNotice = " :" + user->m_nick + " invited " + target->m_nick + " into channel " + channel->m_name + CRLF;
+	writeToOps(channel, "NOTICE @" + channel->m_name + opsNotice);
+}
+
+// [MODE] Change mode of the channel - supported modes: itkol
 void	IRCServer::modeCmd(User* user, Message& msg)
 {
 	// Parsing arguments
 	if (!msg.m_args.size())
 		throw CmdError(ERR_NEEDMOREPARAMS, user);
-	if (msg.m_args[0] == user->m_nick)
+	if (msg.m_args[0] == user->m_nick && msg.m_args.size() == 1)
+		throw CmdError(RPL_UMODEIS, user, user->getModeStr());
+	if (msg.m_args[0] == user->m_nick && msg.m_args.size() > 1)
 		return;
+	if (m_mapUser.find(msg.m_args[0]) != m_mapUser.end())
+		throw CmdError(ERR_USERSDONTMATCH, user);
 	if (m_mapChan.find(msg.m_args[0]) == m_mapChan.end())
 		throw CmdError(ERR_NOSUCHCHANNEL, user, msg.m_args[0]);
 	Channel *channel = m_mapChan[msg.m_args[0]];
@@ -368,7 +424,7 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 		writeToClient(user, m_name, buildReply(user, RPL_CREATIONTIME, channel->m_createInfo));
 	}
 	else {
-		if (!(channel->checkOps(user->m_nick)))
+		if (!user->m_servOps && !(channel->checkOps(user->m_nick)))
 			throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
 		std::string flags = msg.m_args[1], reply, reply_params;
 		bool		i = 0, t = 0, k = 0, o = 0, l = 0;
@@ -380,7 +436,6 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 				sub = add + 1;
 			else if (flags[c] == 'i') {
 				if (add > sub && !i) {
-					//std::cout << "je passe ici" << std::endl;
 					channel->m_invitMode = true;
 					(reply.find('+') != std::string::npos) ? reply += "i" : reply += "+i";
 				}
@@ -404,10 +459,10 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 			}
 			else if (flags[c] == 'o') {
 				if (msg.m_args.size() < 3)
-					goto endLoop;
+					continue;
 				else if (m_mapUser.find(msg.m_args[2]) == m_mapUser.end()) {
 					writeToClient(user, m_name, buildReply(user, ERR_USERNOTINCHANNEL, msg.m_args[2] + " " + channel->m_name));
-					goto endLoop;				
+					continue;				
 				}
 				User *otherUser = m_mapUser[msg.m_args[2]];
 				if (add > sub && !o && !k && !l) {
@@ -416,7 +471,7 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 					(reply.find('+') != std::string::npos) ? reply += "o" : reply += "-o";
 					reply_params = " " + msg.m_args[2];
 				}
-				else if (sub > add && !o && !k) { // le !k bizarrerie propre a IRC
+				else if (sub > add && !o) {
 					channel->removeOps(user->m_nick);
 					user->m_opsChan.erase(channel->m_name);
 					(reply.find('-') != std::string::npos) ? reply += "o" : reply += "-o";
@@ -425,13 +480,9 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 				o = true;
 			}
 			else if (flags[c] == 'k') {
-				if (add > sub && !o && !k && !l) {
-					if (msg.m_args.size() > 2) {
-						channel->m_pwd = msg.m_args[2];
-						reply_params = " " + msg.m_args[2];
-					}
-					else // montrer le msd si pas de param
-						reply_params = " " + channel->m_pwd;
+				if (add > sub && !o && !k && !l && msg.m_args.size() > 2) {
+					channel->m_pwd = msg.m_args[2];
+					reply_params = " " + msg.m_args[2];
 					(reply.find('+') != std::string::npos) ? reply += "k" : reply += "+k";
 				}
 				else if (sub > add && !k && !channel->m_pwd.empty()) { // ne s'applique pas si pas de mdp
@@ -445,9 +496,8 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 				if (add > sub && !o && !k && !l) {
 					if (msg.m_args.size() < 3) { // propre au flag l
 						writeToClient(user, m_name, buildReply(user, ERR_NEEDMOREPARAMS, "MODE +l"));
-						goto endLoop;
 					}
-					if (std::atoi(msg.m_args[2].c_str()) > 0) {
+					else if (std::atoi(msg.m_args[2].c_str()) > 0) {
 						channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
 						(reply.find('+') != std::string::npos) ? reply += "l" : reply += "+l";
 						reply_params = msg.m_args[2];
@@ -462,9 +512,8 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 				}
 				l = true;
 			}
-			else
+			else if (flags[c] != 'b')
 				writeToClient(user, m_name, buildReply(user, ERR_UNKNOWNMODE, flags.substr(c, 1)));
-			endLoop:;
 		}
 		if (!reply.empty())
 			writeToChannel(user, channel, true, "MODE " + channel->m_name + " " + reply + reply_params + CRLF);
@@ -472,77 +521,55 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 }
 
 
+/********************** CLIENT COMMANDS **********************/
 
+// [PING] Notify the client the server is up
+void	IRCServer::pingCmd(User* user, Message& msg)
+{
+	(void)msg;
+	std::string reply = "PONG " + m_name + " :" + user->m_nick + CRLF;
+	writeToClient(user, m_name, reply);
+}
 
+// [WHOIS] Give information on user or server
+void	IRCServer::whoisCmd(User* user, Message& msg)
+{
+	if (!msg.m_args.size())
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	std::string reply;
+	if (msg.m_args[1] == user->m_nick) {
+		reply = buildReply(user, RPL_WHOISUSER, user->m_user + " * :" + user->m_real);
+		writeToClient(user, m_name, reply);
+		writeToClient(user, m_name, buildReply(user, RPL_ENDOFWHOIS));
+	}
+	if (msg.m_args[1] == m_name) {
+		reply = buildReply(user, RPL_WHOISERVER, m_name + " * " + ":This server is our own IRC Server");
+		writeToClient(user, m_name, reply);
+		writeToClient(user, m_name, buildReply(user, RPL_ENDOFWHOIS));
+	}
+}
 
-
-
-
-
-
-// 			else if (flags[c] == 'i' && !i) {
-// 				(add > sub) ? channel->m_invitMode = true : channel->m_invitMode = false;
-// 				i = true;
-// 				reply += "i";
-// 			}
-// 			else if (flags[c] == 't' && !t) {
-// 				if (add > sub)
-// 					channel->m_topicRestrict = true;
-// 				else if (sub > add)
-// 					channel->m_topicRestrict = false;
-// 				t = true;
-// 				reply += "t";
-// 			}
-// 			else if (flags[c] == 'k' && !other && msg.m_args.size() > 2) {
-// 				if (add > sub && msg.m_args.size() > 2)
-// 					channel->m_pwd = msg.m_args[2];
-// 				else if (sub > add)
-// 					channel->m_pwd.clear();
-// 				other = true;
-// 				reply += "k";
-// 				if (msg.m_args.size() > 2) 
-// 					reply += " " + msg.m_args[2];
-// 			}
-// 			else if (flags[c] == 'o' && !other && msg.m_args.size() > 2) {
-// 				if (m_mapUser.find(msg.m_args[2]) == m_mapUser.end())
-// 					throw CmdError(ERR_USERNOTINCHANNEL, user, msg.m_args[2] + " " + channel->m_name);
-// 				User *otherUser = m_mapUser[msg.m_args[2]];
-// 				if (add > sub) {
-// 					channel->addOps(otherUser);
-// 					otherUser->m_opsChan[channel->m_name] = channel;
-// 				}
-// 				else if (sub > add) {
-// 					channel->removeOps(otherUser->m_nick);
-// 					otherUser->m_opsChan.erase(channel->m_name);
-// 				}
-// 				other = true;
-// 				reply += "o";
-// 				if (msg.m_args.size() > 2) 
-// 					reply += " " + msg.m_args[2];
-// 			} 
-// 			else if (flags[c] == 'l' && !other) {
-// 				if (msg.m_args.size() < 3 || std::atoi(msg.m_args[2].c_str()) <= 0)
-// 					throw CmdError (ERR_NEEDMOREPARAMS, user, "MODE +l");
-// 				if (add > sub)
-// 					channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
-// 				else if (sub > add)
-// 					channel->m_maxUsers = NONE;
-// 				other = true;
-// 				reply += "l" ;
-// 				if (msg.m_args.size() > 2) 
-// 					reply += " " + msg.m_args[2];
-// 			}
-// 			else if (flags[c] != 'i' && flags[c] != 't' && flags[c] != 'o' && flags[c] != 'k' && flags[c] != 'l')
-// 				throw CmdError(ERR_UNKNOWNMODE, user, flags.substr(c, 1));
-// 		}
-// 		std::cout << reply << std::endl;
-// 		(reply.find("+\0") == std::string::npos) ? std::cout << "NOT FOUND" << std::endl : std::cout << "FOUND" << std::endl;
-// 		if (reply.find("+\0") != std::string::npos || reply.find("+ ") != std::string::npos)
-// 			reply.erase(reply.find('+'), 2);
-// 		else if (reply.find("-\0") != std::string::npos || reply.find("- ") != std::string::npos)
-// 			reply.erase(reply.find('-'), 2);
-// 		reply = "MODE " + channel->m_name + reply;
-// 		writeToChannel(user, channel, true, reply + CRLF);
-// 	}	
-// }
-
+// [WHO] Give information on a channel
+// syntax: <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>
+void	IRCServer::whoCmd(User *user, Message& msg)
+{
+	if (!msg.m_args.size())
+		throw CmdError(ERR_NEEDMOREPARAMS, user);
+	std::string reply;
+	if (user->m_allChan.find(msg.m_args[0]) != user->m_allChan.end()) {
+		Channel *channel = user->m_allChan[msg.m_args[0]];
+		reply = channel->m_name + " ";
+		reply += user->m_user + " ";
+		reply += user->m_socket->host() + " ";
+		reply += m_name + " ";
+		reply += user->m_nick + " ";
+		if (channel->checkOps(user->m_nick))
+			reply += "H@ ";
+		else
+			reply += "H ";
+		reply += ":0 " + user->m_real;
+		reply = buildReply(user, RPL_WHOREPLY, reply);
+		writeToClient(user, m_name, reply);
+		writeToClient(user, m_name, buildReply(user, RPL_ENDOFWHO, channel->m_name));
+	}
+}

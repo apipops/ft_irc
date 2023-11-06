@@ -12,13 +12,6 @@
 
 using namespace TCP_IPv4;
 
-// typedef struct t_prefix {
-// 	std::string prefix;
-// 	std::string name;
-// 	std::string user;
-// 	std::string host;
-// }				s_prefix;
-
 class Message 
 {
 public:

@@ -30,6 +30,7 @@ public:
 	// GETTERS AND SETTERS
 	std::string	getNick() const;
 	std::string getPrefix() const;
+	std::string getModeStr() const;
 
 	// EXCEPTION
 	class UserError : public Error {

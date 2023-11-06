@@ -157,13 +157,15 @@ std::string	Channel::getModeStr()
 {
 	std::string modeStr = m_name + " +";
 	std::string params;
+	std::stringstream maxUsers;
+	maxUsers << m_maxUsers;
 	if (m_topicRestrict)
 		modeStr += "t";
 	if (m_invitMode)
 		modeStr += "i";
 	if (m_maxUsers > 0) {
 		modeStr += "l";
-		params += " " + m_maxUsers;
+		params += " " + maxUsers.str();
 	}
 	if (!m_pwd.empty()) {
 		modeStr += "k";

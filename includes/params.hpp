@@ -22,44 +22,46 @@ typedef std::map<std::string, Channel* > mapChannel;
 typedef std::vector<User*> vecUser;
 typedef std::vector<Channel*> vecChan;
 typedef std::vector<std::string> vecStr;
-typedef	void	(IRCServer::*t_cmd)(User *, Message &);
+typedef	void (IRCServer::*t_cmd)(User *, Message &);
 typedef std::map<std::string, t_cmd> mapCmd;
 
-#define USER_REMOVED 1
+// OPERATOR
+#define OPER_PWD "root1234"
 
-// USERNAME POLICY
-#define USER_MINCHAR 1
-#define USER_MAXCHAR 9
+// NICKNAME POLICY
+#define NICKNAME_MINCHAR 1
+#define NICKNAME_MAXCHAR 9
 
 // CHANNEL POLICY
 #define NONE -1
-#define CHAN_MINCHAR 2
+#define CHAN_MINCHAR 1
 #define CHAN_MAXCHAR 50
-#define TOPIC_MAXCHAR 1000
-#define PWD_MINCHAR 1
-#define PWD_MAXCHAR 32
-
-// MESSAGE POLICY
-#define MSG_MAXCHAR 510
 
 // REPLIES
+#define RPL_UMODEIS				"221\r\n"
 #define RPL_WHOISUSER			"311\r\n"
 #define RPL_WHOISERVER			"312\r\n"
-#define	RPL_ENDOFWHOIS			"318\r\n"
+#define RPL_ENDOFWHO			"315 :End of /WHO list\r\n"
+#define	RPL_ENDOFWHOIS			"318 :End of /WHOIS list\r\n"
 #define RPL_CHANNELMODEIS		"324\r\n"
 #define RPL_CREATIONTIME		"329\r\n"
 #define RPL_NOTOPIC				"331 :No topic is set\r\n"
 #define RPL_TOPIC				"332\r\n"
 #define RPL_TOPICWHOTIME		"333\r\n"
 #define RPL_INVITING			"341\r\n"
+#define	RPL_WHOREPLY			"352\r\n"
 #define RPL_NAMREPLY			"353\r\n"
-#define RPL_ENDOFNAMES			"366 :End of Names\r\n"
+#define RPL_ENDOFNAMES			"366 :End of /NAMES\r\n"
+#define	RPL_YOUREOPER			"381 :You are now an IRC operator\r\n"
 
 // ERRORS
 
 // generic
 #define ERR_NEEDMOREPARAMS		"461 :Not enough parameters\r\n"
-#define ERR_PASSWDMISMATCH		"464 :Incorrect password\r\n"
+
+// operator
+#define ERR_PASSWDMISMATCH		"464 :Incorrect password\r\n"	
+#define ERR_USERSDONTMATCH		"502 :Cannot change mode for other users\r\n"	
 
 // nickname
 #define ERR_NOSUCHNICK			"401 :No such nick\r\n"

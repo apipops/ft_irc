@@ -42,7 +42,7 @@
 >> :atw.hu.eu.dal.net 372 avast :-      //                                             //
 >> :atw.hu.eu.dal.net 372 avast :-      //  [ Hidden  - administrator             ]    //
 >> :atw.hu.eu.dal.net 372 avast :-      //                                             // 
->> :atw.hu.eu.dal.net 372 avast :-      //  [ koszik  - assistant administrator   ]    //
+>> :atw.hu.eu.dal.net 37and2 avast :-      //  [ koszik  - assistant administrator   ]    //
 >> :atw.hu.eu.dal.net 372 avast :-      //                                             //
 >> :atw.hu.eu.dal.net 372 avast :-      ///operators/////////////////////////////////////
 >> :atw.hu.eu.dal.net 372 avast :-      //                                             //
@@ -152,3 +152,72 @@
 >> :atw.hu.eu.dal.net PONG atw.hu.eu.dal.net :avast
 --> lag pong
 << PING atw.hu.eu.dal.net
+<< CAP LS
+<< NICK avast
+<< USER avast avast irc.dal.net :Apolline VAST
+>> :halcyon.il.us.dal.net NOTICE AUTH :*** Looking up your hostname...
+>> :halcyon.il.us.dal.net NOTICE AUTH :*** Found your hostname
+>> :halcyon.il.us.dal.net 001 avast :Welcome to the DALnet IRC Network avast!~avast@62.210.34.213
+<< MODE avast +i
+>> :halcyon.il.us.dal.net 002 avast :Your host is halcyon.il.us.dal.net, running version bahamut-2.2.2
+>> :halcyon.il.us.dal.net 003 avast :This server was created Thu Aug 3 2023 at 16:38:57 UTC
+>> :halcyon.il.us.dal.net 004 avast halcyon.il.us.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
+>> :halcyon.il.us.dal.net 005 avast NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=50 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:50 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
+>> :halcyon.il.us.dal.net 005 avast CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
+>> :halcyon.il.us.dal.net 251 avast :There are 91 users and 7268 invisible on 37 servers
+>> :halcyon.il.us.dal.net 252 avast 75 :IRC Operators online
+>> :halcyon.il.us.dal.net 254 avast 3740 :channels formed
+>> :halcyon.il.us.dal.net 255 avast :I have 1272 clients and 1 servers
+>> :halcyon.il.us.dal.net 265 avast :Current local users: 1272 Max: 1609
+>> :halcyon.il.us.dal.net 266 avast :Current global users: 7359 Max: 8222
+>> :halcyon.il.us.dal.net NOTICE avast :*** Notice -- motd was last changed at 15/6/2023 1:43
+>> :halcyon.il.us.dal.net 375 avast :- halcyon.il.us.dal.net Message of the Day - 
+>> :halcyon.il.us.dal.net 372 avast :-15/6/2023 1:43
+>> :halcyon.il.us.dal.net 372 avast :- This is the default Bahamut MOTD
+>> :halcyon.il.us.dal.net 376 avast :End of /MOTD command.
+>> :avast MODE avast :+iH
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< NOTICE raphi :hello
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< NOTICE raphi :hello
+<< NOTICE glouglou :hello
+<< NOTICE hgkhsgkhghkuhg :hello
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< NOTICE #jggejorij,#c1 :hello again
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< PING halcyon.il.us.dal.net
+>> :halcyon.il.us.dal.net PONG halcyon.il.us.dal.net :avast
+--> lag pong
+<< QUIT :Lost terminal

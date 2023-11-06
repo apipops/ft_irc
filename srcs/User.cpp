@@ -48,6 +48,13 @@ std::string User::getPrefix() const
 		return m_nick + "!" + m_user + "@" + m_socket->host();
 }
 
+std::string User::getModeStr() const
+{
+	if (m_servOps)
+		return "+o";
+	else
+		return "+";
+}
 
 /********************** EXCEPTIONS ***********************/
 

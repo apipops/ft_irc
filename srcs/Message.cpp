@@ -11,8 +11,6 @@ Message::Message(std::string msg)
 {
 	if (msg.empty())
 		throw MsgError("Message is empty.");
-	if (msg.length() > MSG_MAXCHAR)
-		throw MsgError("Message is too long.");
 	parseMsg(msg);
 }
 

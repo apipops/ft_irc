@@ -83,10 +83,7 @@ void	IRCServer::checkCommands()
 	}
 	for (size_t i = 0; i < m_users.size(); ++i) {
 		if (m_users[i]->m_socket->dataToSend())
-		{
-			//std::cout << "Call to send() for user " << m_users[i]->m_nick << std::endl;
 			m_users[i]->m_socket->send();
-		}
 	}
 }
 
@@ -97,19 +94,22 @@ int	IRCServer::executeCommand(User *user, std::string cmd)
 		Message msg(cmd);
 		mapCmd	cmds;
 
-		cmds["PASS"] = &IRCServer::passCmd;
-		cmds["NICK"] = &IRCServer::nickCmd;
-		cmds["USER"] = &IRCServer::userCmd;
-		cmds["PING"] = &IRCServer::pingCmd;
-		cmds["WHOIS"] = &IRCServer::whoisCmd;
-		cmds["JOIN"] = &IRCServer::joinCmd;
-		cmds["PART"] = &IRCServer::partCmd;
-		cmds["QUIT"] = &IRCServer::quitCmd;
-		cmds["PRIVMSG"] = &IRCServer::privmsgCmd;
-		cmds["KICK"] = &IRCServer::kickCmd;
 		cmds["INVITE"] = &IRCServer::inviteCmd;
-		cmds["TOPIC"] = &IRCServer::topicCmd;
+		cmds["JOIN"] = &IRCServer::joinCmd;
+		cmds["KICK"] = &IRCServer::kickCmd;
 		cmds["MODE"] = &IRCServer::modeCmd;
+		cmds["NICK"] = &IRCServer::nickCmd;
+		cmds["NOTICE"] = &IRCServer::noticeCmd;
+		cmds["OPER"] = &IRCServer::operCmd;
+		cmds["PART"] = &IRCServer::partCmd;
+		cmds["PASS"] = &IRCServer::passCmd;
+		cmds["PING"] = &IRCServer::pingCmd;
+		cmds["PRIVMSG"] = &IRCServer::privmsgCmd;
+		cmds["QUIT"] = &IRCServer::quitCmd;
+		cmds["TOPIC"] = &IRCServer::topicCmd;
+		cmds["USER"] = &IRCServer::userCmd;
+		cmds["WHO"] = &IRCServer::whoCmd;
+		cmds["WHOIS"] = &IRCServer::whoisCmd;
 
 		mapCmd::const_iterator it = cmds.find(msg.m_cmd);
 		if (it != cmds.end())
@@ -155,7 +155,6 @@ void IRCServer::addChannel(std::string name, std::string pwd, User *user)
 {
 	// Parsing
 	checkChanFormat(name, user);
-	checkPwdFormat(pwd, user);
 
 	// Adding to vector and map
 	Channel *channel = new Channel(name, pwd);
@@ -314,12 +313,12 @@ void	IRCServer::writeToClient(User *user, std::string prefix, std::string reply)
 // Send welcome message at the first connection
 void	IRCServer::writeWelcome(User *user, std::string nick)
 {
-	user->m_socket->write(":" + m_name + " 001 " + nick + " :Welcome to the Internet Relay Network!\n");
-	user->m_socket->write(":" + m_name + " 002 " + nick + " :Your host is " + m_name + ".\n");
+	user->m_socket->write(":" + m_name + " 001 " + nick + " :Welcome to the Internet Relay Network!\r\n");
+	user->m_socket->write(":" + m_name + " 002 " + nick + " :Your host is " + m_name + ".\r\n");
 	user->m_socket->write(":" + m_name + " 003 " + nick + " :This server was created " + m_creationTime);
-	user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " unique-version abBcCFiIoqrRswx ov\n");
-	user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(o)@ CHANTYPES=# CHANMODES=itkol :are supported on this server.\n");
-	user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\n");
+	user->m_socket->write(":" + m_name + " 004 " + nick + " " + m_name + " unique-version o ov\r\n");
+	user->m_socket->write(":" + m_name + " 005 " + nick + " RFC2812 CASEMAPPING=ascii PREFIX=(o)@ CHANTYPES=# CHANMODES=itkol :are supported on this server.\r\n");
+	user->m_socket->write(":" + m_name + " 005 " + nick + " CHANNELLEN=50 NICKLEN=9 TOPICLEN=1000 :are supported on this server.\r\n");
 }
 
 void	IRCServer::writeToChannel(User *sender, Channel *channel, bool inclSender, std::string msg)
@@ -331,11 +330,11 @@ void	IRCServer::writeToChannel(User *sender, Channel *channel, bool inclSender, 
 	}
 }
 
-void	IRCServer::writeToOps(User *sender, Channel *channel, std::string msg)
+void	IRCServer::writeToOps(Channel *channel, std::string msg)
 {
 	vecUser ops = channel->m_ops;
 	for (size_t i = 0; i < ops.size(); i++)
-			writeToClient(ops[i], sender->getPrefix(), msg);
+			writeToClient(ops[i], m_name, msg);
 }
 
 void	IRCServer::writeToRelations(User *sender, std::string msg)
@@ -372,9 +371,9 @@ void IRCServer::checkNickDup(std::string nick, User *user)
 // Check if nickanme "name" matches policy name
 void IRCServer::checkNickFormat(std::string nick, User *user)
 {
-	if (nick.length() < USER_MINCHAR)
+	if (nick.length() < NICKNAME_MINCHAR)
 		throw CmdError(ERR_ERRONEOUSNICKNAME, user, nick);
-	if (nick.length() > USER_MAXCHAR)
+	if (nick.length() > NICKNAME_MAXCHAR)
 		throw CmdError(ERR_ERRONEOUSNICKNAME, user, nick);
 	for(int i = 0; nick[i]; i++) {
 		if (!isalnum(nick[i]) && nick[i] != '-' && nick[i] != '_')
@@ -397,26 +396,6 @@ void IRCServer::checkChanFormat(std::string name, User *user)
 		if (!isprint(name[i]) || name[i] == ' ' || name[i] == ',' || name[i] == ':')
 			throw CmdError(ERR_INVALIDCHANNELNAME, user, name);
 	}
-}
-
-// Check if topic description format matches the policy
-void IRCServer::checkTopicFormat(std::string topic, User *user)
-{
-	if (topic.length() > TOPIC_MAXCHAR)
-		throw CmdError("Topic description is too long", user);
-	for(int i = 0; topic[i]; i++) {
-		if (!isprint(topic[i]))
-			throw CmdError("Topic description has invalid character(s)", user);
-	}
- }
-
-// Check if password format matches the policy
-void IRCServer::checkPwdFormat(std::string pwd, User *user)
-{
-	if (pwd.length() < PWD_MINCHAR)
-		throw CmdError(ERR_INVALIDKEYFORMAT, user);
-	if (pwd.length() > PWD_MAXCHAR)
-		throw CmdError(ERR_INVALIDKEYFORMAT, user);
 }
 
 
