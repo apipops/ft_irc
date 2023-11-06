@@ -55,7 +55,7 @@ IRCServer::~IRCServer()
 /************************ EXECUTION *********************/
 
 // Wait for events and parse commands
-void	IRCServer::checkCommands()
+void	IRCServer::checkEvents()
 {
 	//std::cout << std::endl <<  "....WAIT PASSAGE...." << std::endl;
 	m_socEvent.wait();

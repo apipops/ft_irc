@@ -102,16 +102,16 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 		else // channel already exists
 		{
 			Channel *channel = it->second;
-			if (pwds.size() < i + 1 && !channel->m_pwd.empty()) {
+			if (channel->m_invitMode && !channel->checkInvit(user->m_nick)) {
+				writeToClient(user, m_name, buildReply(user, ERR_INVITEONLYCHAN, channel->m_name));
+				continue;
+			}
+			if (!channel->checkInvit(user->m_nick) && pwds.size() < i + 1 && !channel->m_pwd.empty()) {
 				writeToClient(user, m_name, buildReply(user, ERR_BADCHANNELKEY, channel->m_name));
 				continue;
 			}
 			if ((pwds.size() >= i + 1) && pwds[i] != channel->m_pwd) {
 				writeToClient(user, m_name, buildReply(user, ERR_BADCHANNELKEY, channel->m_name));
-				continue;
-			}
-			if (channel->m_invitMode && !channel->checkInvit(user->m_nick)) {
-				writeToClient(user, m_name, buildReply(user, ERR_INVITEONLYCHAN, channel->m_name));
 				continue;
 			}
 			if (channel->m_maxUsers >= static_cast<int>(channel->m_users.size())) {
@@ -123,10 +123,8 @@ void	IRCServer::joinCmd(User* user, Message& msg)
 			writeToChannel(user, channel, true, "JOIN :" + channel->m_name + CRLF);
 		}
 		Message cmdMsg("", "CMD", chans[i]);
-		if (!m_mapChan[chans[i]]->m_topic.empty()) {
-			std::cout << "je passe ici" << std::endl;
+		if (!m_mapChan[chans[i]]->m_topic.empty())
 			topicCmd(user, cmdMsg);
-		}
 		namesCmd(user, cmdMsg);
 	}
 }
@@ -424,6 +422,8 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 		writeToClient(user, m_name, buildReply(user, RPL_CREATIONTIME, channel->m_createInfo));
 	}
 	else {
+		if (msg.m_args[1] == "b")
+			throw CmdError(RPL_ENDOFBANLIST, user, channel->m_name);
 		if (!user->m_servOps && !(channel->checkOps(user->m_nick)))
 			throw CmdError(ERR_CHANOPRIVSNEEDED, user, channel->m_name);
 		std::string flags = msg.m_args[1], reply, reply_params;
@@ -500,7 +500,7 @@ void	IRCServer::modeCmd(User* user, Message& msg)
 					else if (std::atoi(msg.m_args[2].c_str()) > 0) {
 						channel->m_maxUsers = std::atoi(msg.m_args[2].c_str());
 						(reply.find('+') != std::string::npos) ? reply += "l" : reply += "+l";
-						reply_params = msg.m_args[2];
+						reply_params = " " + msg.m_args[2];
 					}
 				}
 				else if (sub > add && !l) {

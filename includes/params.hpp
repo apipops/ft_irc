@@ -11,6 +11,7 @@
 # include <sstream>
 # include <exception>
 # include <ctime>
+# include <climits>
 
 // TYPEDEF
 class IRCServer;
@@ -52,6 +53,7 @@ typedef std::map<std::string, t_cmd> mapCmd;
 #define	RPL_WHOREPLY			"352\r\n"
 #define RPL_NAMREPLY			"353\r\n"
 #define RPL_ENDOFNAMES			"366 :End of /NAMES\r\n"
+#define RPL_ENDOFBANLIST		"368 :End of Channel Ban List\r\n"
 #define	RPL_YOUREOPER			"381 :You are now an IRC operator\r\n"
 
 // ERRORS

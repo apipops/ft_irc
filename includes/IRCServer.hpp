@@ -20,7 +20,7 @@ public:
 	virtual ~IRCServer();
 
 	// EXECUTION
-	void checkCommands();
+	void checkEvents();
 	int executeCommand(User *user, std::string cmd);
 
 	// UTILS FOR TESTING
